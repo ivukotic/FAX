@@ -43,6 +43,7 @@ public class RucioN2NTest extends TestCase {
 		log.info("test translation...");
 		String gLFN1="/atlas/rucio/mc12_8TeV:NTUP_TOP.01213329._025034.root.1";
 		String pfn1=rucio.translate(gLFN1);
+		log.info(pfn1);
 		assertTrue(pfn1!=null);
 		log.info("done. ");
 		String pfn2=rucio.translate(gLFN1);
