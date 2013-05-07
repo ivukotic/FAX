@@ -18,7 +18,7 @@ public class TranslateRucioNames {
 		log.info("test both initialization and translation.");
 
 		Properties p=new Properties();
-		PropertyConfigurator.configure(RucioN2NTest.class.getClassLoader().getResource("log4j.properties"));
+		PropertyConfigurator.configure(TranslateRucioNames.class.getClassLoader().getResource("log4j.properties"));
 		p.setProperty("site","MWT2");
 		
 		RucioN2N rucio=new RucioN2N(p);
@@ -29,10 +29,12 @@ public class TranslateRucioNames {
 		String pfn1=rucio.translate(gLFN1);
 		log.info(pfn1);
 		assertTrue(pfn1!=null);
-		log.info("done. ");
+		log.info("---------------- done 1. ");
+		
 		String pfn2=rucio.translate(gLFN1);
 		assertTrue(pfn2!=null);
-		log.info("done. ");
+
+		log.info("---------------- done 2. ");
 		
 	}
 
