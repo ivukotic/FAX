@@ -128,8 +128,10 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 			return "";
 		}
 
-		if (!LFN.startsWith("/atlas/rucio/")){
-			return rucio.translate(LFN);
+		if (LFN.startsWith("/atlas/rucio/")){
+			String pfn=rucio.translate(LFN);
+			log.info("rucio translated name: "+pfn);
+			return pfn;
 		}
 		
 		String sLFN = "lfn://grid" + LFN;
