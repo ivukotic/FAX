@@ -173,7 +173,6 @@ public class RucioN2N {
 			while(hashtext.length() < 32 ){
 			    hashtext = "0"+hashtext;
 			}
-			log.error(hashtext);
 		} catch (UnsupportedEncodingException e) {
 			log.error("gLFN is not in US-ASCII format!");
 			e.printStackTrace();
