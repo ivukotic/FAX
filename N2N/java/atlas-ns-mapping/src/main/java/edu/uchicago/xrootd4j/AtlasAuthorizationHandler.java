@@ -39,7 +39,7 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
 	String proxyFile = null;
 	
-	private RucioN2N rucio=null;
+	private static RucioN2N rucio=null;
 	
 	public AtlasAuthorizationHandler(Properties properties) throws IllegalArgumentException, MissingResourceException {
 

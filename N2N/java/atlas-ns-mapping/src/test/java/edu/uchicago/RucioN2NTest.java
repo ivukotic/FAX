@@ -24,7 +24,7 @@ public class RucioN2NTest extends TestCase {
 		String pfn3=rucio.translate(gLFN3);
 		log.info(pfn3);
 		assertTrue(pfn3!=null);
-		log.info("---------------- done 3. ");
+		log.info("---------------- done. ");
 	}
 	
 }
