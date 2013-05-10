@@ -15,9 +15,12 @@ public class AtlasAuthorizationFactory implements AuthorizationFactory
     
     String proxyFile = null;
     private Properties properties=null;
-    
+
+	private static RucioN2N rucio=null;
+	
     public AtlasAuthorizationFactory(Properties properties){
     	this.properties=properties;
+		rucio=new RucioN2N(properties);
     }
 
     static boolean hasName(String name){
@@ -37,6 +40,6 @@ public class AtlasAuthorizationFactory implements AuthorizationFactory
     @Override
     public AtlasAuthorizationHandler createHandler()
     {
-        return new AtlasAuthorizationHandler(properties);
+        return new AtlasAuthorizationHandler(rucio, properties);
     }
 }

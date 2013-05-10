@@ -41,9 +41,11 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 	
 	private static RucioN2N rucio=null;
 	
-	public AtlasAuthorizationHandler(Properties properties) throws IllegalArgumentException, MissingResourceException {
+	public AtlasAuthorizationHandler(RucioN2N rc, Properties properties) throws IllegalArgumentException, MissingResourceException {
 
 		PropertyConfigurator.configure(AtlasAuthorizationHandler.class.getClassLoader().getResource("log4j.properties"));
+		
+		rucio=rc;
 		
 		LFC_HOST = properties.getProperty("lfc_host");
 		SRM_HOST = properties.getProperty("srm_host");
@@ -71,7 +73,6 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 			config = null;
 		}
 		
-		rucio=new RucioN2N(properties);
 		
 	}
 
