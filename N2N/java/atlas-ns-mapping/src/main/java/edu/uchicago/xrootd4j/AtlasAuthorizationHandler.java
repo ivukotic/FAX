@@ -26,7 +26,6 @@ import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
@@ -42,8 +41,6 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 	private static RucioN2N rucio=null;
 	
 	public AtlasAuthorizationHandler(RucioN2N rc, Properties properties) throws IllegalArgumentException, MissingResourceException {
-
-		PropertyConfigurator.configure(AtlasAuthorizationHandler.class.getClassLoader().getResource("log4j.properties"));
 		
 		rucio=rc;
 		
