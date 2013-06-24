@@ -21,6 +21,7 @@ fi
 treeToUse="physics"
 ln -s $LCG_LOCATION/lib64/libdpm.so libshift.so.2.1
 ln -s $LCG_LOCATION/lib64/liblcgdm.so
+export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
 ./readDirect $filenamerfio $treeToUse 100 30 >& info.txt
 
