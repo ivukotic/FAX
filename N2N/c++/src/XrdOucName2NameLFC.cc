@@ -453,7 +453,7 @@ List XrdOucLFC::rewrite_lfn(String lfn)
 }
 
 // XXX this might get expensive!
-List XrdOucLFC::f1ind_matching_lfc_dirs(String lfn)
+List XrdOucLFC::find_matching_lfc_dirs(String lfn)
 {
     List ret;
 
