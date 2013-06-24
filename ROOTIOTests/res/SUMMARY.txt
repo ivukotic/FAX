@@ -1,0 +1,20 @@
+event 8*110+4*4+2*8=880+32=912 bytes per event
+
+AF 5000 events / 200 flushes
+da TTC 471  reads 6427/3144
+no TTC 2940 reads 6483/3141
+2*263 + 2*206 + 4*399 + 2*201
+
+AF 10000 events / 100 flushes
+da TTC 104  reads 6376/2559 
+no TTC 1288 reads 6399/3009 = total baskets + 4
+2*226 + 2*112 + 4*101 + 2*102
+
+AF 30000 events/ 33 flushes
+da TTC 71 reads 6349/3022
+no TTC 1202 reads 6463/3057
+
+AF 36708 events / 27 flushes
+da TTC 84   reads 6342/3052
+no TTC 1544 reads 6542/3426 = total baskets + 4
+2*492 + 2*99 + 4*58 + 2*63

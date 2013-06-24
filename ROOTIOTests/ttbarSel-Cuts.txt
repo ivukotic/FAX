@@ -1,0 +1,6 @@
+// Parameters of selection criteria for events ttbar
+//
+Jet_MinE: 10.0
+El_MinE:  1.0
+Mu_MinE:  1.0
+Jet_bWeightMin: 5.85

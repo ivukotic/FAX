@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# cache size is in bytes and is positive
+# special values: 0 - turned off
+#                 -1 - default value (30MB) - this often does not work -set it manually
+if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" ]; then 
+export DPM_HOST=gridpp09.ecdf.ed.ac.uk
+export DPNS_HOST=gridpp09.ecdf.ed.ac.uk
+filename="https://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filenamehttp="http://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filenamerfio="rfio:////dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+fi
+if [ "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then 
+export DPM_HOST=svr025.gla.scotgrid.ac.uk
+export DPNS_HOST=svr025.gla.scotgrid.ac.uk
+filename="https://svr025.gla.scotgrid.ac.uk/dpm/gla.scotgrid.ac.uk/home/atlas/atlasppsdisk/user.ilijav.HCtest.4/group.test.hc.NTUP_SMWZ.root"
+filenamehttp="http://svr025.gla.scotgrid.ac.uk/dpm/gla.scotgrid.ac.uk/home/atlas/atlasppsdisk/user.ilijav.HCtest.4/group.test.hc.NTUP_SMWZ.root"
+filenamerfio="rfio:////dpm/gla.scotgrid.ac.uk/home/atlas/atlasppsdisk/user.ilijav.HCtest.4/group.test.hc.NTUP_SMWZ.root"
+fi
+
+treeToUse="physics"
+ln -s $LCG_LOCATION/lib64/libdpm.so libshift.so.2.1
+ln -s $LCG_LOCATION/lib64/liblcgdm.so
+#root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
+./readDirect $filenamerfio $treeToUse 100 30 >& info.txt
+
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM RFIO 100% default cache" "100"
+echo -n "time> DPM-test > test 100,30 Rfio finished "; date
+
+
+echo "resetting ROOT to 5.32 from cvmfs"
+#export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/i686-slc5-gcc43-opt/17.2.0/LCGCMT/LCGCMT_61c/InstallArea/i686-slc5-gcc43-opt/lib/
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion gcc432_x86_64_slc5
+#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
+#echo "=o= checking out ROOT"
+#curl -s ftp://root.cern.ch/root/root_v5.32.03.source.tar.gz > root_v5.32.03.source.tar.gz
+#echo "=o= gunzip ROOT"
+#gunzip -q root_v5.32.03.source.tar.gz
+#echo "=o= untar" 
+#tar xf root_v5.32.03.source.tar
+#rm -f root_v5.32.03.source.tar
+#echo "=o= patch" 
+#cp root-webfile-https-1.patch root/net/net/src
+#cd root/net/net/src
+#patch -p0 < root-webfile-https-1.patch
+#cd ../../../
+#echo "=o= configuring it"
+#./configure linux --disable-x11 --disable-mysql --disable-opengl --disable-asimage --disable-fftw3 --disable-tmva --disable-python --enable-builtin-freetype
+#make --quiet
+#. bin/thisroot.sh
+#cd ..
+#printenv
+which root.exe
+#echo "=o= test that it works"
+#root.exe -l -b -q Philippe/t1.C
+
+unset HTTP_PROXY
+unset http_proxy
+echo "=o= DPM WebDav no cache"
+#./releaseFileCache $1
+#echo "=o= check that cache is empty "
+#./checkCache $1 
+export COPY_TOOL=https
+root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 0,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\",100)" >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+#python uploaderDPM.py "DPM WebDav 100 Ev" "100"
+echo -n "time> DPM-test > test 100,0 WebDav finished "; date
+
+echo "=o= DPM WebDav plain http"
+export COPY_TOOL=http
+root.exe -l -q -b "readDPMWebDav.C++(\"$filenamehttp\",\"$treeToUse\", 100, 0,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\",100)" >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+#python uploaderDPM.py "DPM WebDav 100 Ev" "100"
+echo -n "time> DPM-test > test 100,0 WebDav finished "; date
+
+echo "=o= DPM WebDav curl copy"
+curl -v -E $X509_USER_PROXY --capath $X509_CERT_DIR -L $filename -o ./group.test.hc.NTUP_SMWZ.root 
+#python uploaderDPM.py "DPM WebDav 100% default cache" "100"
+echo -n "time> DPM-test > WebDav curl copy finished"; date
+rm -f ./group.test.hc.NTUP_SMWZ.root
+
+
+

@@ -1,0 +1,175 @@
+#ifndef ttbarSel_h
+#define ttbarSel_h
+
+
+#include <BaseTree_ttbar/BaseTree_ttbar.h>
+#include <TH1.h>
+#include <TProofOutputFile.h> 
+#include <vector>
+#include <TLorentzVector.h>
+#include <TStopwatch.h>
+#include <Riostream.h>
+#include <TTreePerfStats.h>
+
+static const Double_t GeV = 1000.;  // default unit is MeV
+
+// W mass
+static const Double_t WMass = 80.4*GeV;
+static const Double_t TopMass = 172.0*GeV;
+
+class ttbarSel : public BaseTree_ttbar {
+public :
+
+  TTree* fselTree;
+  TTree* selTree;
+  TFile* fFile;  
+  TProofOutputFile *fProofFile;
+
+  Bool_t fWrite_selTree;  // control the writing of original tree for selected evets
+  Bool_t fDebug;
+  Int_t fPrintEveryNevts, fileindex, skimcount;
+  Long64_t ftotsize, fzipsize;
+  TStopwatch* fTimer;
+
+  TTree *newTree;
+  TTreePerfStats *ps;
+
+  // Criteria parameters
+  Float_t cJet_MinE;
+  Float_t cEl_MinE;
+  Float_t cMu_MinE;
+  Float_t cW_MassWin;
+  Float_t cTop_MassWin;
+  Float_t cJet_bWeightMin;
+
+  // hists
+  TH1F  *h1_nEl;
+  TH1F  *h1_nMu;
+  TH1F  *h1_nJet;
+  TH1F  *h1_nWlv;
+  TH1F  *h1_nWjj;
+  TH1F  *h1_nTop_lvb;
+  TH1F  *h1_nTop_jjb;
+  TH1F  *h1_nttbar;
+  TH1F  *h1_m_Wjj;
+  TH1F  *h1_m_lvb;
+  TH1F  *h1_m_jjb;
+  TH1F  *h1_m_ttbar;
+
+  // jet flavor choice, you can pick up other alternatives if you like
+    std::vector<double>  *my_jet_flavor_weight;
+
+  // W->jj
+  std::vector<TLorentzVector>* m_Wjj_lvec; //! Wjj container
+  Int_t m_Wjj_n;
+  // std::vector<int>*     m_Wjj_mode;  // 2 for jj
+  std::vector<double>*  m_Wjj_mass;
+  std::vector<double>*  m_Wjj_pt;
+  std::vector<double>*  m_Wjj_eta;
+  std::vector<double>*  m_Wjj_delR;
+  std::vector<int>*     m_Wjj_j1_i;    //! index to jet_1
+  std::vector<int>*     m_Wjj_j2_i;    //! index to jet_2
+  std::vector<double>*  m_Wjj_j1_pt;  // Pt of jet_1
+  std::vector<double>*  m_Wjj_j1_eta; // eta of jet_1
+  std::vector<double>*  m_Wjj_j1_wt;  // flavor_weight of jet_1
+  std::vector<double>*  m_Wjj_j2_pt;  // Pt of jet_2
+  std::vector<double>*  m_Wjj_j2_eta; // eta of jet_2
+  std::vector<double>*  m_Wjj_j2_wt;  // flavor_weight of jet_2
+
+  // W->lnu
+  std::vector<TLorentzVector>* m_Wlv_lvec;  //! Wlv container
+  Int_t m_Wlv_n;
+  std::vector<int>*     m_Wlv_mode;   // 10 for enu; 20 for munu
+  std::vector<int>*     m_Wlv_lep_i;  //! index to leptoon (el or mu)
+  std::vector<double>*  m_Wlv_mass;
+  std::vector<double>*  m_Wlv_pt;
+  std::vector<double>*  m_Wlv_eta;
+  std::vector<double>*  m_Wlv_delR;
+  std::vector<double>*  m_Wlv_pt_nu;
+  std::vector<double>*  m_Wlv_eta_nu;
+  // std::vector<double>*  m_Wlv_phi_nu;
+
+  // top->Wb->lvb, or jjb
+  std::vector<TLorentzVector>* m_top_lvec; //! top->lvb or jjb container
+  Int_t m_top_n;
+  Int_t m_top_lvb_n;    // No(top->lvb)
+  Int_t m_top_jjb_n;    // No(top->jjb)
+  std::vector<int>*     m_top_mode;   // 1 for lvb; 2 for jjb
+  std::vector<int>*     m_top_W_i;    // index to W
+  std::vector<int>*     m_top_b_i;    //! index to b-jet
+  std::vector<double>*  m_top_mass;
+  std::vector<double>*  m_top_pt;
+  std::vector<double>*  m_top_eta;
+  // std::vector<double>*  m_top_phi;
+  std::vector<double>*  m_top_delR;
+  std::vector<double>*  m_top_b_pt;
+  std::vector<double>*  m_top_b_eta;
+  // std::vector<double>*  m_top_b_phi;
+  std::vector<double>*  m_top_b_WT;
+
+  // ttbar->Wb + Wb ->lvb + jjb
+  Int_t m_ttbar_n;
+  // std::vector<int>*     m_ttbar_mode;
+  std::vector<double>*  m_ttbar_mass;
+  std::vector<double>*  m_ttbar_pt;
+  std::vector<double>*  m_ttbar_eta;
+  // std::vector<double>*  m_ttbar_phi;
+  std::vector<double>*  m_ttbar_delR;
+  std::vector<int>*  m_ttbar_lvb_i;  // index to Wlv, associated with b1
+  std::vector<int>*  m_ttbar_jjb_i;  // index to Wlv, associated with b1
+
+  //   for SVO weight>5.85 (50% efficiency), for details check
+  //   https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingForEarlyData
+  ttbarSel(TTree * /*tree*/ =0) {
+    fileindex=0;
+    newTree = 0;
+    fselTree = 0;
+    selTree = 0;
+    fFile   = 0;
+    fProofFile=0;
+    fWrite_selTree = kTRUE;
+    fDebug  = kFALSE;
+    fPrintEveryNevts=100;
+    fTimer = 0;
+    skimcount=0;
+    ps=0;
+    ftotsize=0;
+    fzipsize=0;
+
+    my_jet_flavor_weight = 0;
+  }
+  virtual ~ttbarSel() { }
+  virtual void    Begin(TTree *tree);
+  virtual void    SlaveBegin(TTree *tree);
+  virtual void    InitVectAndHist();
+  virtual void    InitCriteria();
+  virtual void    InitEvent();
+  virtual void    Init(TTree *tree);
+  virtual Bool_t Notify();
+  virtual Int_t   Version() const { return 2; }
+  virtual Bool_t  Process(Long64_t entry);
+  virtual void    SlaveTerminate();
+  virtual void    Terminate();
+  virtual void    Set_PrintEveryNevts(Int_t nevts) {
+    fPrintEveryNevts = nevts;
+  }
+
+  virtual Bool_t  Recon_Wjj();  // reconstruct W->jj
+  virtual Bool_t  Recon_Wlv_allLep();  // reconstruct W->lnu
+  virtual Bool_t  Recon_Wlv_oneTypeLep(Int_t mode, Float_t &lep_MinE,
+                        Int_t &lep_n,
+                        std::vector<float>* &lep_E, std::vector<float>* &lep_pt,
+                        std::vector<float>* &lep_eta, std::vector<float>* &lep_phi);
+
+  virtual Bool_t  BuildNu_fromWMass(const TLorentzVector& lvec_lep,
+                          const double pxMiss, const double pyMiss,
+                          std::vector<TLorentzVector*>& p_lvec_nu);
+
+  virtual Bool_t  Recon_top_lvb();  // reconstruct t->Wb->lvb
+  virtual Bool_t  Recon_top_jjb();  // reconstruct t->Wb->jjb
+  virtual Bool_t  Recon_ttbar(); // ttbar -> Wb Wb ->lvb + jjb
+
+  ClassDef(ttbarSel,0);
+};
+
+#endif

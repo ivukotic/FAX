@@ -1,0 +1,120 @@
+TODO
+ - fill properly storage type, server and client versions
+ - add disk server name? get it using lcg-gt
+ - move from used swap to swap pages IO
+
+2012-10-30 Ilija Vukotic
+	* exports proxy for debugging purposes.
+	* small renaming
+ 
+2012-10-29 Ilija Vukotic
+	* updated passes.
+
+2012-10-23 Ilija Vukotic
+	* compiled read did not work since Jun!. Now hopefully fixed.
+
+2012-10-22 Ilija Vukotic
+	* now WAN tests are skipping time command results if command exits with non-zero status.
+
+2012-05-08 Wahid Bhimji
+	* added a new test for ECDF to get around the fact it won't upload. This should be a temporary hack but comes right at the top of run.sh. 
+
+2012-04-14 Wahid Bhimji
+	* switched on aysnch prefech in 5.32 test
+
+2012-04-11 Wahid Bhimji
+	* added tests for 300MB TTC to all 3 TTC tests (on SMWZ ntups)
+
+2012-04-10 Ilija Vukotic
+	* move to WAN special .tpl
+
+2012-04-05 Ilija Vukotic
+	* adding AsyncPrefetching to WANtests.
+
+2012-04-04 Ilija Vukotic
+	* add option to read only part of branches.
+	* when calling read.C one can add "BranchesToBeRead.txt" as the final parameter.   
+
+2012-04-02 Wahid Bhimji 
+	* changed to new dataset user.ilijav.HCtest.4 (but still using old files in it so nothing should change) 
+	* various commits between this and last to make Root532 change actually work alongside uploader.
+
+2012-03-27 Wahid Bhimji 
+	* Yesterday added test with Root 532 using cvmfs version 
+	* today corrected missing space to make it work
+	* a week or so ago changed athena to 17.2.0 
+
+2012-03-20 Ilija Vukotic
+	* added WANtests.sh
+
+2012-03-13 Wahid Bhimji
+	* Changed athena release to 17.1.4
+ 
+2012-03-06 Ilija Vukotic
+	* add usedswap [kb] info
+
+2012-03-05 Ilija Vukotic
+	* better date printouts 
+	
+2012-03-02 Ilija Vukotic
+	* added date printouts to see where difference between exec and wall clock time comes from 
+
+2012-01-09 Ilija Vukotic <ilija@vukotic.me>
+	* added updatePanda.py which uses pandaIDs from the DB to look up additional info from panda and insert values into the DB.
+	* will be running every hour from my cron job.
+
+2012-01-02 Ilija Vukotic <ilija@vukotic.me>
+	* checkin small old changes.
+
+2011-12-24 Ilija Vukotic <ilija@vukotic.me>
+	* removed writing to old db.
+	
+2011-12-23 Ilija Vukotic <ilija@vukotic.me>
+	* change SITE to the one set by pilot. 
+	* store COPY_TOOL as FILESYSTEM
+	
+2011-12-23 Ilija Vukotic <ilija@vukotic.me>
+	* added uploaderNEW.py. when validated it will replace uploader.py
+	
+2011-12-23 Ilija Vukotic <ilija@vukotic.me>
+	* added "delete f;" to read.C so xrootd would close connection
+
+2011-11-24 Ilija Vukotic <ilija@vukotic.me>
+	* added program to export test results to root file
+	
+2011-10-20 Ilija Vukotic <ilija@vukotic.me>
+	* added root version columns
+
+2011-10-10 Ilija Vukotic <ilija@vukotic.me>
+	* now checkCache compiled for each site.
+	* added 100% and 10% reads with default TTC and ROOT_5.30.02
+	
+2011-10-10 Ilija Vukotic <ilija@vukotic.me>
+	* now releaseFileCache compiled for each site. 
+	
+2011-10-07 Wahid Bhimji <wbhimji@staffmail.ed.ac.uk>
+	* Added ROOTIOTests1667_panda.tpl for ganga script
+	* Changed it to names = ["group.test.hc.NTUP_SMWZ.root"] 
+	* Changed Release to 17.0.4 (64 bit)
+	* Copied runEAMMA.sh to run.sh 
+	* Added run.sh into ROOTIOTests1667_panda.tpl
+	* Added dataset datasetsToUse.txt (before)
+
+2011-11-06 Ilija Vukotic <ilija@vukotic.me>
+	* finally fixed SITE
+
+2011-10-29 Ilija Vukotic <ilija@vukotic.me>
+	* adding other tests.
+	* made small script deleting everything from the db
+	
+2011-10-27 Ilija Vukotic <ilija@vukotic.me>
+	* added ETH0 IN and OUT info
+
+2011-10-27 Ilija Vukotic <ilija@vukotic.me>
+	* added ROOTREADS and ROOTBYTESREAD and TTreeCache
+	
+2011-10-27 Ilija Vukotic <ilija@vukotic.me>
+	* added VMEM and RSS monitoring
+	
+2011-10-24 Ilija Vukotic <ilija@vukotic.me>
+	* added first data analysis script

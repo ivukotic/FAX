@@ -1,0 +1,144 @@
+#!/usr/bin/env python
+import os
+import sys
+import cx_Oracle
+
+line='ATLAS_WANHCTEST/wanhctest1@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=intr1-v.cern.ch)(PORT=10121))(ADDRESS=(PROTOCOL=TCP)(HOST=intr2-v.cern.ch)(PORT=10121))(LOAD_BALANCE=yes)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=intr.cern.ch)(FAILOVER_MODE=(TYPE=SELECT)(METHOD=BASIC)(RETRIES=200)(DELAY=15))))'
+sites=[];
+
+SITE      = 'd'
+if os.environ.has_key('PANDA_SITE_NAME'):
+    SITE=os.environ['PANDA_SITE_NAME']
+
+
+l=len(sys.argv)
+if l==1:
+    
+    siteenv=''
+    print 'RUNNING AT: ',SITE
+    print 'Geting site list ...'
+
+    try:
+        connection = cx_Oracle.Connection(line)
+        cursor = cx_Oracle.Cursor(connection)
+        print 'Connection established.'
+    
+        cursor.execute("SELECT siteid, name, server, url, filepath, protocol, debug, ping FROM site WHERE role='both' or role='server'")
+        res = cursor.fetchall()
+        for r in res:
+            sites.append([r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7]])
+            print r[1],r[2],r[3],r[4],r[5],r[6],r[7]
+        print 'got', len(sites), 'sites.'
+        print
+        
+        cursor.execute("SELECT setenv FROM site WHERE name='"+SITE+"'")
+        res = cursor.fetchall()
+        cursor.close()
+        for r in res:
+            siteenv=r[0]
+        print 'got environment modification.'
+        
+    except cx_Oracle.DatabaseError, exc:
+        error, = exc.args
+        print "WANtests.py - problem in establishing connection to db"
+        print "WANtests.py Oracle-Error-Code:", error.code
+        print "WANtests.py Oracle-Error-Message:", error.message
+
+    print 'creating scripts to execute'
+    
+    for s in sites:
+        
+        with open('exec'+s[1]+'.sh', 'w') as f:
+    
+            f.write( siteenv + """\n\n""")
+        
+            fn=s[5]+s[2]+s[3]+s[4]
+            logfile = s[1] + '.log'
+
+            #  ping
+            noPortSitename=(s[2].split(':'))[0] 
+            if (s[7]==1):
+                f.write("""./timeout3.sh -t 30 ping -c 5 -n -q """+ noPortSitename +"""  | awk \'{if ( index($1,"PING")>0 ) r1=$2;  if ( index($1,"rtt")>0 ) {split($4,a,"/"); print "PING=", a[2], "#" , $NF } }\' >> """+ logfile +""" 2>&1 \n""");
+            else: 
+                f.write(""" echo \'PING= 0.0 # ms\' >> """+ logfile +""" 2>&1 \n""");
+
+            # turning debug on/off
+            f.write(s[6] + """\n""")
+
+            # COPY
+            if (s[5]=='root://'):
+                f.write('./timeout3.sh -t 900 `which time`  -f "COPYTIME=%e" --append -o '+ logfile +' xrdcp -np -f ' + fn + """ /dev/null  2>&1 \n""")
+            if (s[5]=='dcap://'):
+                f.write('./timeout3.sh -t 900 `which time`  -f "COPYTIME=%e" --append -o '+ logfile +' dccp ' + fn + """ /dev/null  2>&1 \n""")
+
+            # remote read
+            f.write('root -l -q -b "read.C++(\\"' + fn + '\\",\\"physics\\", 100, 30 )" >> '+ logfile +' 2>&1 \n')
+
+            # results upload
+            f.write('python WANtests.py '+ logfile +' \n\n')
+        f.close()
+    
+else:
+    print '--------------------------------------------------------------\nuploading information from ', sys.argv[1]
+    
+    PING      = 0
+    SITE1     = (sys.argv[1].split('.'))[0]
+    PANDAID   = 1  
+    FILENAME  = 'd'
+    COPYTIME  = 0
+    WALLTIME  = 0
+    CPUTIME  = 0
+    ZIPSIZE   = 0
+    ROOTREADS = 0
+    VERSION   = 'd'
+
+
+
+
+    JOBTYPE   = '100% default cache'
+    PARAM1    = '100'
+    PARAM2    = '30'
+    PARAM3    = '0'    
+    
+    #print  JOBTYPE, PARAM1, PARAM2, PARAM3
+    
+
+    if os.environ.has_key('PandaID'):
+        PANDAID = int(os.environ['PandaID'])
+
+
+    if os.environ.has_key('MACHTYPE'): 
+        VERSION = os.environ['MACHTYPE']
+    else:
+        if os.environ.has_key('HOSTTYPE'): 
+            VERSION = os.environ['HOSTTYPE']
+
+    print SITE1,' -> ',SITE     
+
+    with open(sys.argv[1], 'r') as f:
+        lines=f.readlines()
+        for l in lines:
+            if '=' not in l: continue 
+            # print 'executing: ', l.strip()
+            try:
+                exec(l)
+            except:
+                pass
+
+    print FILENAME, COPYTIME, WALLTIME, CPUTIME, ZIPSIZE, ROOTREADS
+     
+    try:
+        connection = cx_Oracle.Connection(line)
+        cursor = cx_Oracle.Cursor(connection)
+        print 'Sending...'
+        all=[JOBTYPE, PARAM1, PARAM2, PARAM3, SITE, SITE1, PANDAID, FILENAME, PING, COPYTIME, WALLTIME, CPUTIME, ZIPSIZE, ROOTREADS]
+        print all
+        cursor.callproc('INSERTWANRESULT', all)
+        connection.commit()
+        print '---------------------------------------------------------------'
+        print
+    except cx_Oracle.DatabaseError, exc:
+        error, = exc.args
+        print "WANtests.py Oracle-Error-Code:", error.code
+        print "WANtests.py Oracle-Error-Message:", error.message
+     

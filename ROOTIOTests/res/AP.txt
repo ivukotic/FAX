@@ -1,0 +1,36 @@
+******TreeCache statistics for file: /build/ilija/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root ******
+Number of branches in the cache ...: 5860
+Cache Efficiency ..................: 1.000000
+Cache Efficiency Rel...............: 1.000000
+Learn entries......................: 100
+Reading............................: 795263997 bytes in 127 transactions
+Readahead..........................: 256000 bytes with overhead = 26509 bytes
+Average transaction................: 6261.921236 Kbytes
+Number of blocks in current cache..: 8916, total size: 38280301
+Info in <TTreePerfStats::SaveAs>: ROOT file perf.root has been created
+TOTALSIZE=2110016478
+ZIPSIZE=793620035
+FILENAME='/build/ilija/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root'
+EVENTS=11918
+WALLTIME=58.0795
+CPUTIME=50.45
+CACHESIZE=31457280
+Read from tree: 1.91625e+09
+ROOTBYTESREAD=795263997
+ROOTREADS=127
+ROOTVERSION=43514
+ROOTBRANCH='tags/v5-32-02'
+VMEM=404172
+RSS=213004
+CPUSTATUS=0.06
+
+
+mount point from fn: /build
+/dev/sda5       /build  sda5
+HDDREADS=6135
+reads merged:  2999
+reads sectors: 1554320   in Mb: 758
+HDDTIME=15692
+ETHERNETIN=174
+ETHERNETOUT=139
+(int)0

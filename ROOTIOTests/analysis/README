@@ -1,0 +1,2 @@
+to be able to compile scripts connecting to ORACLE first one has to source
+source /afs/cern.ch/project/oracle/script/setoraenv.sh
