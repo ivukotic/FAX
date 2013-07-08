@@ -8,7 +8,7 @@ export DPM_HOST=gridpp09.ecdf.ed.ac.uk
 export DPNS_HOST=gridpp09.ecdf.ed.ac.uk
 filename="https://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
 filenamehttp="http://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
-filenamexrootd="root://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filenamexrootd="root://gridpp09.ecdf.ed.ac.uk//dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
 filenamerfio="rfio:////dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
 fi
 if [ "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then 
