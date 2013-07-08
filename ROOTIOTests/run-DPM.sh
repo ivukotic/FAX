@@ -3,6 +3,12 @@
 # cache size is in bytes and is positive
 # special values: 0 - turned off
 #                 -1 - default value (30MB) - this often does not work -set it manually
+if [ "${PANDA_SITE_NAME}" == "ANALY_LAPP" ]; then 
+SITEDPMHOST = lapp-se99.in2p3.fr
+fi
+filename="http://$SITEDPMHOST/dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filenamexrootd="root://$SITEDPMHOST//dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
+
 if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" ]; then 
 export DPM_HOST=gridpp09.ecdf.ed.ac.uk
 export DPNS_HOST=gridpp09.ecdf.ed.ac.uk
