@@ -42,7 +42,7 @@ export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
-python uploaderDPM.py "DPM RFIO 100% default cache" "100"
+python uploaderDPM.py "DPM Root Read 100% default cache" "100"
 echo -n "time> DPM-test > test 100,30 Rfio finished "; date
 
 #export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/i686-slc5-gcc43-opt/17.2.0/LCGCMT/LCGCMT_61c/InstallArea/i686-slc5-gcc43-opt/lib/
@@ -81,7 +81,7 @@ root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 0,\"\",\
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
-python uploaderDPM.py "DPM WebDav 100 Ev" "100"
+python uploaderDPM.py "DPM Root Read 100% default cache" "100"
 echo -n "time> DPM-test > test 100,0 WebDav finished "; date
 
 echo "=o= DPM WebDav plain http"
