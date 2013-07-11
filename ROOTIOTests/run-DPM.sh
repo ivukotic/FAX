@@ -6,24 +6,22 @@
 if [ "${PANDA_SITE_NAME}" == "ANALY_LAPP" ]; then 
 export SITEDPMHOST=lapp-se99.in2p3.fr
 fi
-filename="http://$SITEDPMHOST/dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
-filenamexrootd="root://$SITEDPMHOST//dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
-
 if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" ]; then 
-export DPM_HOST=gridpp09.ecdf.ed.ac.uk
-export DPNS_HOST=gridpp09.ecdf.ed.ac.uk
-filename="https://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
-filenamehttp="http://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
-filenamexrootd="root://gridpp09.ecdf.ed.ac.uk//dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
-filenamerfio="rfio:////dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+export SITEDPMHOST=gridpp09.ecdf.ed.ac.uk
 fi
 if [ "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then 
-export DPM_HOST=svr025.gla.scotgrid.ac.uk
-export DPNS_HOST=svr025.gla.scotgrid.ac.uk
-filename="https://svr025.gla.scotgrid.ac.uk/dpm/gla.scotgrid.ac.uk/home/atlas/atlasppsdisk/user.ilijav.HCtest.4/group.test.hc.NTUP_SMWZ.root"
-filenamehttp="http://svr025.gla.scotgrid.ac.uk/dpm/gla.scotgrid.ac.uk/home/atlas/atlasppsdisk/user.ilijav.HCtest.4/group.test.hc.NTUP_SMWZ.root"
-filenamerfio="rfio:////dpm/gla.scotgrid.ac.uk/home/atlas/atlasppsdisk/user.ilijav.HCtest.4/group.test.hc.NTUP_SMWZ.root"
+export SITEDPMHOST=svr025.gla.scotgrid.ac.uk
 fi
+
+filename="https://$SITEDPMHOST/dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filenamexrootd="root://$SITEDPMHOST//dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
+
+#export DPM_HOST=gridpp09.ecdf.ed.ac.uk
+#export DPNS_HOST=gridpp09.ecdf.ed.ac.uk
+#filename="https://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+#filenamehttp="http://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+#filenamexrootd="root://gridpp09.ecdf.ed.ac.uk//dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
+#filenamerfio="rfio:////dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
 
 treeToUse="physics"
 
