@@ -27,6 +27,7 @@ filenamexrootd="root://$SITEDPMHOST//dpm/$SITEDOMAIN/home/atlas/group.test.hc.NT
 #filenamerfio="rfio:////dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root"
 
 treeToUse="physics"
+export COPY_TOOL = xrdcp;
 
 echo "resetting ROOT to default from cvmfs"
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
