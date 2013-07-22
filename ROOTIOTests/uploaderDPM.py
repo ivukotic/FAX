@@ -141,9 +141,10 @@ pro.setAttribute("name",JOBTYPE)
 pro.setAttribute("parameter1",PARAM1)
 doc.appendChild(pro)
 
+SITEFILESYSTEM = SITE + '_' + FILESYSTEM
 sit = doc.createElement("site")
-sit.setAttribute("name", SITE)
-sit.setAttribute("storage",FILESYSTEM)
+sit.setAttribute("name", SITEFILESYSTEM)
+#sit.setAttribute("storage",FILESYSTEM)
 pro.appendChild(sit)
 
 sto = doc.createElement("storage")
