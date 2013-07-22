@@ -5,16 +5,19 @@
 #                 -1 - default value (30MB) - this often does not work -set it manually
 if [ "${PANDA_SITE_NAME}" == "ANALY_LAPP" ]; then 
 export SITEDPMHOST=lapp-se99.in2p3.fr
+export SITEDOMAIN=in2p3.fr
 fi
 if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" ]; then 
 export SITEDPMHOST=gridpp09.ecdf.ed.ac.uk
+export SITEDOMAIN=ecdf.ed.ac.uk
 fi
 if [ "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then 
 export SITEDPMHOST=svr025.gla.scotgrid.ac.uk
+export SITEDOMAIN=gla.scotgrid.ac.uk
 fi
 
-filename="https://$SITEDPMHOST/dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
-filenamexrootd="root://$SITEDPMHOST//dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filename="https://$SITEDPMHOST/dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filenamexrootd="root://$SITEDPMHOST//dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
 
 #export DPM_HOST=gridpp09.ecdf.ed.ac.uk
 #export DPNS_HOST=gridpp09.ecdf.ed.ac.uk
