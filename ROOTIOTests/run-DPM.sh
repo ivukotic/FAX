@@ -12,7 +12,7 @@ export SITEDPMHOST=gridpp09.ecdf.ed.ac.uk
 export SITEDOMAIN=ecdf.ed.ac.uk
 fi
 if [ "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then 
-export SITEDPMHOST=svr025.gla.scotgrid.ac.uk
+export SITEDPMHOST=dev013-v6.gla.scotgrid.ac.uk
 export SITEDOMAIN=gla.scotgrid.ac.uk
 fi
 
