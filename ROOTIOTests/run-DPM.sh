@@ -15,6 +15,10 @@ if [ "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then
 export SITEDPMHOST=dev013-v6.gla.scotgrid.ac.uk
 export SITEDOMAIN=gla.scotgrid.ac.uk
 fi
+if [ "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then 
+export SITEDPMHOST=lxfsra04a04.cern.ch
+export SITEDOMAIN=cern.ch
+fi
 
 filename="https://$SITEDPMHOST/dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
 filenamexrootd="root://$SITEDPMHOST//dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
