@@ -32,7 +32,7 @@ echo -n "time> finished general NTUP TTC tests "; date
 
 
 if [ -d "/cvmfs" ]; then
-    if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" -o "${PANDA_SITE_NAME}" == "ANALY_LAPP" ]; then
+    if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" -o "${PANDA_SITE_NAME}" == "ANALY_LAPP" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then
         echo -n "Starting DPM tests";
         testName='run-DPM.sh'
         ./$testName $v
