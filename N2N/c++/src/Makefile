@@ -13,7 +13,7 @@ HEADERS=XrdMsgStream.hh String.hh rucioN2N.hh
 DEBUG=-g
 
 XrdOucName2NameLFC.so: $(OBJECTS) Makefile
-	g++ ${DEBUG} -shared -fPIC -Wl,-R${LFC_LIB} -L ${LFC_LIB} -o $@ $(OBJECTS) -llfc -ldl -ljson -lcurl
+	g++ ${DEBUG} -shared -fPIC -L ${LFC_LIB} -o $@ $(OBJECTS) -llfc -ldl -ljson -lcurl -lXrdClient
 
 XrdOucName2NameLFC.o: XrdOucName2NameLFC.cc ${HEADERS} Makefile
 	g++ ${DEBUG} ${FLAGS} -fPIC -I ${XRD_INCLUDE} -I ${LFC_INCLUDE} -c -o $@ $<
