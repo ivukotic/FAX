@@ -21,10 +21,12 @@ def send (message):
     config.read("neet.cfg")
     HOST = config.get("Connection", "HOST")
     PORT = int(config.get("Connection", "PORT"))
+    USER = config.get("Connection", "USER")
+    PASS = config.get("Connection", "PASS")
     QUEUE = config.get("Connection", "QUEUE")
     
     """ Send message by stomp protocols.  @param message: the message being sent"""  
-    conn = stomp.Connection([(HOST,PORT)])
+    conn = stomp.Connection([(HOST,PORT)],USER,PASS)
     conn.start()
     conn.connect()
     
