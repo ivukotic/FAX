@@ -8,11 +8,12 @@
 // which uses the LFC to resolve LFNs to PFNs.  
 //
 // Initial version written by cgw@hep.uchicago.edu Oct 2010
+// Support RUCIO global logical file name by Wei Yang, yangw@slac.stanford.edu June, 2013
 
 const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2011/12/13 16:06:40 sarah Exp $";
-const char* version = "$Revision: 1.3 $";
+const char* version = "$Revision: 1.31 $";
 
-#define LFC_CACHE_TTL 3600
+#define LFC_CACHE_TTL 2*3600
 #define LFC_CACHE_MAXSIZE 500000
 
 using namespace std;
@@ -36,6 +37,7 @@ using namespace std;
 #include <sys/time.h>
 
 // Xrootd headers
+#include "XrdOuc/XrdOucEnv.hh"
 #include "XrdOuc/XrdOucName2Name.hh"
 #include "XrdSys/XrdSysPlatform.hh"
 
@@ -58,6 +60,7 @@ extern "C"
 #define XrdSysError ostream
 #endif
 
+#include "rucioN2N.hh"
 
 // Hash_map implementation
 #ifdef CXX0X
@@ -107,6 +110,7 @@ private:
     List nomatch_list;
     List dcache_pool_list;
     bool force_direct; // if set, only read files from dcache pools, no dcap
+    List rucioprefix_list;
 
     // LFC utility functions
     String query_lfc(String lfn);
@@ -197,6 +201,7 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
     // Clear expired cache entries
     now = time(NULL);
 
+    cache_hit = false;
     lock_cache();
 
     assert ( (s1 = cache_by_lfn.size()) == (s2 = cache_by_time.size()));
@@ -210,7 +215,6 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
     assert ( (s1 = cache_by_lfn.size()) == (s2 = cache_by_time.size()));
 
     // Check cache for lfn
-    cache_hit = false;
     PfnRecord rec;
     if ( (it = cache_by_lfn.find(lfn)) != cache_by_lfn.end()) {
 	cache_hit = true;
@@ -236,22 +240,20 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
             pfn = rec.pfn;
 	}
     } else {
-/*
-	if (pfn=lfn_is_pfn(lfn)) {
-	    ; // no LFC lookup needed, input filename contains storage root
-        } else if (! strcmp(lfn, "/atlas")) {  // We use "xrd glrd.usatlas.org locateall /atlas" to identify which sites are
-*/
-        if (! strcmp(lfn, "/atlas")) {  // We use "xrd glrd.usatlas.org locateall /atlas" to identify which sites are
-            pfn = root;                        // currently registered. So we repond to this way
-	} else {
+	if (! strncmp(lfn, "/atlas/rucio", 12)) { // rucio gLFN
+           char *sfn = rucio_n2n_glfn(lfn);
+           pfn = sfn;
+           free(sfn); 
+	} else if (! strncmp(lfn, "/atlas/dq2", 10)) { // dq2 gLFN
 	    List possibles = rewrite_lfn(lfn);
 	    for_each (it, possibles) {
 		if (pfn=query_lfc(*it))
 		    break;
 	    }
 	    //	}
-	    if (0){
-	    //if (!pfn) {
+	    //#if 0
+/*
+	    if (!pfn) {
 	      for_each (it, possibles) {
 		List possibles2 = find_matching_lfc_dirs(*it);
 		for_each (it2, possibles2) {
@@ -262,7 +264,10 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
 		//    break;
 	      }
 	    }
-	}
+*/
+	} else // don't do N2N 
+            pfn = lfn;
+       
 	//#endif    
     }
     if (!pfn) {
@@ -298,7 +303,7 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
     *eDest << "XRD-LFC: timing info: pool check took " << diff << " seconds" << endl;
 
     // Cache LFC reply & other (pnfs) info
-    insert_cache(lfn, pfn, now, id, can_access);
+    if (! strncmp(lfn, "/atlas/rucio", 12) || ! strncmp(lfn, "/atlas/dq2", 10)) insert_cache(lfn, pfn, now, id, can_access);
 
     if (force_direct && !can_access) {
 	*eDest << "XRD-LFC: no direct access to " << pfn << " as "  << id << endl;
@@ -307,6 +312,7 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
 
     // Copy result to caller's buffer and report success
     strncpy(buff, pfn, blen);
+
     *eDest << "XRD-LFC: return " << buff << " cache size=" << cache_by_time.size() << endl;
     return 0;
 }
@@ -442,7 +448,7 @@ List XrdOucLFC::rewrite_lfn(String lfn)
 	if (components[1] != "dq2") {             // 2) /atlas/!dq2 -> /grid/atlas/dq2
 	    ret.push_back("/grid/atlas/dq2" + 
 			  join(List(components.begin()+1, components.end()), "/"));
-	} //else if (components[1] != "pathena") { // 3) /atlas/!pathena -> /grid/atlas/pathena
+	}//else if (components[1] != "pathena") { // 3) /atlas/!pathena -> /grid/atlas/pathena
 	                                          // 4) etc..
         if (components[2] == "user") {
             ret.push_back("/grid/atlas/users/pathena" +
@@ -550,6 +556,9 @@ XrdOucName2Name *XrdOucgetName2Name(XrdOucgetName2NameArgs)
 	delete inst;
 	return NULL;
     }
+
+    if (inst->rucioprefix_list.size() != 0) rucio_n2n_init(inst->rucioprefix_list);
+
     return (XrdOucName2Name *)inst;
 }
 
@@ -570,6 +579,12 @@ static List glob(String pat)
 int XrdOucLFC::parse_parameters(String param_str)
 {
     List tokens = param_str.split(" \t");
+    const char *siteprefixstr = NULL;
+    String sitename = "";
+    char *xrdsite = NULL;
+
+    if (XrdOucEnv::Import("XRDSITE", xrdsite)) sitename = xrdsite;
+
     for_each (it, tokens) {
 	if (*it == "force_direct") {
 	    force_direct = true;
@@ -612,12 +627,34 @@ int XrdOucLFC::parse_parameters(String param_str)
 		    dcache_pool_list.insert(dcache_pool_list.end(), g.begin(), g.end());
 		}
 	    }
+        } else if (key == "rucioprefix") {
+            rucioprefix_list = val.split(",");
+            siteprefixstr = strdup(val.c_str());
+        } else if (key == "sitename") {
+            sitename = val;
 	} else {
 	    // ERROR
 	    *eDest << "XRD-LFC: Invalid parameter " << key << endl;
 	    return 3;
 	}
     }
+    if (siteprefixstr != NULL) { // paramenter rucioprefix is provided
+        *eDest << "XRD-LFC: Customer RUCIO prefix list " << siteprefixstr << endl;
+    } else if (sitename != "") { // use sitename to get site prefix from AGIS
+        *eDest << "XRD-LFC: Getting site " << sitename << " prefix list from AGIS ... " << endl;
+        siteprefixstr = rucio_get_siteprefix(AGISurl, sitename.c_str());
+        if (siteprefixstr == NULL)
+            *eDest << "XRD-LFC: RUCIO prefix = none, RUCIO N2N is disabled" << endl;
+        else {
+            *eDest << "XRD-LFC: prefix list: " << siteprefixstr << endl;
+            String tmp = siteprefixstr;
+            rucioprefix_list = tmp.split(",");
+        }
+    }
+    else 
+        *eDest << "XRD-LFC: RUCIO prefix = none, RUCIO N2N is disabled" << endl;
+   
+    if (siteprefixstr != NULL) free((void*)siteprefixstr);
     // all done
     return 0;
 }

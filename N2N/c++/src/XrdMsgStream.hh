@@ -51,9 +51,7 @@ public:
 
 	    id = pthread_self();
 	    
-            string ts=get_s()->str();
-            c_str = ts.c_str();
-
+	    c_str = strdup(get_s()->str().c_str());
 
 	    now = time(NULL);
 	    localtime_r(&now, &loc);
@@ -67,6 +65,7 @@ public:
 	    else
 		cout << tmp << std::endl;
 	    free(tmp);
+            free((void*)c_str);
 	    get_s()->str(""); // Reset string to empty
 	}
 	unlock();

@@ -1,0 +1,15 @@
+Some basic instructions for updating the N2N RPM:
+
+To create a snapshot of N2N from git, run the following command:
+git archive --format tar --prefix=xrootd-server-atlas-n2n-plugin/ HEAD N2N/ | gzip -9 > xrootd-server-atlas-n2n-plugin-src.$(date +%Y%m%d)git$(git-rev-parse --short HEAD).tar.gz
+This will create a source tarball with the proper naming convention for RPMs.
+
+Copy this file into the SOURCES subdirectory of your rpmbuild area.
+
+You will then need to modify the following sections of the SRPM:
+* Release -> Set this to 1%{?dist}, increment if you need to release updates
+             that don't require source changes, otherwise increase version no.
+* Version -> Set this to the string containing the date (YYYYMMDD) and git short
+             commit number, e.g., 20130806git2fb6bb2
+
+Finally, rpmbuild -ba xrootd-server-atlas-n2n-plugin-src.spec
