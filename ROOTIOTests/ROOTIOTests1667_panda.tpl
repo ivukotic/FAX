@@ -67,7 +67,6 @@ Job (
  backend = Panda (
     nobuild = True ,
     site = ####SITES#### ,
-	accessmode = 'DIRECT' ,
     requirements = PandaRequirements (
 	enableJEM = False ,
        	configJEM = '+debug'
