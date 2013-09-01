@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python sleeper.py
+#python sleeper.py
 
 echo -n "time> begin "; date 
 
