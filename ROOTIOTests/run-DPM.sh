@@ -36,21 +36,22 @@ export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 
 
-ln -s $LCG_LOCATION/lib64/libdpm.so libshift.so.2.1
-ln -s $LCG_LOCATION/lib64/liblcgdm.so
+#ln -s $LCG_LOCATION/lib64/libdpm.so libshift.so.2.1
+#ln -s $LCG_LOCATION/lib64/liblcgdm.so
 export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
-./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
+#./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
+root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")"
 
 echo " --------- info.txt ----------"
-cat info.txt
+#cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
-echo -n "time> DPM-test > test 100,30 Rfio finished "; date
+echo -n "time> DPM-test > test 100,30 Xrootd finished "; date
 
 #export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/i686-slc5-gcc43-opt/17.2.0/LCGCMT/LCGCMT_61c/InstallArea/i686-slc5-gcc43-opt/lib/
-source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion gcc432_x86_64_slc5
+#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion gcc432_x86_64_slc5
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
 
 #echo "=o= checking out ROOT"
@@ -72,17 +73,12 @@ source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion
 #cd ..
 #printenv
 which root.exe
-#echo "=o= test that it works"
-#root.exe -l -b -q Philippe/t1.C
 
 unset HTTP_PROXY
 unset http_proxy
 echo "=o= DPM WebDav no cache"
-#./releaseFileCache $1
-#echo "=o= check that cache is empty "
-#./checkCache $1 
 export COPY_TOOL=https
-root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 0,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
@@ -98,10 +94,10 @@ echo -n "time> DPM-test > test 100,0 WebDav finished "; date
 #python uploaderDPM.py "DPM WebDav 100 Ev" "100"
 #echo -n "time> DPM-test > test 100,0 WebDav finished "; date
 
-echo "=o= DPM WebDav curl copy"
-curl -v -E $X509_USER_PROXY --capath $X509_CERT_DIR -L $filename -o ./group.test.hc.NTUP_SMWZ.root 
+#echo "=o= DPM WebDav curl copy"
+#curl -v -E $X509_USER_PROXY --capath $X509_CERT_DIR -L $filename -o ./group.test.hc.NTUP_SMWZ.root 
 #python uploaderDPM.py "DPM Copy" "100"
-echo -n "time> DPM-test > WebDav curl copy finished"; date
+#echo -n "time> DPM-test > WebDav curl copy finished"; date
 rm -f ./group.test.hc.NTUP_SMWZ.root
 
 
