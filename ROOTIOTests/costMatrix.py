@@ -155,7 +155,7 @@ def main():
         for s in res:
             # print  s["rc_site"], s["endpoint"], s["redirector"]["endpoint"]
             sname=s["rc_site"]
-            if sname=='GRIF': sname==s["name"]
+            if sname=='GRIF': sname=s["name"]
             si=site(sname, s["endpoint"], s["redirector"]["endpoint"])
             si.prnt()
             sites.append(si)
