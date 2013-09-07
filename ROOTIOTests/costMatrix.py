@@ -128,6 +128,7 @@ def main():
             print 'could not get site name from queue name. exiting.'
             sys.exit(0)
         SITE=res[0]["rc_site"]
+        if SITE=='GRIF': SITE=res[0]["atlas_site"]
         print "at SITE:", SITE    
     except:
         print "Unexpected error:", sys.exc_info()[0]
@@ -153,7 +154,9 @@ def main():
         res=simplejson.load(f)
         for s in res:
             # print  s["rc_site"], s["endpoint"], s["redirector"]["endpoint"]
-            si=site(s["rc_site"], s["endpoint"], s["redirector"]["endpoint"])
+            sname=s["rc_site"]
+            if sname=='GRIF': sname==s["name"]
+            si=site(sname, s["endpoint"], s["redirector"]["endpoint"])
             si.prnt()
             sites.append(si)
     except:
