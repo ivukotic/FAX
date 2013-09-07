@@ -3,7 +3,7 @@
 python sleeper.py
 
 # this file should be used just to call real test script.
-echo -n "time> begin "; date 
+echo -n "time> begin "; date
 # compiling releaseFileCache as staticly compiled one does not work on all sites.
 g++ releaseFileCache.cxx -o releaseFileCache
 g++ checkCache.cxx -o checkCache
@@ -19,7 +19,7 @@ ls
 testName='run-generalNTUP-TTC-test.sh'
 echo $testName
 for v in ${1//,/ };
-  do 
+  do
   if [ `echo "$v" | grep -c "NTUP"` -eq 1 ] ;
       then
       ./$testName $v;
@@ -28,35 +28,21 @@ done
 
 echo -n "time> finished general NTUP TTC tests "; date
 
-#testName='run-TOPJET-test.sh'
-#testName='run-TOPJET-02-00.sh'
-#echo $testName
-#for v in ${1//,/ };
-#  do
-#  if [ `echo "$v" | grep -c "NTUP_TOPJET"` -eq 1 ] ;
-#      then
-#      ./$testName $v
-#  fi
-#done
-
-#echo -n "time> finished TOPJET test "; date
 
 
-testName='run-generalAOD-athenad3pd-test.sh'
-echo $testName
-for v in ${1//,/ };
-  do 
-  if [ `echo "$v" | grep -c "AOD"` -eq 1 ] ;
-      then
-      echo ./$testName $v;
-  fi
-done
 
-if [ -d "/cvmfs" ]; then 
-    if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then 
-	echo -n "Starting DPM tests";
-	testName='run-DPM.sh'
-	./$testName $v
+if [ -d "/cvmfs" ]; then
+    if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" -o "${PANDA_SITE_NAME}" == "ANALY_LAPP" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then
+        echo -n "Starting DPM tests";
+        testName='run-DPM.sh'
+        ./$testName $v
+    fi
+
+      #     echo "resetting ROOT to 5.32 from cvmfs"
+    if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then
+        echo -n "Starting DPM tests";
+        testName='run-DPM.sh'
+        ./$testName $v
     fi
 
       #     echo "resetting ROOT to 5.32 from cvmfs"
@@ -64,14 +50,14 @@ if [ -d "/cvmfs" ]; then
       #     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
       #     source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
       #     source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm --rootVersion=5.32.01-i686-slc5-gcc4.3
-      #     source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion gcc432_x86_64_slc5 
+      #     source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion gcc432_x86_64_slc5
       #     source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
       #     testName='run-generalNTUP-TTC-test.sh'
       #     echo $testName
-      #     echo "adding Async prefetch"    
-      #     echo TFile.AsyncPrefetching: 1 >> .rootrc 
+      #     echo "adding Async prefetch"
+      #     echo TFile.AsyncPrefetching: 1 >> .rootrc
       #     for v in ${1//,/ };
-      #       do 
+      #       do
       #       if [ `echo "$v" | grep -c "NTUP"` -eq 1 ] ;
       # then
       # ./$testName $v;
@@ -79,5 +65,4 @@ if [ -d "/cvmfs" ]; then
       #     done
 fi
 
-echo -n "time> finished all the tests "; date
-
+echo -n "time> finished DPM tests "; date
