@@ -42,10 +42,10 @@ export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
 #./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
-root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")"
+root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 
 echo " --------- info.txt ----------"
-#cat info.txt
+cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,30 Xrootd finished "; date
