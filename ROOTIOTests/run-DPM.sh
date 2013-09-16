@@ -50,10 +50,10 @@ echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,30 Xrootd finished "; date
 
-export LD_LIBRARY_PATH=
+export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/i686-slc5-gcc43-opt/17.2.0/LCGCMT/LCGCMT_61c/InstallArea/i686-slc5-gcc43-opt/lib/
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm
-#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion gcc432_x86_64_slc5
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh --gccVersion gcc432_x86_64_slc5
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
 
 #echo "=o= checking out ROOT"
