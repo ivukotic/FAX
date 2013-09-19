@@ -29,8 +29,6 @@ export DPNS_HOST=$SITEDPMHOST
 #filenamerfio="rfio:////dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
 
 treeToUse="physics"
-export COPY_TOOL=xrdcp;
-
 echo "resetting ROOT to default from cvmfs"
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
@@ -40,6 +38,28 @@ source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfi
 #ln -s $LCG_LOCATION/lib64/liblcgdm.so
 export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 
+if [ "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then
+echo "EOS tests"
+export COPY_TOOL=eos;
+filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root" 
+
+./readDirect $filenameeos $treeToUse 100 30 >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read 100% TTC" "100"
+echo -n "time> DPM-test > test 100,30 Eos finished "; date
+
+./readDirect $filenameeos $treeToUse 1 30 >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read 1% TTC" "1"
+echo -n "time> DPM-test > test 1,30 Eos finished "; date
+
+fi
+
+export COPY_TOOL=xrdcp;
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
 #./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
 root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
