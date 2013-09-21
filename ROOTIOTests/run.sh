@@ -29,22 +29,13 @@ done
 echo -n "time> finished general NTUP TTC tests "; date
 
 
+if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" -o "${PANDA_SITE_NAME}" == "ANALY_LAPP" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then
+    echo -n "Starting DPM tests";
+    testName='run-DPM.sh'
+    ./$testName $v
+fi
 
-
-if [ -d "/cvmfs" ]; then
-    if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" -o "${PANDA_SITE_NAME}" == "ANALY_LAPP" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then
-        echo -n "Starting DPM tests";
-        testName='run-DPM.sh'
-        ./$testName $v
-    fi
-
-      #     echo "resetting ROOT to 5.32 from cvmfs"
-    if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" ]; then
-        echo -n "Starting DPM tests";
-        testName='run-DPM.sh'
-        ./$testName $v
-    fi
-
+#if [ -d "/cvmfs" ]; then
       #     echo "resetting ROOT to 5.32 from cvmfs"
       #     export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/i686-slc5-gcc43-opt/17.2.0/LCGCMT/LCGCMT_61c/InstallArea/i686-slc5-gcc43-opt/lib/
       #     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
@@ -63,6 +54,6 @@ if [ -d "/cvmfs" ]; then
       # ./$testName $v;
       #       fi
       #     done
-fi
+#fi
 
 echo -n "time> finished DPM tests "; date
