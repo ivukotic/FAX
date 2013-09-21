@@ -5,7 +5,7 @@
 
 	<groupId>edu.uchicago.xrootd4j</groupId>
 	<artifactId>atlas-ns-mapping</artifactId>
-	<version>4.0.2</version>
+	<version>4.0.3</version>
 	<packaging>jar</packaging>
 
 	<name>ATLAS xrootd4j authorization and mapping plugin</name>
@@ -58,9 +58,9 @@
 			<version>20090211</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.0.13</version>
 		</dependency>
 	</dependencies>
 

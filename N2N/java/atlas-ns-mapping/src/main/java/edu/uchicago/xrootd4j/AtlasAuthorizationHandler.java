@@ -25,11 +25,13 @@ import org.dcache.xrootd.protocol.XrootdProtocol.FilePerm;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
-	final private static Logger log = Logger.getLogger(AtlasAuthorizationHandler.class);
+	final static Logger log = LoggerFactory.getLogger(AtlasAuthorizationHandler.class);
+
 	public URI lfcUri = null;
 
 	private LFCConfig config = null;
