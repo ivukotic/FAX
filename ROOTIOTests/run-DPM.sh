@@ -63,18 +63,44 @@ export COPY_TOOL=xrdcp;
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
 #./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
 root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
-
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,30 Xrootd finished "; date
 
+root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read 1% TTC" "1"
+echo -n "time> DPM-test > test 1,30 Xrootd finished "; date
+
 export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc5-gcc43-opt/17.6.0/LCGCMT/LCGCMT_63/InstallArea/x86_64-slc5-gcc43-opt/lib/
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm
 source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh gcc436_x86_64_slc5
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
+which root.exe
+unset HTTP_PROXY
+unset http_proxy
+echo "=o= DPM WebDav no cache"
+export COPY_TOOL=https
+
+root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read 100% TTC" "100"
+echo -n "time> DPM-test > test 100,0 WebDav finished "; date
+
+root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read 1% TTC" "1"
+echo -n "time> DPM-test > test 1,0 WebDav finished "; date
+
 
 #echo "=o= checking out ROOT"
 #curl -s ftp://root.cern.ch/root/root_v5.32.03.source.tar.gz > root_v5.32.03.source.tar.gz
@@ -94,18 +120,6 @@ source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh gcc436_x86_6
 #. bin/thisroot.sh
 #cd ..
 #printenv
-which root.exe
-
-unset HTTP_PROXY
-unset http_proxy
-echo "=o= DPM WebDav no cache"
-export COPY_TOOL=https
-root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
-echo " --------- info.txt ----------"
-cat info.txt
-echo " -----------------------------"
-python uploaderDPM.py "DPM Root Read 100% TTC" "100"
-echo -n "time> DPM-test > test 100,0 WebDav finished "; date
 
 #echo "=o= DPM WebDav plain http"
 #export COPY_TOOL=http
