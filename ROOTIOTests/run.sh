@@ -15,6 +15,9 @@ make --debug=b
 echo "=============== done"
 
 ls
+python FDR.py > info.txt;
+cat info.txt
+echo "finished FDR part"
 
 testName='run-generalNTUP-TTC-test.sh'
 echo $testName

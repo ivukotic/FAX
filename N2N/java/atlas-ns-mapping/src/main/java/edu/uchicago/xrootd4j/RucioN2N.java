@@ -21,19 +21,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class RucioN2N {
-
-	final private static Logger log = Logger.getLogger(RucioN2N.class);
+	
+	final static Logger log = LoggerFactory.getLogger(RucioN2N.class);
+	
 
 	SortedMap<String, Integer> map = new TreeMap<String, Integer>();
 	ArrayList<String> orderedList=new ArrayList<String>();
 
 	public RucioN2N(Properties properties) {
 
-		PropertyConfigurator.configure(RucioN2N.class.getClassLoader().getResource("log4j.properties"));
 		log.info("Setting up RUCIO access...");
 
 		String overwriteSE = properties.getProperty("overwriteSE");
