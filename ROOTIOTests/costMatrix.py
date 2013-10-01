@@ -105,7 +105,9 @@ def upload(SITE_FROMLOG, SITE_TO):
                 ts=ts.replace(microsecond=0)
                 toSend='site_from: '+ SITE_FROM + '\nsite_to: '+SITE_TO+'\nmetricName: FAXprobe4\nrate: '+str(rate)+'\ntimestamp: '+ts.isoformat(' ')+'\n'
                 print toSend
-                send (toSend) 
+                send (toSend)
+            else:
+                print 'will not upload result. First line of output: ', res 
 
 def main():
         
@@ -181,9 +183,9 @@ def main():
             f.write("""for (( ; ; ))\n""")
             f.write("""do\n""")
             f.write(""" echo "--------------------------------------"\n """)
-            f.write('   `which time`  -f "COPYTIME=%e" -o '+ logfile +' xrdcp -np -f ' + fn + """ /dev/null  2>&1 \n""")
+            f.write('   `which time`  -f "COPYTIME=%e" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
             f.write('   python costMatrix.py '+logfile+"\n")
-            f.write("   sleep 600\n");
+            f.write("   sleep 900\n");
             f.write("""done\n""")
 
         f.close()
@@ -195,7 +197,7 @@ def main():
         comms.append(comm)
     
     for c in comms:	
-        c.run(47*1800)
+        c.run(24*3600)
     print 'jobs started'
     
     comm4 = Command("sleep 84500") 
