@@ -179,13 +179,14 @@ def main():
         
             f.write( """#!/bin/bash\n""")
             #staggering start
-            f.write("sleep "+str(random.randint(0,300))+"\n");
+            f.write("sleep "+str(random.randint(0,300))+"\n")
             f.write("""for (( ; ; ))\n""")
             f.write("""do\n""")
             f.write(""" echo "--------------------------------------"\n """)
             f.write('   `which time`  -f "COPYTIME=%e" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
             f.write('   python costMatrix.py '+logfile+"\n")
-            f.write("   sleep 900\n");
+            f.write('   rm '+logfile+"\n")
+            f.write("   sleep 900\n")
             f.write("""done\n""")
 
         f.close()
