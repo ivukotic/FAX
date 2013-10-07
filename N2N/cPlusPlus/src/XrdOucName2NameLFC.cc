@@ -11,7 +11,7 @@
 // Support RUCIO global logical file name by Wei Yang, yangw@slac.stanford.edu June, 2013
 
 const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2011/12/13 16:06:40 sarah Exp $";
-const char* version = "$Revision: 1.31 $";
+const char* version = "$Revision: 1.32 $";
 
 #define LFC_CACHE_TTL 2*3600
 #define LFC_CACHE_MAXSIZE 500000
@@ -632,6 +632,8 @@ int XrdOucLFC::parse_parameters(String param_str)
             siteprefixstr = strdup(val.c_str());
         } else if (key == "sitename") {
             sitename = val;
+        } else if (key == "pssorigin") {
+            XrdOucEnv::Export("XRDXROOTD_PROXY",val.c_str());
 	} else {
 	    // ERROR
 	    *eDest << "XRD-LFC: Invalid parameter " << key << endl;
