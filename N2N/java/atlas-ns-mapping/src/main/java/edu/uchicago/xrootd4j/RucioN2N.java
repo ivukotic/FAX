@@ -165,6 +165,8 @@ public class RucioN2N {
 		
 		String hashtext="";
 		try {
+			scope_fileName = scope_fileName.replaceAll("/", ".");
+			log.debug("scope+filename for md5: " + scope_fileName);
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] bytesOfMessage = scope_fileName.getBytes("US-ASCII");
 			byte[] thedigest = md.digest(bytesOfMessage);
