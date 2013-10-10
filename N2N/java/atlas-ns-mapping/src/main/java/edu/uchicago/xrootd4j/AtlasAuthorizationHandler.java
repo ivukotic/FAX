@@ -130,7 +130,12 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
 		if (LFN.startsWith("/atlas/rucio/")){
 			String pfn=rucio.translate(LFN);
-			log.info("rucio translated name: "+pfn);
+			if (pfn==null){
+				log.info("rucio translated name: "+pfn);
+				pfn="";
+			}else{
+				log.info("rucio name not found.");
+			}
 			return pfn;
 		}
 		
