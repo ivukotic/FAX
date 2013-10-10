@@ -143,15 +143,15 @@ int x_stat(const char *path, struct stat *buf) {
         iXrdConn4n2n = (iXrdConn4n2n +1) % nXrdConn4n2n;
         pthread_mutex_unlock(&cm);
 
-        sprintf(rooturl, "root://rn2n%d@%s/%s\0", i, pssorigin, path);
-// User client admin interface instead of posix interface to get a little better performance (but less portable).
-//        return XrdPosixXrootd::Stat(rooturl, buf);
-
-        XrdClientLocate_Info host;
-        XrdClientAdmin adm(rooturl);
+        XrdOucString path2;
+        sprintf(rooturl, "root://rn2n%d@%s//dummy", i, pssorigin);
+        path2 = path;
+        path2 += "?oss.lcl=1";  // for DPM. harmless for regular xrootd 
+        XrdClientAdmin adm(rooturl);      
         adm.Connect();
-
-        return (adm.Locate((kXR_char *)path, host) == true? 0 : 1);
+        long id, flags, modtime;      
+        long long size;
+        return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
     } else
 // For posix storage, doing multiple stat() in parallel is probably not necessary. let's see if there are complains.
         return stat(path, buf);
