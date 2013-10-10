@@ -186,7 +186,14 @@ bool rucioMd5(const char *lfn, char *sfn) {
     unsigned char md5digest[16];
     char md5string[33];
 
-    MD5((const unsigned char*)lfn+13, strlen(lfn)-13, md5digest);
+// if scope is in form /a/b:file, change it to /a.b:file and then calculate md5sum
+    char *tmp = strdup(lfn+13);
+    for (int i = 0; i<strlen(tmp); i++)
+        if (tmp[i] == '/') tmp[i] = '.';
+        else if (tmp[i] == ':') break;
+
+    MD5((const unsigned char*)tmp, strlen(tmp), md5digest);
+    free(tmp);
     for(int i = 0; i < 16; ++i)
         sprintf(&md5string[i*2], "%02x", (unsigned int)md5digest[i]);
 
