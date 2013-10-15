@@ -15,7 +15,8 @@ make --debug=b
 echo "=============== done"
 
 ls
-python FDR.py > info.txt;
+#python FDR.py > info.txt;
+python FDR_spec.py > info.txt;
 cat info.txt
 echo "finished FDR part"
 
