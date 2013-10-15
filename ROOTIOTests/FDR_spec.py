@@ -75,20 +75,21 @@ try:
     filenames={}
     cursor = cx_Oracle.Cursor(connection)
     print 'loading files...'
-    cursor.execute("select glfn from ( select glfn from FDR_GLFNS order by dbms_random.value )  where rownum <= "+str(nfiles))
+    cursor.execute("select glfn,filesize from ( select glfn, filesize from FDR_GLFNS order by dbms_random.value )  where rownum <= "+str(nfiles))
     res = cursor.fetchall()
     cursor.close()
     connection.commit()
     path="root://"+address+"//"
     for r in res:
         fn=r[0]
-        filenames[path+fn]=0
+        filenames[path+fn]=r[1]
 
 # create scripts to execute
     if testtype=='FAXcopy':
          f=open('toExecute.sh', 'w')
          for fn in filenames.keys():
              f.write('`which time` -f "COPYTIME=%e" --append -o logfile xrdcp -f -np '+fn+""" /dev/null 2>&1 \n""")
+             f.write(' echo BYTES=' +filenames[fn]+' >> logfile \n')
          f.close()
          os.chmod('toExecute.sh', 0755);
     
