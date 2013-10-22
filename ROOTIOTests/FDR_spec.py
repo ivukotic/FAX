@@ -89,7 +89,7 @@ try:
          f=open('toExecute.sh', 'w')
          for fn in filenames.keys():
              f.write('`which time` -f "COPYTIME=%e" --append -o logfile xrdcp -f -np '+fn+""" /dev/null 2>&1 \n""")
-             f.write(' echo BYTES=' +filenames[fn]+' >> logfile \n')
+             f.write(' echo BYTES=' +str(filenames[fn])+' >> logfile \n')
          f.close()
          os.chmod('toExecute.sh', 0755);
     
