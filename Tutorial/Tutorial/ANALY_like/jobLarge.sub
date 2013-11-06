@@ -1,0 +1,13 @@
+Jobs = 2232
+getenv         = False
+executable     = ANALY_like.sh 
+output         = rW.out.$(Process)
+error          = rW.error.$(Process)
+log            = rW.log.$(Process)
+arguments = $(Process) $(Jobs)
+should_transfer_files = IF_NEEDED
+transfer_input_files = Makefile,readWrite.C,/tmp/x509up_u20074,inputFileListLarge
+universe       = vanilla
+#Requirements   = (regexp("^uc3.*", TARGET.Machine,"IM") == True)
+Requirements   = HAS_CVMFS =?= True 
+queue $(Jobs)

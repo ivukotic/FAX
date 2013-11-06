@@ -1,0 +1,10 @@
+getenv         = False
+executable     = SkimSlimT3.sh
+output         = SkimSlimT3.out
+error          = SkimSlimT3.error
+log            = SkimSlimT3.log
+transfer_input_files = filter-and-merge-d3pd.py,/tmp/x509up_u20074,inputFileList,branchesList,cutCode
+universe       = vanilla
+Requirements   = (regexp("^uc3.*", TARGET.Machine,"IM") == True)
+#Requirements   = HAS_CVMFS =?= True
+queue 1

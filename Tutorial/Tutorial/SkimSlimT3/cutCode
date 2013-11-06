@@ -1,0 +1,67 @@
+def filter_fct(t):
+
+    passFlag=False
+    triggerFlag=False
+    nlepFlag=False
+    lepkinFlag=False
+
+    #print 'StartFilter:',passFlag
+
+    #Trigger
+    if t.EF_e24vhi_medium1 or t.EF_e60_medium1 or t.EF_2e12Tvh_loose1 or t.EF_mu24i_tight or t.EF_mu36_tight or t.EF_mu18_tight_mu8_EFFS:
+        triggerFlag=True
+
+    #print 'checkFilter:',triggerFlag
+
+    #Contains any leptons
+    if t.el_n>=1 or t.mu_muid_n>=1 or t.mu_calo_n>=1 or t.mu_staco_n>=1:
+        nlepFlag=True
+
+    #print 'checkFilter:',nlepFlag
+
+    #Leptons have pT>8GeV and within |eta|<3
+    for i in range(t.el_n):
+        if t.el_pt[i]>8000:
+            if abs(t.el_eta[i])<3.0:
+                lepkinFlag=True
+
+    #print 'checkFilter:',lepkinFlag
+
+    for i in range(t.mu_n):
+        if t.mu_pt[i]>8000:
+            if abs(t.mu_eta[i])<3.0:
+                lepkinFlag=True
+
+
+    #print 'checkFilter:',lepkinFlag
+
+    for i in range(t.mu_muid_n):
+        if t.mu_muid_pt[i]>8000:
+            if abs(t.mu_muid_eta[i])<3.0:
+                lepkinFlag=True
+
+
+    #print 'checkFilter:',lepkinFlag
+
+    for i in range(t.mu_calo_n):
+        if t.mu_calo_pt[i]>8000:
+            if abs(t.mu_calo_eta[i])<3.0:
+                lepkinFlag=True
+
+
+    #print 'checkFilter:',lepkinFlag
+
+    for i in range(t.mu_staco_n):
+        if t.mu_staco_pt[i]>8000:
+            if abs(t.mu_staco_eta[i])<3.0:
+                lepkinFlag=True
+
+    #print 'Filter:',triggerFlag,nlepFlag,lepkinFlag,passFlag
+
+    if triggerFlag and nlepFlag and lepkinFlag:
+        passFlag=True
+
+
+
+    return passFlag
+
