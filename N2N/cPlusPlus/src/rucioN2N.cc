@@ -42,6 +42,7 @@ short iXrdConn4n2n = 0;
 
 char **sitePrefix;
 int nPrefix = 0;
+char *pssorigin = NULL;
 
 class RucioStorageStatPars {
 public:
@@ -132,29 +133,24 @@ void dump2GarbageCan(Garbage *g) {
     pthread_mutex_unlock(&cm);
 }
 
-int x_stat(const char *path, struct stat *buf) {
-    char *pssorigin;
+int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like storage
     char rooturl[512];
 
-    if (XrdOucEnv::Import("XRDXROOTD_PROXY", pssorigin)) {
-        int i;
-        pthread_mutex_lock(&cm);
-        i = iXrdConn4n2n;
-        iXrdConn4n2n = (iXrdConn4n2n +1) % nXrdConn4n2n;
-        pthread_mutex_unlock(&cm);
+    int i;
+    pthread_mutex_lock(&cm);
+    i = iXrdConn4n2n;
+    iXrdConn4n2n = (iXrdConn4n2n +1) % nXrdConn4n2n;
+    pthread_mutex_unlock(&cm);
 
-        XrdOucString path2;
-        sprintf(rooturl, "root://rn2n%d@%s//dummy", i, pssorigin);
-        path2 = path;
-        path2 += "?oss.lcl=1";  // for DPM. harmless for regular xrootd 
-        XrdClientAdmin adm(rooturl);      
-        adm.Connect();
-        long id, flags, modtime;      
-        long long size;
-        return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
-    } else
-// For posix storage, doing multiple stat() in parallel is probably not necessary. let's see if there are complains.
-        return stat(path, buf);
+    XrdOucString path2;
+    sprintf(rooturl, "root://rn2n%d@%s//dummy", i, pssorigin);
+    path2 = path;
+    path2 += "?oss.lcl=1";  // for DPM. harmless for regular xrootd 
+    XrdClientAdmin adm(rooturl);      
+    adm.Connect();
+    long id, flags, modtime;      
+    long long size;
+    return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
 }
 
 void rucio_n2n_init(List rucioPrefix) {
@@ -172,14 +168,16 @@ void rucio_n2n_init(List rucioPrefix) {
     pthread_cond_init(&cc, NULL);
     pthread_create(&cleaner, NULL, garbageCleaner, NULL);
 
-    char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio"));
-    strcpy(tmp, sitePrefix[0]);
-    strcat(tmp, "/rucio");
-    struct stat stbuf;
+    if (XrdOucEnv::Import("XRDXROOTD_PROXY", pssorigin)) {
+        char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio"));
+        strcpy(tmp, sitePrefix[0]);
+        strcat(tmp, "/rucio");
+        struct stat stbuf;
     
 // initialize xrd connections
-    for (i = 0; i<nXrdConn4n2n; i++) x_stat(tmp, &stbuf);
-    free(tmp);
+        for (i = 0; i<nXrdConn4n2n; i++) x_stat(tmp, &stbuf);
+        free(tmp);
+    }
 } 
 
 bool rucioMd5(const char *lfn, char *sfn) {
@@ -215,7 +213,7 @@ bool rucioMd5(const char *lfn, char *sfn) {
     return true;
 }
 
-void *rucio_storage_stat(void *pars) {
+void *rucio_xrootd_storage_stat(void *pars) {  // xrootd-like storage 
     struct stat buf;
     RucioStorageStatPars *p;
     p = (RucioStorageStatPars*)pars;
@@ -238,53 +236,64 @@ char* rucio_n2n_glfn(const char *lfn) {
     int i; 
     char *pfn;
 
-    pthread_mutex_t *m = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
-    pthread_cond_t *c = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));;
-    short *icount = (short*)malloc(sizeof(short));
     char input[512];
-    char *output = (char*)malloc(512);
-
-    pthread_mutex_init(m, NULL);
-    pthread_cond_init(c, NULL);
-    *icount = nPrefix;
-    output[0] = '\0';
-
     char sfn[512];
     sfn[0] = '\0';
 
-    if (nPrefix == 0 || ! rucioMd5(lfn, sfn)) {
+    if (nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
+        return pfn = strdup("");
+
+    if (pssorigin != NULL) { // remote xrootd-like storage
+        pthread_mutex_t *m = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
+        pthread_cond_t *c = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));;
+        short *icount = (short*)malloc(sizeof(short));
+        char *output = (char*)malloc(512);
+    
+        *icount = nPrefix;
+        output[0] = '\0';
+    
+        pthread_mutex_init(m, NULL);
+        pthread_cond_init(c, NULL);
+    
+        pthread_t **ids = (pthread_t**)malloc(sizeof(pthread_t*) * nPrefix);
+        RucioStorageStatPars *p;
+    
+        for (i=0; i<nPrefix; i++) {
+            ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
+            strcpy(input, sitePrefix[i]);
+            strcat(input, sfn);
+            p = new RucioStorageStatPars(m, c, i, icount, input, output);
+            pthread_create(ids[i], &attr, rucio_xrootd_storage_stat, p);
+        }
+    
+        struct timespec now;
+        pthread_mutex_lock(m);
+        while (*icount > 0 && output[0] == '\0') {
+            clock_gettime(CLOCK_REALTIME, &now);
+            now.tv_sec += 180;
+    // potential problem by using pthread_cond_timedwait(): what happens if a positive result returns after timeout period?
+    // unlike the conventional cases, this will not update the cmsd cache, and file will still be marked by cmsd as not exist.
+            if (pthread_cond_timedwait(c, m, &now) == ETIMEDOUT) break;
+        }
         pfn = strdup(output);
+        pthread_mutex_unlock(m);
+    
+    // if we get the result (exit or not exist), dump the thread cleaning to garbage cleaner and return.
+        p = new RucioStorageStatPars(m, c, i, icount, lfn, output);
+        Garbage *g = new Garbage(ids, nPrefix, p);
+        dump2GarbageCan(g);
+        delete g;
         return pfn;
+    } 
+    else {  // Local file system
+        struct stat buf;
+        for (i=0; i<nPrefix; i++) {
+            strcpy(input, sitePrefix[i]);
+            strcat(input, sfn);
+            if (stat(input, &buf) == 0) return pfn = strdup(input);
+        }
+        return pfn = strdup("");
     }
-    pthread_t **ids = (pthread_t**)malloc(sizeof(pthread_t*) * nPrefix);
-    RucioStorageStatPars *p;
-
-    for (i=0; i<nPrefix; i++) {
-        ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
-        strcpy(input, sitePrefix[i]);
-        strcat(input, sfn);
-        p = new RucioStorageStatPars(m, c, i, icount, input, output);
-        pthread_create(ids[i], &attr, rucio_storage_stat, p);
-    }
-
-    struct timespec now;
-    pthread_mutex_lock(m);
-    while (*icount > 0 && output[0] == '\0') {
-        clock_gettime(CLOCK_REALTIME, &now);
-        now.tv_sec += 180;
-// potential problem by using pthread_cond_timedwait(): what happens if a positive result returns after timeout period?
-// unlike the conventional cases, this will not update the cmsd cache, and file will still be marked by cmsd as not exist.
-        if (pthread_cond_timedwait(c, m, &now) == ETIMEDOUT) break;
-    }
-    pfn = strdup(output);
-    pthread_mutex_unlock(m);
-
-// if we get the result (exit or not exist), dump the thread cleaning to garbage cleaner and return.
-    p = new RucioStorageStatPars(m, c, i, icount, lfn, output);
-    Garbage *g = new Garbage(ids, nPrefix, p);
-    dump2GarbageCan(g);
-    delete g;
-    return pfn;
 }
 
 #ifdef STANDALONE

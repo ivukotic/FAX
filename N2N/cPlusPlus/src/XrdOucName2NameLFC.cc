@@ -11,7 +11,7 @@
 // Support RUCIO global logical file name by Wei Yang, yangw@slac.stanford.edu June, 2013
 
 const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2011/12/13 16:06:40 sarah Exp $";
-const char* version = "$Revision: 1.32 $";
+const char* version = "$Revision: 1.33 $";
 
 #define LFC_CACHE_TTL 2*3600
 #define LFC_CACHE_MAXSIZE 500000
@@ -111,6 +111,7 @@ private:
     List dcache_pool_list;
     bool force_direct; // if set, only read files from dcache pools, no dcap
     List rucioprefix_list;
+    List siteprefixreplace; // this is a private feature to only needed at SLAC. Has nothing to do with rucio.
 
     // LFC utility functions
     String query_lfc(String lfn);
@@ -274,6 +275,8 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
 	*eDest << "XRD-LFC: no valid replica for " << lfn << endl;
 	return -ENOENT;
     }
+    if (siteprefixreplace.size() == 2 && pfn.find(siteprefixreplace[0], 0) == 0) // Like SLAC only
+        pfn.replace(0, siteprefixreplace[0].size(), siteprefixreplace[1]);
 
     // See if we have the file in a local dcache pool
     String local_file;
@@ -634,7 +637,9 @@ int XrdOucLFC::parse_parameters(String param_str)
             sitename = val;
         } else if (key == "pssorigin") {
             XrdOucEnv::Export("XRDXROOTD_PROXY",val.c_str());
-	} else {
+        } else if (key == "siteprefixreplace" )  // Like SLAC only
+            siteprefixreplace = val.split(":");
+	else {
 	    // ERROR
 	    *eDest << "XRD-LFC: Invalid parameter " << key << endl;
 	    return 3;
