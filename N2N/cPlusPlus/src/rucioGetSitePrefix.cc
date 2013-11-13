@@ -1,5 +1,5 @@
 /******************************************************************************/
-/* rucioN2N.hh                                                                */
+/* rucioGetSitePrefix.cc                                                      */
 /*                                                                            */
 /* (c) 2010 by the Board of Trustees of the Leland Stanford, Jr., University  */
 /*                            All Rights Reserved                             */

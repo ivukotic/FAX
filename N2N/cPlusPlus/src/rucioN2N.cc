@@ -150,7 +150,13 @@ int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like stor
     adm.Connect();
     long id, flags, modtime;      
     long long size;
-    return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
+    if (adm.Stat(path2.c_str(), id, size, flags, modtime)) { // adm.Stat() works wth both regular and DPM xrootd.
+        return ((id == -1 || size == -1 || modtime == -1)? -1 : 0); // wordaround dCache xrootd door issue
+    }
+    else
+        return -1;
+
+    //return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
 }
 
 void rucio_n2n_init(List rucioPrefix) {
@@ -203,7 +209,11 @@ bool rucioMd5(const char *lfn, char *sfn) {
     if (p2 == NULL) return false;
 
     strcpy(sfn, "/rucio/"); 
-    strncat(sfn, p1, strlen(p1) - strlen(p2));
+    tmp = strndup(p1, strlen(p1) - strlen(p2));
+    for (int i = 0; i<strlen(tmp); i++)  // to support both a/b and a.b as scope.
+        if (tmp[i] == '.') tmp[i] = '/';
+        else if (tmp[i] == ':') break;
+    strncat(sfn, tmp, strlen(p1) - strlen(p2));
     strcat(sfn, "/");
     strncat(sfn, md5string, 2); 
     strcat(sfn, "/");
