@@ -43,8 +43,8 @@ Job (
     location = ''
  ) ,
  splitter = GenericSplitter (
-   attribute = '' ,
-   values = [ 42 ]
+   attribute = 'comment' ,
+   values = [ '42' ]
  ) , 
  backend = Panda (
     nobuild = True ,
