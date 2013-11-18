@@ -1,7 +1,6 @@
 package edu.uchicago.xrootd4j;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,13 +8,16 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,13 +25,15 @@ import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
-
-
 public class RucioN2N {
 
 	final static Logger log = LoggerFactory.getLogger(RucioN2N.class);
-	public final Map<String,Integer> cmap = new ConcurrentHashMap<String,Integer>();
-	public int nSpaceTokens;
+
+	private MessageDigest md;
+	private final Map<String, Integer> cmap = new ConcurrentHashMap<String, Integer>();
+	private int nSpaceTokens;
+	private AtomicInteger filesFound = new AtomicInteger();
+	private AtomicInteger filesLookedFor = new AtomicInteger();
 
 	public RucioN2N(Properties properties) {
 
@@ -118,9 +122,17 @@ public class RucioN2N {
 		}
 
 		printCounts();
-		
-		// this won't be changed 
-		nSpaceTokens=cmap.size();
+
+		// this won't be changed
+		nSpaceTokens = cmap.size();
+
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			log.error("can't get MD5 algorithm.");
+			e.printStackTrace();
+		}
+
 		log.info("Rucio setup properly.");
 	}
 
@@ -143,6 +155,7 @@ public class RucioN2N {
 
 	public String translate(String gLFN) {
 
+		filesLookedFor.incrementAndGet();
 		log.debug("got to translate: {}", gLFN);
 		String name = gLFN.substring(6);
 		log.debug("removed /atlas: {}", name);
@@ -169,7 +182,6 @@ public class RucioN2N {
 		try {
 			scope_fileName = scope_fileName.replaceAll("/", ".");
 			log.debug("scope+filename for md5: " + scope_fileName);
-			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] bytesOfMessage = scope_fileName.getBytes("US-ASCII");
 			byte[] thedigest = md.digest(bytesOfMessage);
 			BigInteger bigInt = new BigInteger(1, thedigest);
@@ -180,9 +192,6 @@ public class RucioN2N {
 		} catch (UnsupportedEncodingException e) {
 			log.error("gLFN is not in US-ASCII format!");
 			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			log.error("can't get MD5 algorithm.");
-			e.printStackTrace();
 		}
 
 		log.debug(hashtext);
@@ -191,44 +200,39 @@ public class RucioN2N {
 		log.info("expanded filename: " + name);
 
 		log.debug("sorting space tokens.");
-		
-		// this can be done much better. 
-		ArrayList<String> orderedList = new ArrayList<String>();
+
+		HashSet<String> found = new HashSet<String>();
+
 		for (int i = 0; i < nSpaceTokens; i++) {
 			String maxKey = "";
 			Integer maxValue = -1;
-			for (Map.Entry<String,Integer> entry : cmap.entrySet()) {
-				if (orderedList.contains(entry.getKey()))
-					continue;
-				if (entry.getValue() >= maxValue) {
+			for (Map.Entry<String, Integer> entry : cmap.entrySet()) {
+				if (entry.getValue() >= maxValue && !found.contains(entry.getKey())) {
 					maxValue = entry.getValue();
 					maxKey = entry.getKey();
 				}
 			}
-			orderedList.add(maxKey);
-			log.debug("st -> {}  \t{}" ,maxValue, maxKey);
-		}
-
-		Iterator<String> iterator = orderedList.iterator();
-		while (iterator.hasNext()) {
-			String key = (String) iterator.next();
-			String fullName = key + name;
+			log.debug("st -> {}  \t{}", maxValue, maxKey);
+			found.add(maxKey);
+			String fullName = maxKey + name;
 			log.debug("looking for: {}", fullName);
-			File f = new File(fullName);
-			if (f.exists()) {
-				log.info("found at:" + key);
-				cmap.put(key, cmap.get(key) + 1);
-				printCounts();
+			Path path = Paths.get(fullName);
+			if (Files.exists(path)) {
+				log.info("found at:" + maxKey);
+				cmap.put(maxKey, cmap.get(maxKey) + 1);
+				if (filesFound.incrementAndGet() % 1000 == 0)
+					printCounts();
 				return fullName;
 			}
+
 		}
 
 		return null;
 	}
 
 	public void printCounts() {
-		for (Map.Entry<String,Integer> entry : cmap.entrySet()) {
-			log.debug("space token: {}  value  {}", entry.getKey(), entry.getValue());
+		for (Map.Entry<String, Integer> entry : cmap.entrySet()) {
+			log.info("space token: {}  value  {}", entry.getKey(), entry.getValue());
 		}
 	}
 }
