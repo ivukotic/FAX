@@ -155,13 +155,14 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
  
     netSt(netSt1);
     TFile *f ;
-    if (xrootdaccess) {
-      f = TFile::Open(fn.c_str());
-    }
-    else {
-      TSSLSocket::SetUpSSL(proxyfn.c_str(),certdir.c_str(),proxyfn.c_str(),proxyfn.c_str());
-      f = new TWebFile(fn.c_str());
-    }
+    //    if (xrootdaccess) {
+    cout << "Parameters for SetUpSSL( " << proxyfn.c_str() << "," << certdir.c_str()  << "," << proxyfn.c_str()  << "," << proxyfn.c_str() << ")" << endl;
+    f = TFile::Open(fn.c_str());
+    //}
+    //    else {
+    //      TSSLSocket::SetUpSSL(proxyfn.c_str(),certdir.c_str(),proxyfn.c_str(),proxyfn.c_str());
+    //      f = new TWebFile(fn.c_str());
+    //    }
     TTree *tree = (TTree*)f->Get(trname.c_str());
     
     Int_t nentries = (Int_t)tree->GetEntries();
