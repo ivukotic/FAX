@@ -20,6 +20,12 @@ export SITEDPMHOST=lxfsra04a04.cern.ch
 export SITEDOMAIN=cern.ch
 fi
 
+if [ "${PANDA_SITE_NAME}" == "ANALY_INFN-FRASCATI" ]; then
+export SITEDPMHOST=atlasdisk1.lnf.infn.it
+export SITEDOMAIN=lnf.infn.it
+fi
+
+
 filename="http://$SITEDPMHOST/dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
 filenamexrootd="root://$SITEDPMHOST//dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
 
@@ -41,7 +47,8 @@ export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 if [ "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then
 echo "EOS tests"
 export COPY_TOOL=eos;
-filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root" 
+#filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root" 
+filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/data12_8TeV/NTUP_SUSYSKIM/r4065_p1278_p1328_p1329/data12_8TeV.00209265.physics_JetTauEtmiss.merge.NTUP_SUSYSKIM.r4065_p1278_p1328_p1329_tid01106323_00/NTUP_SUSYSKIM.01106323._000003.root.1"
 
 ./readDirect $filenameeos $treeToUse 100 30 >& info.txt
 echo " --------- info.txt ----------"
@@ -56,6 +63,17 @@ cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 1% TTC" "1"
 echo -n "time> DPM-test > test 1,30 Eos finished "; date
+
+filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/data12_8TeV/NTUP_SUSYSKIM/r4065_p1278_p1328_p1329/data12_8TeV.00209265.physics_JetTauEtmiss.merge.NTUP_SUSYSKIM.r4065_p1278_p1328_p1329_tid01106323_00/NTUP_SUSYSKIM.01106323._000003.WIGNER.root.1"
+
+export COPY_TOOL=eos-wigner;
+
+./readDirect $filenameeos $treeToUse 1 30 >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read 1% TTC" "1"
+echo -n "time> DPM-test > test 1,30 Eos 2 finished "; date
 
 fi
 
