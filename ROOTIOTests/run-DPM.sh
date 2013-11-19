@@ -20,7 +20,7 @@ export SITEDPMHOST=lxfsra04a04.cern.ch
 export SITEDOMAIN=cern.ch
 fi
 
-filename="https://$SITEDPMHOST/dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
+filename="http://$SITEDPMHOST/dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
 filenamexrootd="root://$SITEDPMHOST//dpm/$SITEDOMAIN/home/atlas/group.test.hc.NTUP_SMWZ.root"
 
 export DPM_HOST=$SITEDPMHOST
@@ -76,10 +76,10 @@ echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 1% TTC" "1"
 echo -n "time> DPM-test > test 1,30 Xrootd finished "; date
 
-export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc5-gcc43-opt/17.6.0/LCGCMT/LCGCMT_63/InstallArea/x86_64-slc5-gcc43-opt/lib/
-source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm
-source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh gcc436_x86_64_slc5
+#export LD_LIBRARY_PATH=/cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc5-gcc43-opt/17.6.0/LCGCMT/LCGCMT_63/InstallArea/x86_64-slc5-gcc43-opt/lib/
+#source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm
+#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh gcc436_x86_64_slc5
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
 which root.exe
 unset HTTP_PROXY
