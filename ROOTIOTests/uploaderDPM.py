@@ -141,7 +141,7 @@ pro.setAttribute("name",JOBTYPE)
 pro.setAttribute("parameter1",PARAM1)
 doc.appendChild(pro)
 
-SITEFILESYSTEM = SITE + '_' + FILESYSTEM
+SITEFILESYSTEM = SITE.replace('_XROOTD','').replace('ANALY_','') + '_' + FILESYSTEM.replace('xrdcp','xrd')
 sit = doc.createElement("site")
 sit.setAttribute("name", SITEFILESYSTEM)
 #sit.setAttribute("storage",FILESYSTEM)
