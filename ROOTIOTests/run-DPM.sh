@@ -50,25 +50,25 @@ export COPY_TOOL=eos;
 #filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root" 
 filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/data12_8TeV/NTUP_SUSYSKIM/r4065_p1278_p1328_p1329/data12_8TeV.00209265.physics_JetTauEtmiss.merge.NTUP_SUSYSKIM.r4065_p1278_p1328_p1329_tid01106323_00/NTUP_SUSYSKIM.01106323._000003.root.1"
 
-./readDirect $filenameeos $treeToUse 100 30 >& info.txt
+./readDirect $filenameeos susy 100 30 >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,30 Eos finished "; date
 
-./readDirect $filenameeos $treeToUse 1 30 >& info.txt
+./readDirect $filenameeos susy 1 30 >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 1% TTC" "1"
 echo -n "time> DPM-test > test 1,30 Eos finished "; date
 
-filenameeos="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/data12_8TeV/NTUP_SUSYSKIM/r4065_p1278_p1328_p1329/data12_8TeV.00209265.physics_JetTauEtmiss.merge.NTUP_SUSYSKIM.r4065_p1278_p1328_p1329_tid01106323_00/NTUP_SUSYSKIM.01106323._000003.WIGNER.root.1"
+filenameeos="root://eosatlas.cern.ch//eos/atlas/atlaseosdatadisk/rucio/user/flegger/b2/8d/NTUP_SUSYSKIM.01106323._000003.WIGNER.root.1"
 
 export COPY_TOOL=eos-wigner;
 
-./readDirect $filenameeos $treeToUse 1 30 >& info.txt
+./readDirect $filenameeos susy 1 30 >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
