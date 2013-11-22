@@ -64,8 +64,7 @@ echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 1% TTC" "1"
 echo -n "time> DPM-test > test 1,30 Eos finished "; date
 
-filenameeos="root://eosatlas.cern.ch//eos/atlas/atlaseosdatadisk/rucio/user/flegger/b2/8d/NTUP_SUSYSKIM.01106323._000003.WIGNER.root.1"
-
+filenameeos="root://eosatlas.cern.ch//eos/atlas/atlaseosdatadisk/rucio/user/flegger/60/e3/NTUP_SUSYSKIM.01106323._000003.WIGNER.root.1"
 export COPY_TOOL=eos-wigner;
 
 ./readDirect $filenameeos susy 1 30 >& info.txt
