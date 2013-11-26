@@ -11,13 +11,20 @@ except ImportError: import json
 #trying to resolve localredirector
 
 import socket
+
 debug=0
+if len(sys.argv)>1:
+	try:
+		debug=int(sys.argv[1])
+	except ValueError:
+		print 'unknown argument. The only accepted argument is an integer number representing debug level.'
+		sys.exit(-1)
 
 try:
 	socket.gethostbyname('localredirector')
 	if debug: print 'localredirector exist. using it...'
-        print 'export LOCALREDIRECTOR=localredirector'
-	sys.exit()
+	print 'localredirector'
+	sys.exit(0)
 except (IOError, socket.gaierror, socket.error):
 	if debug: print 'localredirector does not resolve.'
 
@@ -33,9 +40,8 @@ try:
     lon=res['longitude']
     lat=res['latitude']
 except:
-    print "Can't determine client coordinates. Setting local redirector to glrd.usatlas.org .", sys.exc_info()[0]
-    print 'export LOCALREDIRECTOR=glrd.usatlas.org'
-    sys.exit()
+    print "Can't determine client coordinates. ", sys.exc_info()[0]
+    sys.exit(1)
 
 # geting FAX endpoints information from SSB
 
@@ -62,13 +68,11 @@ try:
         data = json.load(f)
         data=data["csvdata"]
 except urllib2.HTTPError:
-	print "Can't connect ot SSB. Setting localRedirector to glrd.usatlas.org ."
-        print 'export LOCALREDIRECTOR=glrd.usatlas.org'
-	sys.exit()
+	print "Can't connect ot SSB."
+	sys.exit(2)
 except:
-    	print "Unexpected error:", sys.exc_info()[0]
-	print 'export LOCALREDIRECTOR=glrd.usatlas.org'
-	sys.exit()
+    print "Unexpected error:", sys.exc_info()[0]
+    sys.exit(21)
 
 
 Sites=dict()
@@ -81,8 +85,8 @@ for si in data:
         if n not in Sites:
                 s=site(n)
                 Sites[n]=s
-        st= datetime(*(time.strptime(si["Time"], '%Y-%m-%dT%H:%M:%S')[0:6])) #datetime.strptime(si["Time"],'%Y-%m-%dT%H:%M:%S')
-	et= datetime(*(time.strptime(si["EndTime"], '%Y-%m-%dT%H:%M:%S')[0:6])) #datetime.strptime(si["EndTime"],'%Y-%m-%dT%H:%M:%S')
+        st= datetime(*(time.strptime(si["Time"], '%Y-%m-%dT%H:%M:%S')[0:6])) 
+        et= datetime(*(time.strptime(si["EndTime"], '%Y-%m-%dT%H:%M:%S')[0:6])) 
         if et<cuttime: continue  # throws away too early measurements
         if st<cuttime: st=cuttime # cuts to exact cutoff time
         if et>curtime: # current state
@@ -99,16 +103,14 @@ try:
 	na=s["name"]
 	if na in Sites:
         	Sites[na].coo(s["longitude"],s["latitude"])
-		if debug>2: print  s["name"],s["rc_site"], s["latitude"], s["longitude"]
+    if debug>2: print  s["name"],s["rc_site"], s["latitude"], s["longitude"]
 except urllib2.HTTPError:
-        print "Can't connect ot AGIS to get coordinates of endpoints. Setting localRedirector to glrd.usatlas.org ."
-        print 'export LOCALREDIRECTOR=glrd.usatlas.org'
-        sys.exit()
+        print "Can't connect ot AGIS to get coordinates of endpoints."
+        sys.exit(3)
 except:
     print "Unexpected error:", sys.exc_info()[0]
-    print "Can't connect ot AGIS to get coordinates of endpoints. Setting localRedirector to glrd.usatlas.org ."
-    print 'export LOCALREDIRECTOR=glrd.usatlas.org'
-    sys.exit()
+    print "Can't connect ot AGIS to get coordinates of endpoints."
+    sys.exit(31)
 
 
 # calculating distances to "green" endpoints
@@ -140,12 +142,11 @@ try:
     f = opener.open(req)
     res=json.load(f)
     if debug: print "found corresponding endpoint: ",res[0]["endpoint"]
-    print 'export LOCALREDIRECTOR='+res[0]["endpoint"]
+    print res[0]["endpoint"]
 except urllib2.HTTPError:
-    print "Can't connect ot AGIS to get coordinates of endpoints. Setting localRedirector to glrd.usatlas.org ."
-    print 'export LOCALREDIRECTOR=glrd.usatlas.org'
+    print "Can't connect ot AGIS to get coordinates of endpoints."
+    sys.exit(4)
 except:
     print "Unexpected error:", sys.exc_info()[0]
-    print "Can't connect ot AGIS to get coordinates of endpoints. Setting localRedirector to glrd.usatlas.org ."
-    print 'export LOCALREDIRECTOR=glrd.usatlas.org'
-
+    print "Can't connect ot AGIS to get coordinates of endpoints."
+    sys.exit(41)
