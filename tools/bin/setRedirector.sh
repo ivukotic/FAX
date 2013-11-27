@@ -11,7 +11,7 @@ if [ "$FAXtoolsDir" = "" ]; then
     FAXtoolsDir="./"
 fi
 
-red=$($FAXtoolsDir/getBestRedirector.py)
+red=$($FAXtoolsDir/bin/getBestRedirector.py)
 sc=$?
 
 if [ $sc -eq 0 ]; then
