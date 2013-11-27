@@ -1,12 +1,28 @@
 #!/bin/bash
-red=$(./getBestRedirector.py)
+
+deb=1
+if [ "$#" -eq 1 ]; then
+    if [ $1 = "--quiet" -o $argv[1] = "-q" ]; then
+        deb=0
+    fi
+fi
+
+if [ "$FAXtoolsDir" = "" ]; then
+    FAXtoolsDir="./"
+fi
+
+red=$($FAXtoolsDir/getBestRedirector.py)
 sc=$?
 
 if [ $sc -eq 0 ]; then
     [[ $red != */ ]] && red="$red"/ 
-	echo "Setting STORAGEPREFIX to be $red"
+	if [ $deb -eq 1 ]; then
+        echo "Setting STORAGEPREFIX to be $red"
+    fi
 	export STORAGEPREFIX="$red"
 else
-	echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
+    if [ $deb -eq 1 ]; then
+    	echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
+    fi
     export STORAGEPREFIX="root://glrd.usatlas.org/"
 fi

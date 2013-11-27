@@ -1,14 +1,33 @@
 #!/bin/tcsh
-set red=`./getBestRedirector.py`
-echo "got $red"
-#$(./getBestRedirector.py)
-#sc=$status
 
-#if ( $sc -eq 0 ) then
-#    [[ $red != */ ]] && red="$red"/ 
-#	echo "Setting STORAGEPREFIX to be $red"
-#	export STORAGEPREFIX="$red"
-#else
-#	echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
-#    export STORAGEPREFIX="root://glrd.usatlas.org/"
-#endif
+set deb=1
+if ( $#argv == 1) then
+    if ($argv[1] =~ "--quiet" || $argv[1] =~ "-q") then
+        set deb=0
+    endif
+endif
+
+if ( $FAXtoolsDir =~ "" ) then
+    set FAXtoolsDir = "./"
+endif
+
+set red=`$FAXtoolsDir/getBestRedirector.py`
+
+set sc=$status
+if ( $sc == 0 ) then
+    if ($red !~ "*/" ) then 
+        # echo "slash not found "
+        set red="$red/" 
+    endif
+    
+    if ( $deb > 0 ) then
+       echo "Setting STORAGEPREFIX to be $red"
+    endif
+    
+    setenv STORAGEPREFIX "$red"
+else
+    if ( $deb > 0 ) then
+        echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
+    endif
+    setenv STORAGEPREFIX "root://glrd.usatlas.org/"
+endif    

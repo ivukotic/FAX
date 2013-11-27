@@ -119,7 +119,7 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 			if (pfn == null) {
 				log.info("rucio name not found.");
 				pfn = "";
-				throw new XrootdException(XrootdProtocol.kXR_NotFound, "rucio name not found.");
+				throw new XrootdException(XrootdProtocol.kXR_NotFound, "rucio name not found. ");
 			} else {
 				log.info("rucio translated name: " + pfn);
 				return pfn;
