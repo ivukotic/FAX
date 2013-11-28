@@ -155,7 +155,7 @@ pro.appendChild(sto)
 res = doc.createElement("result")
 res.setAttribute("cputime", str(CPUTIME))
 res.setAttribute("walltime", str(WALLTIME))
-SHORTFILENAME = str(FILENAME)[-100]
+SHORTFILENAME = str(FILENAME)[-100:]
 res.setAttribute("filename", str(SHORTFILENAME))
 res.setAttribute("rss", str(RSS))
 res.setAttribute("vmem", str(VMEM))
