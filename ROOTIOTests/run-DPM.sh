@@ -7,7 +7,7 @@ if [ "${PANDA_SITE_NAME}" == "ANALY_LAPP" ]; then
 export SITEDPMHOST=lapp-se99.in2p3.fr
 export SITEDOMAIN=in2p3.fr
 fi
-if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF" ]; then 
+if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF_SL6" ]; then 
 export SITEDPMHOST=gridpp09.ecdf.ed.ac.uk
 export SITEDOMAIN=ecdf.ed.ac.uk
 fi
@@ -64,6 +64,14 @@ echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 1% TTC" "1"
 echo -n "time> DPM-test > test 1,30 Eos finished "; date
 
+./readDirect $filenameeos susy 1 0 >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read NO Cache" "1"
+echo -n "time> DPM-test > test 1,0 Eos finished "; date
+
+
 filenameeos="root://eosatlas.cern.ch//eos/atlas/atlaseosdatadisk/rucio/user/flegger/60/e3/NTUP_SUSYSKIM.01106323._000003.WIGNER.root.1"
 export COPY_TOOL=eos-wigner;
 
@@ -73,6 +81,13 @@ cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 1% TTC" "1"
 echo -n "time> DPM-test > test 1,30 Eos 2 finished "; date
+
+./readDirect $filenameeos susy 1 0 >& info.txt
+echo " --------- info.txt ----------"
+cat info.txt
+echo " -----------------------------"
+python uploaderDPM.py "DPM Root Read NO Cache" "1"
+echo -n "time> DPM-test > test 1,0 Eos 2 finished "; date
 
 fi
 
