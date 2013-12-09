@@ -117,6 +117,7 @@ for line in f:
         if len(line[1])==0: continue
         rep=line[1].split(',')
         for r in rep:
+            r=r.strip()
             if r in allddms:
                 dsets[cds][0]+=1
         continue
@@ -125,6 +126,7 @@ for line in f:
         if len(line[1])==0: continue
         rep=line[1].split(',')
         for r in rep:
+            r=r.strip()
             if r in allddms:
                 dsets[cds][1]+=1 
         continue  
