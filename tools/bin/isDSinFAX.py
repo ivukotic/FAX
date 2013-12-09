@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 import subprocess, threading, os, sys 
-import urllib2,simplejson
+import urllib2
+
+try: import simplejson as json
+except ImportError: import json
 
 import argparse
  
@@ -69,7 +72,7 @@ try:
     req = urllib2.Request("http://atlas-agis-api-0.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
     opener = urllib2.build_opener()
     f = opener.open(req)
-    res=simplejson.load(f)
+    res=json.load(f)
     for s in res:
 #        print s["name"], s["rc_site"], s["endpoint"]
         ns = site( s["rc_site"], s["endpoint"] )
@@ -88,7 +91,7 @@ try:
     req = urllib2.Request("http://atlas-agis-api-0.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
     opener = urllib2.build_opener()
     f = opener.open(req)
-    res=simplejson.load(f)
+    res=json.load(f)
     for s in res:
         for c in sites:
             if s["rc_site"]==c.name:
