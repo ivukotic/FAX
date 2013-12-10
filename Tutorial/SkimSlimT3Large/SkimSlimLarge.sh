@@ -1,7 +1,7 @@
 #!/bin/zsh
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-source $AtlasSetup/scripts/asetup.sh 17.6.0,noTest
+source $AtlasSetup/scripts/asetup.sh 18.0.0,noTest
 export X509_USER_PROXY=x509up_u20074
 echo 'job:' $1, 'from:' $2
 files=$(wc -l <inputFileListLarge)
