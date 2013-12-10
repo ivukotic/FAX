@@ -1,0 +1,4 @@
+#!/bin/sh
+# Parameter: dataset name
+# Requirement: dq2-list-files -s
+dq2-list-files -s $1 | awk '{if ($0 == "") {exit 0} else {gsub(/\./,"/",$1); printf("/atlas/rucio/%s:%s\n",$1,$2)}}'
