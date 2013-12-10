@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.security.auth.Subject;
 
 import nl.uva.vlet.glite.lfc.LFCConfig;
+import nl.uva.vlet.glite.lfc.LFCException;
 import nl.uva.vlet.glite.lfc.LFCServer;
 import nl.uva.vlet.glite.lfc.internal.FileDesc;
 import nl.uva.vlet.glite.lfc.internal.ReplicaDesc;
@@ -33,7 +34,6 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
 	final static Logger log = LoggerFactory.getLogger(AtlasAuthorizationHandler.class);
 
-	
 	private LFCConfig config = null;
 	private String LFC_HOST = "";
 	private String SRM_HOST = "";
@@ -104,7 +104,7 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
 		log.info("GOT to translate: " + path);
 
-		if (path.startsWith("pnfs/") || path.startsWith("/pnfs/") ) {
+		if (path.startsWith("pnfs/") || path.startsWith("/pnfs/")) {
 			return path;
 		}
 
@@ -130,13 +130,13 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 		LFN = "lfn://" + LFC_HOST + "//grid" + LFN;
 
 		log.info("FINALY translating: " + LFN);
-		
+
 		URI lfcUri = null;
 
 		if (config != null) { // access through API
 
-			// if (config.globusCredential.getTimeLeft() <= 60)
-			// getValidProxy();
+			 if (config.globusCredential.getTimeLeft() <= 60)
+			 getValidProxy();
 
 			try {
 				lfcUri = new URI(LFN);
@@ -170,6 +170,8 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 				FileDesc entry = new FileDesc();
 				try {
 					entry = lfcServer.fetchFileDesc(lfcUri.getPath());
+				} catch (LFCException lfce) {
+					log.error("*** An LFC exception: " + lfce.getMessage());
 				} catch (Exception e) {
 					log.error("*** Can't get file description for entry: " + lfcUri.getPath());
 					log.error("*** Can't get file description for entry: " + e.getMessage());
