@@ -163,6 +163,10 @@ int main(int argc, char **argv){
     netSt(netSt1);
 
     TFile *f = TFile::Open(fn.c_str());
+    if (!f) {
+        cout<<"Problem opening the file."<<endl;
+        return 1;
+    }
     TTree *tree = (TTree*)f->Get(trname.c_str());
 
 
