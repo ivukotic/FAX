@@ -90,7 +90,7 @@ How to use FAX - Tutorial
     ./readDirect root://fax.mwt2.org:1094//atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root physics 10 30 
 
     remotely read from file 10% of events using 30MB of TTreeCache memory and write to a remote xrootd server:
-    ./readWrite root://fax.mwt2.org:1094//atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root  root://faxbox.mwt2.org:1094//  physics 10 30
+    ./readWrite root://fax.mwt2.org:1094//atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root  root://faxbox.usatlas.org:1094//  physics 10 30
 
 7. Simple SkimSlim example 
     This example will use a standard Athena SkimSlim script filter-and-merge-d3pd.py 
@@ -231,7 +231,7 @@ How to use FAX - Tutorial
     inputFile=$(awk -v jo=$1 'NR == jo {print}' inputFileListLarge)
     cat inputFileList
 
-    ./readWrite $inputFile  root://faxbox.mwt2.org:1094//user/ilijav/rW_$1.root  physics  5  30
+    ./readWrite $inputFile  root://faxbox.usatlas.org:1094//user/ilijav/rW_$1.root  physics  5  30
 
     This time we submit much more jobs:
 

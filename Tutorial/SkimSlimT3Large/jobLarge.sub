@@ -5,8 +5,9 @@ output         = SkimSlimLarge.out.$(Process)
 error          = SkimSlimLarge.error.$(Process)
 log            = SkimSlimLarge.log.$(Process)
 arguments = $(Process) $(Jobs)
-transfer_input_files = filter-and-merge-d3pd.py,/tmp/x509up_u20074,inputFileListLarge,branchesList,cutCode
+transfer_input_files = filter-and-merge-d3pd.py,/tmp/x509up_u21183,inputFileListLarge,branchesList,cutCode
 universe       = vanilla
-Requirements   = (regexp("^uc3.*", TARGET.Machine,"IM") == True)
-#Requirements   = HAS_CVMFS =?= True 
+#Requirements   = (regexp("^uc3.*", TARGET.Machine,"IM") == True)
+Requirements   = HAS_CVMFS =?= True 
++ProjectName = "atlas"
 queue $(Jobs)

@@ -21,7 +21,7 @@ inputFile=$(awk -v jo=$1 'NR == jo {print}' inputFileListLarge)
 cat inputFileList
 
 ./readWrite $inputFile \
-root://faxbox.mwt2.org:1094//user/ilijav/rW_$1.root \
+root://faxbox.usatlas.org:1094//user/ilijav/rW_$1.root \
 physics \
 5 \
 30
