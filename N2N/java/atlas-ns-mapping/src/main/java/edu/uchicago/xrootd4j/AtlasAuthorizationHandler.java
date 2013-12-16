@@ -135,8 +135,8 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
 		if (config != null) { // access through API
 
-			 if (config.globusCredential.getTimeLeft() <= 60)
-			 getValidProxy();
+			if (config.globusCredential.getTimeLeft() <= 60)
+				config.globusCredential = getValidProxy();
 
 			try {
 				lfcUri = new URI(LFN);
