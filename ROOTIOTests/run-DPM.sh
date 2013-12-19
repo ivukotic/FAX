@@ -100,15 +100,16 @@ fi
 
 export COPY_TOOL=xrdcp;
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
-#./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
-root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
+#root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,30 Xrootd finished "; date
 
-root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+#root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+./readDirect $filenamexrootd $treeToUse 1 30 >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
@@ -126,14 +127,16 @@ unset http_proxy
 echo "=o= DPM WebDav no cache"
 export COPY_TOOL=https
 
-root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+./readDirect $filename $treeToUse 100 30 >& info.txt
+#root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,0 WebDav finished "; date
 
-root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+./readDirect $filenamexrootd $treeToUse 1 30 >& info.txt
+#root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
