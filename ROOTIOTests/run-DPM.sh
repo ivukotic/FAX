@@ -40,6 +40,11 @@ export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 
 
+if [ "${PANDA_SITE_NAME}" == "ANALY_INFN-FRASCATI" ]; then
+echo "resetting ROOT to SL6 latest from cvmfs"
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm --rootVers 5.34.14-x86_64-slc6-gcc4.7
+fi
+
 #ln -s $LCG_LOCATION/lib64/libdpm.so libshift.so.2.1
 #ln -s $LCG_LOCATION/lib64/liblcgdm.so
 export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
@@ -95,21 +100,23 @@ cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read NO Cache" "1"
 echo -n "time> DPM-test > test 1,0 Eos 2 finished "; date
-
 fi
 
 export COPY_TOOL=xrdcp;
+#put python to 2.6 in case its set more recent by root (for use with oracle in athena 17.6.0 release
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-x86_64-slc5-gcc43
+
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
-./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
-#root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+#./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
+root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,30 Xrootd finished "; date
 
-#root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
-./readDirect $filenamexrootd $treeToUse 1 30 >& info.txt
+root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+#./readDirect $filenamexrootd $treeToUse 1 30 >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
@@ -120,23 +127,23 @@ echo -n "time> DPM-test > test 1,30 Xrootd finished "; date
 #source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh gcc436_x86_64_slc5
-#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
+
 which root.exe
 unset HTTP_PROXY
 unset http_proxy
 echo "=o= DPM WebDav no cache"
 export COPY_TOOL=https
 
-./readDirect $filename $treeToUse 100 30 >& info.txt
-#root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+#./readDirect $filename $treeToUse 100 30 >& info.txt
+root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
 echo -n "time> DPM-test > test 100,0 WebDav finished "; date
 
-./readDirect $filenamexrootd $treeToUse 1 30 >& info.txt
-#root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
+#./readDirect $filenamexrootd $treeToUse 1 30 >& info.txt
+root.exe -l -q -b "readDPMWebDav.C++(\"$filename\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
