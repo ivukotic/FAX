@@ -100,10 +100,12 @@ cat info.txt
 echo " -----------------------------"
 python uploaderDPM.py "DPM Root Read NO Cache" "1"
 echo -n "time> DPM-test > test 1,0 Eos 2 finished "; date
-
 fi
 
 export COPY_TOOL=xrdcp;
+#put python to 2.6 in case its set more recent by root (for use with oracle in athena 17.6.0 release
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-x86_64-slc5-gcc43
+
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
 #./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
 root.exe -l -q -b "readDPMWebDav.C++(\"$filenamexrootd\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
@@ -125,7 +127,7 @@ echo -n "time> DPM-test > test 1,30 Xrootd finished "; date
 #source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm
 #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalGccSetup.sh gcc436_x86_64_slc5
-#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-i686-slc5-gcc43
+
 which root.exe
 unset HTTP_PROXY
 unset http_proxy
