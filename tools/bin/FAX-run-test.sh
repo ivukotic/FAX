@@ -2,7 +2,7 @@
 
 get_response()
 {
-echo $1
+echo "$1 (y|n|a): " 
 if [ $dontask = "y" ]
 then
         do=y
@@ -28,7 +28,7 @@ then
     exit 0
 fi
 
-get_response "This test will try to get gLFNs for all the files of one dataset, would you like to proceed? (y|n|a): ";
+get_response "This test will try to get gLFNs for all the files of one dataset, would you like to proceed?";
 
 if [ $do = "y" ]
 then
@@ -41,7 +41,7 @@ else
 fi
 
 
-get_response "This test will try to copy (using xrdcp) a small file to /dev/null of your computer, would you like to proceed? (y|n): ";
+get_response "This test will try to copy (using xrdcp) a small file to /dev/null of your computer, would you like to proceed?";
 
 if [ $do = "y" ]
 then
@@ -54,7 +54,7 @@ else
 fi
 
 
-get_response  "This test will set-up ROOT and list contet of a file, would you like to proceed? (y|n): ";
+get_response  "This test will set-up ROOT and list contet of a file, would you like to proceed?";
 
 if [ $do = "y" ]
 then
