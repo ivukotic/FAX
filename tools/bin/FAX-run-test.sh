@@ -8,8 +8,8 @@ then
         do=y
 else
         read inputline
-        if [ $inputline = "a" ]; then do=y;dontask=y; fi
-        if [ $inputline = "y" ]; then do=y; fi
+		if [ $inputline = "y" ]; then do=y; else do=n; fi
+        if [ $inputline = "a" ]; then do=y; dontask=y; fi
 fi
 }
 
