@@ -1,5 +1,20 @@
 #!/bin/sh
 
+get_response()
+{
+echo $1
+if [ $dontask = "y" ]
+then
+        do=y
+else
+        read inputline
+        if [ $inputline = "a" ]; then do=y;dontask=y; fi
+        if [ $inputline = "y" ]; then do=y; fi
+fi
+}
+
+dontask=n
+
 if [ -z "$X509_USER_PROXY" ]
 then
     proxyfn=/tmp/x509up_u$(id -u)
@@ -13,9 +28,9 @@ then
     exit 0
 fi
 
-echo "This test will try to get gLFNs for all the files of one dataset, would you like to proceed? (y|n): ";
-read inputline
-if [ "$inputline" == "y" ]
+get_response "This test will try to get gLFNs for all the files of one dataset, would you like to proceed? (y|n|a): ";
+
+if [ $do = "y" ]
 then
     kom="FAX-get-gLFNs.sh user.ilijav.HCtest.1"
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
@@ -26,9 +41,9 @@ else
 fi
 
 
-echo "This test will try to copy (using xrdcp) a small file to /dev/null of your computer, would you like to proceed? (y|n): ";
-read inputline
-if [ "$inputline" == "y" ]
+get_response "This test will try to copy (using xrdcp) a small file to /dev/null of your computer, would you like to proceed? (y|n): ";
+
+if [ $do = "y" ]
 then
     kom="xrdcp -d 1 $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root -> /dev/null "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
@@ -39,9 +54,9 @@ else
 fi
 
 
-echo "This test will set-up ROOT and list contet of a file, would you like to proceed? (y|n): ";
-read inputline
-if [ "$inputline" == "y" ]
+get_response  "This test will set-up ROOT and list contet of a file, would you like to proceed? (y|n): ";
+
+if [ $do = "y" ]
 then
 	export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 	source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
