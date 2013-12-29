@@ -38,8 +38,9 @@ endif
 echo "This test will set-up ROOT and list contet of a file, would you like to proceed? (y|n): ";
 set inputline="$<"
 if ( $inputline == "y" ) then
-    #export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-    #source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --quiet
+	setenv ATLAS_LOCAL_ROOT_BASE /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+	source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.csh --quiet
+	source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.csh --quiet	
 	set fn=$STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root
 	echo $fn
 	set cfn='"'$fn'"'
