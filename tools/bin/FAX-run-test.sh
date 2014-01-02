@@ -73,7 +73,11 @@ then
 	export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 	source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
 	source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --quiet
-    kom=" root -l -b -q \"FAX-listFileContent.C(\\\"$STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root\\\")\" "
+    SCRIPT=$(readlink -f "$0")
+    # Absolute path this script is in, thus /home/user/bin
+    SCRIPTPATH=$(dirname "$SCRIPT")
+    echo $SCRIPTPATH
+    kom=" root -l -b -q \"$SCRIPTPATH/FAX-listFileContent.C(\\\"$STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root\\\")\" "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
     if [ "$?" -eq 0 ]

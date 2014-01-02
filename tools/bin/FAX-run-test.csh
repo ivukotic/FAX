@@ -55,7 +55,13 @@ if ( $inputline == "y" ) then
 	echo $fn
 	set cfn='"'$fn'"'
     echo $cfn
-	set kom="root -l -b -q 'FAX-listFileContent.C("$cfn")' "
+    
+    set SCRIPT=`readlink -f "$0"`
+    # Absolute path this script is in, thus /home/user/bin
+    set SCRIPTPATH=`dirname "$SCRIPT"`
+    echo $SCRIPTPATH
+    
+	set kom="root -l -b -q '"$SCRIPTPATH/"FAX-listFileContent.C("$cfn")' "
     echo $kom
 	printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
