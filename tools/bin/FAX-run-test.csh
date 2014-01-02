@@ -57,9 +57,7 @@ if ( $inputline == "y" ) then
     echo $cfn
     
     set SCRIPT=`readlink -f "$0"`
-    # Absolute path this script is in, thus /home/user/bin
     set SCRIPTPATH=`dirname "$SCRIPT"`
-    echo $SCRIPTPATH
     
 	set kom="root -l -b -q '"$SCRIPTPATH/"FAX-listFileContent.C("$cfn")' "
     echo $kom
