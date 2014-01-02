@@ -17,6 +17,11 @@ if ( $inputline == "y" )  then
     set kom="FAX-get-gLFNs.sh user.ilijav.HCtest.1"
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval "$kom"
+    if ($status) then
+        echo "TEST RESULT - FAIL"
+    else
+        echo "TEST RESULT - OK"
+    endif        
     echo "========================================================================================================"
 else
     echo "Skipping this test."
@@ -29,6 +34,11 @@ if ( $inputline == "y" ) then
     set kom="xrdcp -d 1 $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root -> /dev/null "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
+    if ($status) then
+        echo "TEST RESULT - FAIL"
+    else
+        echo "TEST RESULT - OK"
+    endif 
     echo "========================================================================================================"
 else
     echo "Skipping this test."
@@ -49,6 +59,11 @@ if ( $inputline == "y" ) then
     echo $kom
 	printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
+    if ($status) then
+        echo "TEST RESULT - FAIL"
+    else
+        echo "TEST RESULT - OK"
+    endif 
     echo "========================================================================================================"
 else
     echo "Skipping this test."

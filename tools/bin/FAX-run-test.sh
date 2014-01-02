@@ -35,6 +35,12 @@ then
     kom="FAX-get-gLFNs.sh user.ilijav.HCtest.1"
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval "$kom"
+    if [ "$?" -eq 0 ]
+    then
+        echo "TEST RESULT - OK"
+    else
+        echo "TEST RESULT - FAIL"
+    fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
@@ -48,6 +54,12 @@ then
     kom="xrdcp -d 1 $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root -> /dev/null "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
+    if [ "$?" -eq 0 ]
+    then
+        echo "TEST RESULT - OK"
+    else
+        echo "TEST RESULT - FAIL"
+    fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
@@ -64,6 +76,12 @@ then
     kom=" root -l -b -q \"FAX-listFileContent.C(\\\"$STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root\\\")\" "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
+    if [ "$?" -eq 0 ]
+    then
+        echo "TEST RESULT - OK"
+    else
+        echo "TEST RESULT - FAIL"
+    fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
