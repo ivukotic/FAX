@@ -11,6 +11,8 @@ if ( ! -e $proxyfn ) then
     exit 0
 endif
 
+set res=""
+
 echo "This test will try to get gLFNs for all the files of one dataset, would you like to proceed? (y|n): ";
 set inputline="$<"
 if ( $inputline == "y" )  then
@@ -51,7 +53,7 @@ else
 endif
 
 
-echo "This test will set-up ROOT and list contet of a file, would you like to proceed? (y|n): ";
+echo "This test will set-up ROOT and list content of a file, would you like to proceed? (y|n): ";
 set inputline="$<"
 if ( $inputline == "y" ) then
 	source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.csh --quiet

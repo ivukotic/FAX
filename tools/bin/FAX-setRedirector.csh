@@ -1,19 +1,5 @@
 #!/bin/tcsh
 
-get_response()
-{
-echo $1
-if ( $dontask = "y" ) then
-        set do=y
-else
-        read inputline
-        if ( $inputline = "a" ) then set do=y; set dontask=y; endif
-        if ( $inputline = "y" ) then set do=y; endif
-endif
-}
-
-set dontask=n
-
 set deb=1
 if ( $#argv == 1) then
     if ($argv[1] =~ "--quiet" || $argv[1] =~ "-q") then

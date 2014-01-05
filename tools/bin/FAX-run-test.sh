@@ -73,7 +73,7 @@ else
 fi
 
 
-get_response  "This test will set-up ROOT and list contet of a file, would you like to proceed?";
+get_response  "This test will set-up ROOT and list content of a file, would you like to proceed?";
 
 if [ $do = "y" ]
 then
