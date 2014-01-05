@@ -14,6 +14,7 @@ fi
 }
 
 dontask=n
+res=""
 
 if [ -z "$X509_USER_PROXY" ]
 then
@@ -38,12 +39,15 @@ then
     if [ "$?" -eq 0 ]
     then
         echo "TEST RESULT - OK"
+        res=0$res
     else
         echo "TEST RESULT - FAIL"
+        res=1$res
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
+    res=x$res
 fi
 
 
@@ -57,12 +61,15 @@ then
     if [ "$?" -eq 0 ]
     then
         echo "TEST RESULT - OK"
+        res=0$res
     else
         echo "TEST RESULT - FAIL"
+        res=1$res
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
+    res=x$res
 fi
 
 
@@ -70,7 +77,6 @@ get_response  "This test will set-up ROOT and list contet of a file, would you l
 
 if [ $do = "y" ]
 then
-	export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 	source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
 	source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --quiet
     SCRIPT=$(readlink -f "$0")
@@ -81,10 +87,17 @@ then
     if [ "$?" -eq 0 ]
     then
         echo "TEST RESULT - OK"
+        res=0$res
     else
         echo "TEST RESULT - FAIL"
+        res=1$res
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
+    res=x$res
 fi
+
+echo "Uploading test results..."
+java -jar $SCRIPTPATH/FAX2Google-0.0.1-jar-with-dependencies.jar $res > /dev/null
+echo "Done."
