@@ -6,6 +6,9 @@
         <dependencySet>
             <excludes>
                 <exclude>org.dcache:xrootd4j:jar:*</exclude>
+                <!-- <exclude>org.dcache:cog-jglobus</exclude> -->
+                <exclude>ch.qos.logback:logback-classic</exclude>
+                <exclude>org.json:json</exclude>
             </excludes>
             <useProjectArtifact>true</useProjectArtifact>
             <useTransitiveFiltering>true</useTransitiveFiltering>
