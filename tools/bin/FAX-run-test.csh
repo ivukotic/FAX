@@ -84,5 +84,5 @@ else
 endif
 
 echo "Uploading test results..."
-java -jar $SCRIPTPATH/FAX2Google-0.0.1-jar-with-dependencies.jar $res > /dev/null
+java -jar $SCRIPTPATH/FAX2Google-0.0.2-jar-with-dependencies.jar $res > /dev/null
 echo "Done."
