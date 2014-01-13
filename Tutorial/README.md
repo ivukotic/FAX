@@ -41,25 +41,15 @@ How to use FAX - Tutorial
 
 3. Find gLFN's of your files 
 
-    Currently there are two versions of gLFNs:
+    Use tool FAX-get-gLFNs.sh:
 
-    The old one (DQ2/LFC) currently have a larger coverage (supported by more sites), but will soon be removed. To obtain filenames in this format do:
+    FAX-get-gLFNs.sh user.ilijav.HCtest.1  > my_list_of_gLFNS.txt 
 
-    dq2-list-files -p user.ilijav.HCtest.1  > my_list_of_gLFNS.txt 
-
-    The new one (RUCIO) that scales better with load and is faster and more robust. To print the RUCIO gLFN use the following simple script (supply a dataset name)
-
-    #!/bin/sh
-    # Parameter: dataset name
-    # Requirement: dq2-list-files -s
-    dq2-list-files -s $1 | awk '{if ($0 == "") {exit 0} else {gsub(/\./,"/",$1); printf("/atlas/rucio/%s:%s\n",$1,$2)}}'
-
+    
 
 4.  Simple file copy, open, inspection
 
     copy it localy:
-
-    xrdcp $STORAGEPREFIX/atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root /tmp/myLocalCopy.root 
 
     xrdcp $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SMWZ.root /tmp/myLocalCopy.root.1 
 
@@ -77,7 +67,7 @@ How to use FAX - Tutorial
     listNumberOfEvents.C opens each of the files listed in a file and prints number of events in them
     
     create a file listing all files of a dataset:
-    dq2-list-files -p user.flegger.MWT2.data12_8TeV.00212172.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid01007411_00 > MWT2_files.txt
+    FAX-get-gLFNs.sh user.flegger.MWT2.data12_8TeV.00212172.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid01007411_00 > MWT2_files.txt
     
     execute it by doing:
     root -l -b -q listNumberOfEvents.C
@@ -87,10 +77,10 @@ How to use FAX - Tutorial
     make
 
     remotely read from file 10% of events using 30MB of TTreeCache memory.
-    ./readDirect root://fax.mwt2.org:1094//atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root physics 10 30 
+    ./readDirect root://fax.mwt2.org:1094//atlas/rucio/user/ivukotic:group.test.hc.NTUP_SMWZ.root physics 10 30 
 
     remotely read from file 10% of events using 30MB of TTreeCache memory and write to a remote xrootd server:
-    ./readWrite root://fax.mwt2.org:1094//atlas/dq2/user/ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root  root://faxbox.usatlas.org:1094//  physics 10 30
+    ./readWrite root://fax.mwt2.org:1094//atlas/rucio/user/ivukotic:group.test.hc.NTUP_SMWZ.root  root://faxbox.usatlas.org:1094//  physics 10 30
 
 7. Simple SkimSlim example 
     This example will use a standard Athena SkimSlim script filter-and-merge-d3pd.py 
