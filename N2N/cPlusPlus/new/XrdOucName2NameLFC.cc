@@ -487,6 +487,19 @@ String XrdOucLFC::get_pnfsid(String pfn)
 }
 
 
+int XrdOucLFC::lfn2rfn(const char* lfn, char  *buff, int blen)
+{
+    *eDest << "XRD-LFC: lfn2rfn not implemented" << endl;
+    return -EOPNOTSUPP;
+}
+
+int XrdOucLFC::pfn2lfn(const char* pfn, char  *buff, int blen)
+{
+    *eDest << "XRD-LFC: pfn2lfn not implemented" << endl;
+    return -EOPNOTSUPP;
+}
+
+
 #ifdef STANDALONE
 #include <iostream>
 int main(int argc, char **argv)

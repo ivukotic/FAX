@@ -1,7 +1,7 @@
 all: XrdOucName2NameLFC.so xrd-lfc-test
 
 
-XRD_INCLUDE=/Users/ivukotic/work/xrootd/src
+XRD_INCLUDE=/home/ivukotic/Software/xrootd/src
 FLAGS=-D_REENTRANT -D_THREAD_SAFE -Wno-deprecated
 
 SOURCES=XrdOucName2NameLFC.cc rucioN2N.cc rucioGetSitePrefix.cc
