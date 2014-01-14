@@ -171,9 +171,11 @@ def main():
 
         with open('exec'+s.name+'.sh', 'w') as f:
         
-            fn=s.host+"//atlas/dq2/user/"
-            fn+="HironoriIto/user.HironoriIto.xrootd."+s.name.lower()+"/user.HironoriIto.xrootd."+s.name.lower()+"-100M"
-            #ilijav/HCtest/user.ilijav.HCtest.1/group.test.hc.NTUP_SMWZ.root"
+            # fn=s.host+"//atlas/dq2/user/"
+            # fn+="HironoriIto/user.HironoriIto.xrootd."+s.name.lower()+"/user.HironoriIto.xrootd."+s.name.lower()+"-100M"
+            
+            fn=s.host+"//atlas/rucio/user/ivukotic:user.ivukotic.xrootd."+s.name.lower()+"-100M"
+            
             logfile = s.name + '.log'
         
         
