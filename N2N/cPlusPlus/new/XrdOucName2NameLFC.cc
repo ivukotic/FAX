@@ -1,7 +1,4 @@
-/******************************************************************************/
-/*                                                                            */
-/*                     X r d O u c N a m e 2 N a m e L F C . c c              */
-/*                                                                            */
+/******************************************************************************/ /* */ /* X r d O u c N a m e 2 N a m e L F C . c c */ /* */
 /******************************************************************************/
 
 // This file implements an instance of the XrdOucName2Name abstract class
@@ -10,8 +7,8 @@
 // Initial version written by cgw@hep.uchicago.edu Oct 2010
 // Support RUCIO global logical file name by Wei Yang, yangw@slac.stanford.edu June, 2013
 
-const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2011/12/13 16:06:40 sarah Exp $";
-const char* version = "$Revision: 1.33 $";
+const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2014/01/20 16:06:40 sarah Exp $";
+const char* version = "$Revision: 2.01 $";
 
 #define LFC_CACHE_TTL 2*3600
 #define LFC_CACHE_MAXSIZE 500000
@@ -171,99 +168,109 @@ XrdOucLFC::~XrdOucLFC()
     cache_by_time.clear();
 }
 
-int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
-{
-    Cache::iterator it;
-    pair <Cache::iterator, bool> ret;
-    int s1, s2;
+int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
     
-    time_t now;
-    String pfn;
-    bool cache_hit;
-    ostringstream tmp;
+    // *eDest << "XRD-N2N: lookup " << lfn << endl;
+    std::cout << "XRD-N2N: lookup " << lfn << std::endl;
+    
+    Cache::iterator it;
+    // pair <Cache::iterator, bool> ret;  useless ?
+    // ostringstream tmp;  useless ?
 
-    *eDest << "XRD-N2N: lookup " << lfn << endl;
 
-    // Clear expired cache entries
-    now = time(NULL);
-
-    cache_hit = false;
+    // ************* Clear expired cache entries ******************** //
+    time_t now = time(NULL);
     lock_cache();
 
+    int s1, s2;
     assert ( (s1 = cache_by_lfn.size()) == (s2 = cache_by_time.size()));
-
-    while (!cache_by_time.empty() &&
-	   now - (it=cache_by_time.front())->second.timestamp > lfc_cache_ttl) {
-	cache_by_lfn.erase(it);
-	cache_by_time.pop_front();
+    while (!cache_by_time.empty() && now - (it=cache_by_time.front())->second.timestamp > lfc_cache_ttl) {
+	    cache_by_lfn.erase(it);
+	    cache_by_time.pop_front();
     }
-
     assert ( (s1 = cache_by_lfn.size()) == (s2 = cache_by_time.size()));
 
-    // Check cache for lfn
+
+
+    // ************** Check cache for lfn  ************************** //
+    bool cache_hit=false;
     PfnRecord rec;
     if ( (it = cache_by_lfn.find(lfn)) != cache_by_lfn.end()) {
-	cache_hit = true;
-	rec = it->second;
+        cache_hit = true;
+        rec = it->second;
     }
     unlock_cache();
 
+
+    String pfn;
+
     if (cache_hit) {
-	if (rec.is_direct) {
-	    // make sure file has not been migrated off pool
-	    // small race cond. still possible, but this helps 
-	    if (access(rec.pfn, R_OK)==0) {
-		// Copy result to caller's buffer & return
-		strncpy(buff, rec.pfn, blen);
-		*eDest << "XRD-N2N: cache hit, direct mode, return " << buff << endl;
-		return 0;
+        std::cout<<"cache hit: checking what would happend next. "<<rec.pfn<<std::endl;
+    	if (rec.is_direct) { // make sure file has not been migrated off pool
+    	    // small race cond. still possible, but this helps 
+    	    if (access(rec.pfn, R_OK)==0) {  // Copy result to caller's buffer & return
+        		strncpy(buff, rec.pfn, blen);
+                // *eDest << "XRD-N2N: cache hit, direct mode, return " << buff << endl;
+        		std::cout << "XRD-N2N: cache hit, direct mode, would return " << buff << endl;
+                // return 0;  - commented for test
+    	    }
+	    } else if (!force_direct) {
+	        strncpy(buff, rec.pfn, blen);
+            // *eDest << "XRD-N2N: cache hit, return " << buff << endl;
+        	std::cout << "XRD-N2N: cache hit, return, would return " << buff << endl;
+            // return 0; - commented for test
+	    } else {
+            pfn = rec.pfn; 
 	    }
-	} else if (!force_direct) {
-	    strncpy(buff, rec.pfn, blen);
-	    *eDest << "XRD-N2N: cache hit, return " << buff << endl;
-	    return 0;
-	} else {
-            pfn = rec.pfn;
-	}
-    } else {
-	if (! strncmp(lfn, "/atlas/rucio", 12)) { // rucio gLFN
+        
+    }
+    // else { -commented for test
+    
+    if (true){
+        if (! strncmp(lfn, "/atlas/rucio", 12)) { // rucio gLFN
            char *sfn = rucio_n2n_glfn(lfn);
            pfn = sfn;
            free(sfn); 
-	} else // don't do N2N 
+	    } else // don't do N2N 
             pfn = lfn;
-    }
-    if (!pfn) {
-	*eDest << "XRD-N2N: no valid replica for " << lfn << endl;
-	return -ENOENT;
-    }
-    if (siteprefixreplace.size() == 2 && pfn.find(siteprefixreplace[0], 0) == 0) // Like SLAC only
-        pfn.replace(0, siteprefixreplace[0].size(), siteprefixreplace[1]);
+        }
+        
+        if (!pfn) {
+            // *eDest << "XRD-N2N: no valid replica for " << lfn << endl;
+            std::cout << "XRD-N2N: no valid replica for " << lfn << std::endl;
+            return -ENOENT;
+        }
+        
+        if (siteprefixreplace.size() == 2 && pfn.find(siteprefixreplace[0], 0) == 0) // Like SLAC only
+            pfn.replace(0, siteprefixreplace[0].size(), siteprefixreplace[1]);
 
-    // See if we have the file in a local dcache pool
-    String local_file;
-    bool can_access = false;
-    String id;
+        // See if we have the file in a local dcache pool
+        String local_file;
+        bool can_access = false;
+        String id;
     
-    struct timeval t0, t1;
-    gettimeofday(&t0, NULL);
+        struct timeval t0, t1;
+        gettimeofday(&t0, NULL);
 
-    if (!dcache_pool_list.empty()) {
-	if (cache_hit && rec.id)
-	    id = rec.id;
-	else
-	    id = get_pnfsid(pfn);
-	if (id) {
-	    for_each (dcache_pool, dcache_pool_list) {
-		local_file = *dcache_pool + "/" + id;
-        can_access = access(local_file, R_OK);
-		if ( ! can_access ) {
-		    pfn = local_file;
-		    break;
-		}
+        if (!dcache_pool_list.empty()) {
+        	if (cache_hit && rec.id)
+        	    id = rec.id;
+        	else
+        	    id = get_pnfsid(pfn);
+            
+        	if (id) {
+        	    for_each (dcache_pool, dcache_pool_list) {
+        		local_file = *dcache_pool + "/" + id;
+                can_access = access(local_file, R_OK);
+        		if ( ! can_access ) {
+        		    pfn = local_file;
+        		    break;
+        		}
+        	}
+            
 	    }
-	}
     }
+    
     gettimeofday(&t1, NULL);
     float diff = (t1.tv_sec + t1.tv_usec/1000000.0) - (t0.tv_sec + t0.tv_usec/1000000.0);
     *eDest << "XRD-N2N: timing info: pool check took " << diff << " seconds" << endl;
@@ -272,8 +279,8 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
     if (! strncmp(lfn, "/atlas/rucio", 12) || ! strncmp(lfn, "/atlas/dq2", 10)) insert_cache(lfn, pfn, now, id, can_access);
 
     if (force_direct && !can_access) {
-	*eDest << "XRD-N2N: no direct access to " << pfn << " as "  << id << endl;
-	return -ENOENT;
+    	*eDest << "XRD-N2N: no direct access to " << pfn << " as "  << id << endl;
+    	return -ENOENT;
     }
 
     // Copy result to caller's buffer and report success
@@ -283,9 +290,9 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
     return 0;
 }
 
-void XrdOucLFC::insert_cache(const char* lfn, String pfn, 
-			     time_t time, String id, bool is_direct)
-{
+
+
+void XrdOucLFC::insert_cache(const char* lfn, String pfn, time_t time, String id, bool is_direct) {
     pair <Cache::iterator, bool> ret;
     Cache::iterator it;
     bool insertion_done;

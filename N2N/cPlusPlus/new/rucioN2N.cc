@@ -307,7 +307,7 @@ char* rucio_n2n_glfn(const char *lfn) {
 }
 
 #ifdef STANDALONE
-// To comiple
+// To compile
 // g++ -g -I/usr/include/xrootd rucioN2N.cc -lcrypto -lrt -lXrdUtils -lXrdPosix -DSTANDALONE -DTESTLOCALSTORAGE -fPIC (optional)
 int main(int argc, char *argv[]) {
 
