@@ -8,7 +8,7 @@
 // Support RUCIO global logical file name by Wei Yang, yangw@slac.stanford.edu June, 2013
 
 const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2014/01/20 16:06:40 sarah Exp $";
-const char* version = "$Revision: 2.01 $";
+const char* version = "$Revision: 2.02 $";
 
 #define LFC_CACHE_TTL 2*3600
 #define LFC_CACHE_MAXSIZE 500000
@@ -76,74 +76,72 @@ typedef vector<String> List;
 #define for_each(i, v) for(List::iterator (i) = (v).begin(); (i) != (v).end(); (i)++)
 
 
-class XrdOucLFC : public XrdOucName2Name
-{
-public:
-    virtual int lfn2pfn(const char* lfn, char* buff, int blen);
-    virtual int lfn2rfn(const char* lfn, char* buff, int blen);
-    virtual int pfn2lfn(const char* lfn, char* buff, int blen);
-
-    XrdOucLFC(XrdSysError *erp, const char* parms);
-    ~XrdOucLFC();
-
-    // Methods
-    int parse_parameters(String);
-    friend XrdOucName2Name *XrdOucgetName2Name(XrdOucgetName2NameArgs);
-
-private:
-    // Params
-    String root; // should we perhaps use 'lroot' or 'rroot' here?
-    List match_list;
-    List nomatch_list;
-    List dcache_pool_list;
-    bool force_direct; // if set, only read files from dcache pools, no dcap
-    List rucioprefix_list;
-    List siteprefixreplace; // this is a private feature to only needed at SLAC. Has nothing to do with rucio.
-
-    // LFC utility functions
-    String lfn_is_pfn(String lfn);
-
-    // dcache utility functions
-    String get_pnfsid(String pfn);
-
-    // Cache implementation
-    class PfnRecord
-    {
+class XrdOucLFC : public XrdOucName2Name {
     public:
-	String pfn;
-	time_t timestamp;
-	String id;
-	bool is_direct;
-	PfnRecord(String _pfn, time_t _timestamp, String _id, bool _is_direct) {
-	    pfn = _pfn;
-	    timestamp = _timestamp;
-	    id = _id;
-	    is_direct = _is_direct;
-	};
-	PfnRecord() {};
-    };
-    typedef hash_map<String, PfnRecord> Cache;
-    Cache cache_by_lfn;
-    deque<Cache::iterator> cache_by_time;
-    int lfc_cache_ttl;
-    int lfc_cache_maxsize;
-    void insert_cache(const char*, String, time_t, String id="", bool direct=false);
-
-    // Locks
-    pthread_mutex_t cache_mutex;
-    pthread_mutex_t lfc_mutex;
-    void lock_cache() {pthread_mutex_lock(&cache_mutex);}
-    void unlock_cache() {pthread_mutex_unlock(&cache_mutex);}
-    void lock_lfc() {pthread_mutex_lock(&lfc_mutex);}
-    void unlock_lfc() {pthread_mutex_unlock(&lfc_mutex);}
+        virtual int lfn2pfn(const char* lfn, char* buff, int blen);
+        virtual int lfn2rfn(const char* lfn, char* buff, int blen);
+        virtual int pfn2lfn(const char* lfn, char* buff, int blen);
     
-    // Misc
-    XrdMsgStream *eDest;
-    bool session_initialized;
+        XrdOucLFC(XrdSysError *erp, const char* parms);
+        ~XrdOucLFC();
+    
+        // Methods
+        int parse_parameters(String);
+        friend XrdOucName2Name *XrdOucgetName2Name(XrdOucgetName2NameArgs);
+    
+    private:
+        // Params
+        String root; // should we perhaps use 'lroot' or 'rroot' here?
+        List match_list;
+        List nomatch_list;
+        List dcache_pool_list;
+        bool force_direct; // if set, only read files from dcache pools, no dcap
+        List rucioprefix_list;
+        List siteprefixreplace; // this is a private feature to only needed at SLAC. Has nothing to do with rucio.
+    
+        // LFC utility functions
+        String lfn_is_pfn(String lfn);
+    
+        // dcache utility functions
+        // String get_pnfsid(String pfn);
+    
+        // Cache implementation
+        class PfnRecord {
+            public:
+    	    String pfn;
+    	    time_t timestamp;
+    	    String id;
+    	    bool is_direct;
+    	    PfnRecord(String _pfn, time_t _timestamp, String _id, bool _is_direct) {
+    	        pfn = _pfn;
+    	        timestamp = _timestamp;
+    	        id = _id;
+    	        is_direct = _is_direct;
+    	    };
+    	    PfnRecord() {};
+        };
+        
+        typedef hash_map<String, PfnRecord> Cache;
+        Cache cache_by_lfn;
+        deque<Cache::iterator> cache_by_time;
+        int lfc_cache_ttl;
+        int lfc_cache_maxsize;
+        void insert_cache(const char*, String, time_t, String id="", bool direct=false);
+    
+        // Locks
+        pthread_mutex_t cache_mutex;
+        pthread_mutex_t lfc_mutex;
+        void lock_cache() {pthread_mutex_lock(&cache_mutex);}
+        void unlock_cache() {pthread_mutex_unlock(&cache_mutex);}
+        void lock_lfc() {pthread_mutex_lock(&lfc_mutex);}
+        void unlock_lfc() {pthread_mutex_unlock(&lfc_mutex);}
+        
+        // Misc
+        XrdMsgStream *eDest;
+        bool session_initialized;
 };
 
-XrdOucLFC::XrdOucLFC(XrdSysError* erp, const char* parms)
-{
+XrdOucLFC::XrdOucLFC(XrdSysError* erp, const char* parms){
     session_initialized = false;
     force_direct = false;
     lfc_cache_ttl = LFC_CACHE_TTL;
@@ -160,8 +158,7 @@ XrdOucLFC::XrdOucLFC(XrdSysError* erp, const char* parms)
     *eDest << "XRD-LFC v" << String(version).split(" ")[1] << " starting, parameters: " <<  parms << endl;
 }
   
-XrdOucLFC::~XrdOucLFC()
-{
+XrdOucLFC::~XrdOucLFC(){
     pthread_mutex_destroy(&cache_mutex);
     pthread_mutex_destroy(&lfc_mutex);
     cache_by_lfn.clear();
@@ -170,8 +167,12 @@ XrdOucLFC::~XrdOucLFC()
 
 int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
     
-    // *eDest << "XRD-N2N: lookup " << lfn << endl;
-    std::cout << "XRD-N2N: lookup " << lfn << std::endl;
+    if (! strncmp(lfn, "/atlas/dq2", 10)){
+        *eDest << "XRD-N2N: old gLFN. will not translate: " << lfn << endl;
+        return -ENOENT;
+    }
+    
+    *eDest << "XRD-N2N: looking up: " << lfn << endl;
     
     Cache::iterator it;
 
@@ -273,7 +274,7 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
     // *eDest << "XRD-N2N: timing info: pool check took " << diff << " seconds" << endl;
 
     // Cache LFC reply & other (pnfs) info
-    if (! strncmp(lfn, "/atlas/rucio", 12) || ! strncmp(lfn, "/atlas/dq2", 10)) insert_cache(lfn, pfn, now, id, can_access);
+    if (! strncmp(lfn, "/atlas/rucio", 12) ) insert_cache(lfn, pfn, now, id, can_access);
 
     // if (force_direct && !can_access) { - what is this checking for ?! 
     //     *eDest << "XRD-N2N: no direct access to " << pfn << " as "  << id << endl;
@@ -329,8 +330,7 @@ void XrdOucLFC::insert_cache(const char* lfn, String pfn, time_t time, String id
     unlock_cache();
 }
 
-String XrdOucLFC::lfn_is_pfn(String lfn)
-{
+String XrdOucLFC::lfn_is_pfn(String lfn){
     char* pfn=NULL;
     if (!root)
 	return NULL;
@@ -339,21 +339,20 @@ String XrdOucLFC::lfn_is_pfn(String lfn)
 }
 
   
-XrdOucName2Name *XrdOucgetName2Name(XrdOucgetName2NameArgs)
-{
+XrdOucName2Name *XrdOucgetName2Name(XrdOucgetName2NameArgs){
     static XrdOucLFC *inst = NULL;
 
     if (inst) { 
-	return (XrdOucName2Name *)inst;
+	    return (XrdOucName2Name *)inst;
     }
 
     inst = new XrdOucLFC(eDest, parms);
     if (!inst) {
-	return NULL;
+	    return NULL;
     }
     if (inst->parse_parameters(parms)) {
-	delete inst;
-	return NULL;
+	    delete inst;
+	    return NULL;
     }
 
     if (inst->rucioprefix_list.size() != 0) rucio_n2n_init(inst->rucioprefix_list);
@@ -361,8 +360,7 @@ XrdOucName2Name *XrdOucgetName2Name(XrdOucgetName2NameArgs)
     return (XrdOucName2Name *)inst;
 }
 
-static List glob(String pat)
-{
+static List glob(String pat){
     List ret;
     glob_t globbuf;
     
@@ -375,8 +373,7 @@ static List glob(String pat)
 }
 
 
-int XrdOucLFC::parse_parameters(String param_str)
-{
+int XrdOucLFC::parse_parameters(String param_str) {
     List tokens = param_str.split(" \t");
     const char *siteprefixstr = NULL;
     String sitename = "";
@@ -385,44 +382,46 @@ int XrdOucLFC::parse_parameters(String param_str)
     if (XrdOucEnv::Import("XRDSITE", xrdsite)) sitename = xrdsite;
 
     for_each (it, tokens) {
-	if (*it == "force_direct") {
-	    force_direct = true;
-	    continue;
-	}
-	List keyval = it->split("=");
-	if (keyval.size() != 2) {
-	    // ERROR
-	    *eDest << "XRD-N2N: Invalid parameter " << *it << endl;
-	    return 1;
-	}
-	String key = keyval[0];
-	String val = keyval[1];
-	if (key == "root") {
-	    root = val;
-	} else if (key == "match") {
-	    match_list = val.split(",");
-	} else if (key == "nomatch") {
-	    nomatch_list = val.split(",");
-	} else if (key == "cache_ttl") {
-	    if (! (stringstream(val) >> lfc_cache_ttl) ) {
-		*eDest << "XRD-N2N: Invalid numeric parameter " << val << endl;
-		return 2;
+        
+	    if (*it == "force_direct") {
+	        force_direct = true;
+	        continue;
 	    }
-	} else if (key == "cache_maxsize") {
-	    if (! (stringstream(val) >> lfc_cache_maxsize) ) {
-		*eDest << "XRD-N2N: Invalid numeric parameter " << val << endl;
-		return 2;
+        
+	    List keyval = it->split("=");
+	    if (keyval.size() != 2) {
+	        *eDest << "XRD-N2N: Invalid parameter " << *it << endl;
+	        return 1;
 	    }
-	} else if (key.startswith("dcache_pool")) {
-	    List l = val.split(",");
-	    for_each (p, l) {
-		List g = glob(*p);
-		if (g.empty()) {
-		    *eDest << "XRD-N2N: Error, no valid match for " << *p << endl;
-		} else {
-		    dcache_pool_list.insert(dcache_pool_list.end(), g.begin(), g.end());
-		}
-	    }
+        
+	    String key = keyval[0];
+	    String val = keyval[1];
+	    if (key == "root") {
+	        root = val;
+	    } else if (key == "match") {
+	        match_list = val.split(",");
+	    } else if (key == "nomatch") {
+	        nomatch_list = val.split(",");
+	    } else if (key == "cache_ttl") {
+	        if (! (stringstream(val) >> lfc_cache_ttl) ) {
+	    	    *eDest << "XRD-N2N: Invalid numeric parameter " << val << endl;
+	    	    return 2;
+	        }
+	    } else if (key == "cache_maxsize") {
+	        if (! (stringstream(val) >> lfc_cache_maxsize) ) {
+	    	    *eDest << "XRD-N2N: Invalid numeric parameter " << val << endl;
+	    	    return 2;
+	        }
+	    } else if (key.startswith("dcache_pool")) {
+	        List l = val.split(",");
+	        for_each (p, l) {
+		        List g = glob(*p);
+		        if (g.empty()) {
+		            *eDest << "XRD-N2N: Error, no valid match for " << *p << endl;
+		        } else {
+		            dcache_pool_list.insert(dcache_pool_list.end(), g.begin(), g.end());
+		        }
+	        }
         } else if (key == "rucioprefix") {
             rucioprefix_list = val.split(",");
             siteprefixstr = strdup(val.c_str());
@@ -432,11 +431,10 @@ int XrdOucLFC::parse_parameters(String param_str)
             XrdOucEnv::Export("XRDXROOTD_PROXY",val.c_str());
         } else if (key == "siteprefixreplace" )  // Like SLAC only
             siteprefixreplace = val.split(":");
-	else {
-	    // ERROR
-	    *eDest << "XRD-N2N: Invalid parameter " << key << endl;
-	    return 3;
-	}
+	    else {
+	        *eDest << "XRD-N2N: Invalid parameter " << key << endl;
+	        return 3;
+	    }
     }
     if (siteprefixstr != NULL) { // paramenter rucioprefix is provided
         *eDest << "XRD-N2N: Customer RUCIO prefix list " << siteprefixstr << endl;
@@ -459,46 +457,43 @@ int XrdOucLFC::parse_parameters(String param_str)
     return 0;
 }
 
-String XrdOucLFC::get_pnfsid(String pfn)
-{
-    List components = pfn.split("/");
-    String fname = components.back();
-    components.pop_back();
-    String path = join(components, "/");
-    path += "/.(id)(" + fname + ")";
+// String XrdOucLFC::get_pnfsid(String pfn){
+//     List components = pfn.split("/");
+//     String fname = components.back();
+//     components.pop_back();
+//     String path = join(components, "/");
+//     path += "/.(id)(" + fname + ")";
+// 
+//     String pnfsid = "";
+// 
+//     ifstream ifs;
+//     
+//     ifs.exceptions(ifstream::failbit | ifstream::badbit);
+//     
+//     struct timeval t0, t1;;
+//     gettimeofday(&t0, NULL);
+// 
+//     try {
+//     ifs.open(path);
+//     ifs >> pnfsid;
+//     } catch (...) {
+//     char err[64];
+//     strerror_r(errno, err, 64);
+//     *eDest << "XRD-N2N: Error reading " << path << " " << err << endl;
+//     }
+//     gettimeofday(&t1, NULL);
+//     float diff = (t1.tv_sec + t1.tv_usec/1000000.0) - (t0.tv_sec + t0.tv_usec/1000000.0);
+//     *eDest << "XRD-N2N: timing info: pnfsid lookup took " << diff << " seconds" << endl;
+//     return pnfsid;
+// }
 
-    String pnfsid = "";
 
-    ifstream ifs;
-    
-    ifs.exceptions(ifstream::failbit | ifstream::badbit);
-    
-    struct timeval t0, t1;;
-    gettimeofday(&t0, NULL);
-
-    try {
-	ifs.open(path);
-	ifs >> pnfsid;
-    } catch (...) {
-	char err[64];
-	strerror_r(errno, err, 64);
-	*eDest << "XRD-N2N: Error reading " << path << " " << err << endl;
-    }
-    gettimeofday(&t1, NULL);
-    float diff = (t1.tv_sec + t1.tv_usec/1000000.0) - (t0.tv_sec + t0.tv_usec/1000000.0);
-    *eDest << "XRD-N2N: timing info: pnfsid lookup took " << diff << " seconds" << endl;
-    return pnfsid;
-}
-
-
-int XrdOucLFC::lfn2rfn(const char* lfn, char  *buff, int blen)
-{
+int XrdOucLFC::lfn2rfn(const char* lfn, char  *buff, int blen){
     *eDest << "XRD-LFC: lfn2rfn not implemented" << endl;
     return -EOPNOTSUPP;
 }
 
-int XrdOucLFC::pfn2lfn(const char* pfn, char  *buff, int blen)
-{
+int XrdOucLFC::pfn2lfn(const char* pfn, char  *buff, int blen){
     *eDest << "XRD-LFC: pfn2lfn not implemented" << endl;
     return -EOPNOTSUPP;
 }
