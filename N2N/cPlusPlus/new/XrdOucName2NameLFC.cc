@@ -238,44 +238,47 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
         if (siteprefixreplace.size() == 2 && pfn.find(siteprefixreplace[0], 0) == 0) // Like SLAC only
             pfn.replace(0, siteprefixreplace[0].size(), siteprefixreplace[1]);
 
+        // struct timeval t0, t1; - unimportant
+        // gettimeofday(&t0, NULL);
+        
+        
         // See if we have the file in a local dcache pool
         String local_file;
         bool can_access = false;
-        String id;
+        String id="";
     
-        struct timeval t0, t1;
-        gettimeofday(&t0, NULL);
 
-        if (!dcache_pool_list.empty()) {
-        	if (cache_hit && rec.id)
-        	    id = rec.id;
-        	else
-        	    id = get_pnfsid(pfn);
-            
-        	if (id) {
-        	    for_each (dcache_pool, dcache_pool_list) {
-        		local_file = *dcache_pool + "/" + id;
-                can_access = access(local_file, R_OK);
-        		if ( ! can_access ) {
-        		    pfn = local_file;
-        		    break;
-        		}
-        	}
-            
-	    }
-    }
+
+    //     if (!dcache_pool_list.empty()) {  - what kind of BS is this ?!
+    //         if (cache_hit && rec.id)
+    //             id = rec.id;
+    //         else
+    //             id = get_pnfsid(pfn);
+    //         
+    //         if (id) {
+    //             for_each (dcache_pool, dcache_pool_list) {
+    //             local_file = *dcache_pool + "/" + id;
+    //             can_access = access(local_file, R_OK);
+    //             if ( ! can_access ) {
+    //                 pfn = local_file;
+    //                 break;
+    //             }
+    //         }
+    //         
+    //         }
+    // }
     
-    gettimeofday(&t1, NULL);
-    float diff = (t1.tv_sec + t1.tv_usec/1000000.0) - (t0.tv_sec + t0.tv_usec/1000000.0);
-    // *eDest << "XRD-N2N: timing info: pool check took " << diff << " seconds" << endl; - unimportant
+    // gettimeofday(&t1, NULL); - unimportant
+    // float diff = (t1.tv_sec + t1.tv_usec/1000000.0) - (t0.tv_sec + t0.tv_usec/1000000.0);
+    // *eDest << "XRD-N2N: timing info: pool check took " << diff << " seconds" << endl;
 
     // Cache LFC reply & other (pnfs) info
     if (! strncmp(lfn, "/atlas/rucio", 12) || ! strncmp(lfn, "/atlas/dq2", 10)) insert_cache(lfn, pfn, now, id, can_access);
 
-    if (force_direct && !can_access) {
-    	*eDest << "XRD-N2N: no direct access to " << pfn << " as "  << id << endl;
-    	return -ENOENT;
-    }
+    // if (force_direct && !can_access) { - what is this checking for ?! 
+    //     *eDest << "XRD-N2N: no direct access to " << pfn << " as "  << id << endl;
+    //     return -ENOENT;
+    // }
 
     // Copy result to caller's buffer and report success
     strncpy(buff, pfn, blen);
