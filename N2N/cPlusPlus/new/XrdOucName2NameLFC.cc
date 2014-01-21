@@ -174,9 +174,6 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
     std::cout << "XRD-N2N: lookup " << lfn << std::endl;
     
     Cache::iterator it;
-    // pair <Cache::iterator, bool> ret;  useless ?
-    // ostringstream tmp;  useless ?
-
 
     // ************* Clear expired cache entries ******************** //
     time_t now = time(NULL);
@@ -210,14 +207,12 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
     	    // small race cond. still possible, but this helps 
     	    if (access(rec.pfn, R_OK)==0) {  // Copy result to caller's buffer & return
         		strncpy(buff, rec.pfn, blen);
-                // *eDest << "XRD-N2N: cache hit, direct mode, return " << buff << endl;
-        		std::cout << "XRD-N2N: cache hit, direct mode, would return " << buff << endl;
+                *eDest << "XRD-N2N: cache hit, direct mode, would return " << buff << endl;
                 // return 0;  - commented for test
     	    }
 	    } else if (!force_direct) {
 	        strncpy(buff, rec.pfn, blen);
-            // *eDest << "XRD-N2N: cache hit, return " << buff << endl;
-        	std::cout << "XRD-N2N: cache hit, return, would return " << buff << endl;
+            *eDest << "XRD-N2N: cache hit, return, would return " << buff << endl;
             // return 0; - commented for test
 	    } else {
             pfn = rec.pfn; 
@@ -236,8 +231,7 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
         }
         
         if (!pfn) {
-            // *eDest << "XRD-N2N: no valid replica for " << lfn << endl;
-            std::cout << "XRD-N2N: no valid replica for " << lfn << std::endl;
+            *eDest << "XRD-N2N: no valid replica for " << lfn << endl;
             return -ENOENT;
         }
         
@@ -273,7 +267,7 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen) {
     
     gettimeofday(&t1, NULL);
     float diff = (t1.tv_sec + t1.tv_usec/1000000.0) - (t0.tv_sec + t0.tv_usec/1000000.0);
-    *eDest << "XRD-N2N: timing info: pool check took " << diff << " seconds" << endl;
+    // *eDest << "XRD-N2N: timing info: pool check took " << diff << " seconds" << endl; - unimportant
 
     // Cache LFC reply & other (pnfs) info
     if (! strncmp(lfn, "/atlas/rucio", 12) || ! strncmp(lfn, "/atlas/dq2", 10)) insert_cache(lfn, pfn, now, id, can_access);
