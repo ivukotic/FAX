@@ -139,6 +139,54 @@ try:
          print  'result uploaded.'
          connection.commit()
 
+    if testtype=='read10pc':
+         f=open('toExecute.sh', 'w')
+         for fn in filenames.keys():
+             f.write('./readDirect ' + fn + ' physics 10 30 >> logfile 2>&1 \n')
+         f.close()
+         os.chmod('toExecute.sh', 0755);
+
+     # execute them      
+         comm=Command('source toExecute.sh')
+         comm.run(timeout,True);
+
+      # parsing log file
+         f=open('logfile','r')
+         result=f.readlines()
+         f.close()
+         sum=0
+         succ=0
+         rootbytesread=0
+         eventsread=0  
+         for r in result:
+             print r
+             w=r.split('=')
+             if len(w)!=2: continue
+             if w[0]=='WALLTIME': 
+                 sum=sum+float(w[1])
+                 succ=succ+1
+             if w[0]=='ROOTBYTESREAD':
+                 rootbytesread+=float(w[1])
+             if w[0]=='EVENTS':
+                 eventsread+=float(w[1])
+         report=''
+         mbps=0
+         evps=0
+         if succ!=nfiles:
+             report='Some reads failed. '+str(succ)+' were OK. '
+         else:
+             report='OK '
+         if sum!=0:
+             mbps=rootbytesread/1024/1024/sum
+             evps=eventsread/sum
+         print report, mbps,'MB/s\t', evps,'ev/s'
+
+     # uploading result
+         cursor = cx_Oracle.Cursor(connection)
+         cursor.callproc('FDR_INSERT_FULL_RESULT',(testid,sum,mbps,evps,PANDAID,report))
+         cursor.close()
+         print  'result uploaded.'
+         connection.commit()
     
 
     print 'FDR => DONE.'
