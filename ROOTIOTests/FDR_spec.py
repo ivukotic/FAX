@@ -82,6 +82,7 @@ try:
     path="root://"+address+"//"
     for r in res:
         fn=r[0].replace('.MWT2.root','.'+server+'.root')
+        print "fajlname:",fn
         filenames[path+fn]=r[1]
 
 # create scripts to execute
