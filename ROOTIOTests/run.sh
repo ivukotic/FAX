@@ -8,7 +8,7 @@ echo -n "time> begin "; date
 
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-localSetupROOT
+localSetupROOT --skipConfirm
 
 # compiling releaseFileCache as staticly compiled one does not work on all sites.
 g++ releaseFileCache.cxx -o releaseFileCache
