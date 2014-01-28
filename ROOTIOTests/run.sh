@@ -5,6 +5,8 @@ python sleeper.py
 # this file should be used just to call real test script.
 echo -n "time> begin "; date
 # compiling releaseFileCache as staticly compiled one does not work on all sites.
+localSetupROOT
+
 g++ releaseFileCache.cxx -o releaseFileCache
 g++ checkCache.cxx -o checkCache
 
