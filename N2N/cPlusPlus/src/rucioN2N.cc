@@ -26,7 +26,11 @@
 #include "XrdClient/XrdClientEnv.hh"
 #include "XrdClient/XrdClientAdmin.hh"
 
+#include "XrdMsgStream.hh"
+
 using namespace std;
+
+pthread_mutex_t create_thread_lock;
 
 pthread_t cleaner;
 pthread_mutex_t cm;
@@ -43,6 +47,8 @@ short iXrdConn4n2n = 0;
 char **sitePrefix;
 int nPrefix = 0;
 char *pssorigin = NULL;
+
+XrdMsgStream *XrdLog;
 
 class RucioStorageStatPars {
 public:
@@ -100,8 +106,10 @@ public:
     }
     void FreeIt() {
         for (int i = 0; i<nthreads; i++) {
-            pthread_join(*tid[i], NULL);
-            free(tid[i]);
+            if (tid[i] != NULL) {
+                pthread_join(*tid[i], NULL);
+                free(tid[i]);
+            }
         }
         free(tid);
         p->FreeIt();
@@ -159,8 +167,10 @@ int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like stor
     //return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
 }
 
-void rucio_n2n_init(List rucioPrefix) {
+void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix) {
     int i;
+
+    XrdLog = eDest;
     nPrefix = rucioPrefix.size();
     if (nPrefix == 0) return;
 
@@ -169,6 +179,8 @@ void rucio_n2n_init(List rucioPrefix) {
 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+    pthread_mutex_init(&create_thread_lock, NULL);
 
     pthread_mutex_init(&cm, NULL);
     pthread_cond_init(&cc, NULL);
@@ -184,6 +196,7 @@ void rucio_n2n_init(List rucioPrefix) {
         for (i = 0; i<nXrdConn4n2n; i++) x_stat(tmp, &stbuf);
         free(tmp);
     }
+    *XrdLog << "XRD-N2N: rucio_n2n_init completed" << endl;
 } 
 
 bool rucioMd5(const char *lfn, char *sfn) {
@@ -259,7 +272,8 @@ char* rucio_n2n_glfn(const char *lfn) {
         short *icount = (short*)malloc(sizeof(short));
         char *output = (char*)malloc(512);
     
-        *icount = nPrefix;
+//        *icount = nPrefix;
+        *icount = 0;
         output[0] = '\0';
     
         pthread_mutex_init(m, NULL);
@@ -268,13 +282,28 @@ char* rucio_n2n_glfn(const char *lfn) {
         pthread_t **ids = (pthread_t**)malloc(sizeof(pthread_t*) * nPrefix);
         RucioStorageStatPars *p;
     
+        pthread_mutex_lock(&create_thread_lock); // serialize this part to deal with thread creation failure
+        int itry, ntry;
         for (i=0; i<nPrefix; i++) {
             ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
             p = new RucioStorageStatPars(m, c, i, icount, input, output);
-            pthread_create(ids[i], &attr, rucio_xrootd_storage_stat, p);
+            itry = 0;
+            ntry = 2;
+            while (itry < ntry && pthread_create(ids[i], &attr, rucio_xrootd_storage_stat, p)) {
+                itry++;
+                *XrdLog << "XRD-N2N: can not create thread, delay N2N by 60 seconds" << endl;
+                sleep(60);
+            }
+            if (itry < ntry)  // successfully created a thread
+                (*icount)++;
+            else {
+                *XrdLog << "XRD-N2N: can not create thread, checking " << input << " is aborted" << endl;
+                ids[i] = NULL;    
+            }
         }
+        pthread_mutex_unlock(&create_thread_lock);
     
         struct timespec now;
         pthread_mutex_lock(m);
