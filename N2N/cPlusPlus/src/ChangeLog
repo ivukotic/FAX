@@ -1,0 +1,10 @@
+2010-10-  : Charles Waldman initial development of LFC based N2N 
+            Wei Yang took over later
+
+2013-10-28: Wei Yang: n2n-cpp-1.0 support both LFC and RUCIO gLFN
+2013-11-13: Wei Yang: n2n-cpp-1.1 workaround dcache xrootd stat() issue; 
+            support both a.b and a/b as scope
+2014-01-23: Ilija Vukotici and Wei Yang: n2n-cpp-2.0-rc1 drop LFC gLFN in 
+            RUCIO
+2014-01-28: Wei Yang: n2n-cpp-2.0-rc2 address issue with libcurl and 
+            openssl the cause N2N to crash on RHEL5 platform
