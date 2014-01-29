@@ -9,7 +9,6 @@ echo -n "time> begin "; date
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 localSetupROOT --skipConfirm
-asetup 17.6.0,noTest
 
 # compiling releaseFileCache as staticly compiled one does not work on all sites.
 g++ releaseFileCache.cxx -o releaseFileCache
@@ -22,6 +21,10 @@ make --debug=b
 echo "=============== done"
 
 ls
+
+asetup 17.6.0,noTest
+echo "now should have oracle_cx in it."
+
 #python FDR.py > info.txt;
 python FDR_spec.py > info.txt;
 cat info.txt
