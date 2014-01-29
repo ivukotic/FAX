@@ -1,4 +1,4 @@
-all: XrdOucName2NameLFC.so xrd-lfc-test
+all: XrdOucName2NameLFC.so
 
 XRD_INCLUDE=/usr/include/xrootd
 FLAGS=-D_REENTRANT -D_THREAD_SAFE -Wno-deprecated

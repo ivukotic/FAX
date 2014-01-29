@@ -63,7 +63,7 @@ int GetJsonData(const char* AGISurl, struct JsonData *chunk)
     /* check for errors */ 
     if(res != CURLE_OK) return 0;
     curl_easy_cleanup(curl_handle);
-    curl_global_cleanup();
+//    curl_global_cleanup();
     return 1;
 }
 
