@@ -94,11 +94,11 @@ try:
          f.close()
          os.chmod('toExecute.sh', 0755);
     
-     # execute them      
+         # execute them      
          comm=Command('source toExecute.sh')
          comm.run(timeout,True);
 
-     # parsing log file
+         # parsing log file
          f=open('logfile','r')
          result=f.readlines()
          f.close()
@@ -133,7 +133,7 @@ try:
              mbps=sumbytes/1024/1024/sumtime     
          print testid, sumtime,'sec\t', PANDAID, report, mbps,'MB/s'
 
-     # uploading result
+         # uploading result
          cursor = cx_Oracle.Cursor(connection)
          cursor.callproc('FDR_INSERT_FULL_RESULT',(testid,sumtime,mbps,evps,PANDAID,report))
          cursor.close()
@@ -147,11 +147,11 @@ try:
          f.close()
          os.chmod('toExecute.sh', 0755);
 
-     # execute them      
+         # execute them      
          comm=Command('source toExecute.sh')
          comm.run(timeout,True);
 
-      # parsing log file
+         # parsing log file
          f=open('logfile','r')
          result=f.readlines()
          f.close()

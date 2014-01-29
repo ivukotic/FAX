@@ -22,7 +22,7 @@ echo "=============== done"
 
 ls
 
-asetup 17.6.0,noTest
+asetup 17.7.3,noTest
 echo "now should have oracle_cx in it."
 
 #python FDR.py > info.txt;
