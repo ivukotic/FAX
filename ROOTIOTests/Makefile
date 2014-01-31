@@ -27,7 +27,7 @@ all:            $(PROGRAMS)
 
 
 $(READ):      $(READO)
-		$(LD) $(LDFLAGS) $^ $(ALIBS) $(OutPutOpt)$@
+		$(LD) -D__USE_XOPEN2K8 $(LDFLAGS) $^ $(ALIBS) $(OutPutOpt)$@
 		$(MT_EXE)
 		@echo "$@ done"
 
