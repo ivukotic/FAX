@@ -6,9 +6,9 @@ echo "version 2013/01/28 11:35"
 # this file should be used just to call real test script.
 echo -n "time> begin "; date
 
-# export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-# source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-# localSetupROOT --skipConfirm
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+localSetupROOT --skipConfirm
 
 # compiling releaseFileCache as staticly compiled one does not work on all sites.
 g++ releaseFileCache.cxx -o releaseFileCache
@@ -22,14 +22,14 @@ echo "=============== done"
 
 ls
 
-# asetup 17.7.3,noTest,x86_64-slc5-gcc43-opt
-echo "now should have oracle_cx in it."
+./doFDR.sh > info.txt
 
 #python FDR.py > info.txt;
-python FDR_spec.py > info.txt;
+#python FDR_spec.py > info.txt;
 cat info.txt
 echo "finished FDR part"
 exit 0
+
 testName='run-generalNTUP-TTC-test.sh'
 echo $testName
 for v in ${1//,/ };
