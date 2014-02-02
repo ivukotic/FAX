@@ -1,3 +1,4 @@
+#!/bin/zsh
 r=($(curl "http://ivukotic.web.cern.ch/ivukotic/FDR/getTask.asp?SITE=$PANDA_SITE_NAME"))
 echo $r
 testID=$r[1]
