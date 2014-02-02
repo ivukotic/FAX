@@ -20,6 +20,7 @@ echo "input files"
 for (( i=1; i<=$files; i++ ))
 do
     inpFile[i]=$r[8+($i-1)*2]
+    inpFile[i]="${inpFile[i]/.MWT2./.$server.}"
     inpSize[i]=$r[9+($i-1)*2]
     echo "${inpFile[i]} ${inpSize[i]}"
     echo "./readDirect root://$address//${inpFile[i]} physics 10 30 > logfile_$i 2>&1 \n" >> toExecute.sh
