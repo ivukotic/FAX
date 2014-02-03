@@ -140,8 +140,7 @@ try:
 except:
     print "Unexpected error:", sys.exc_info()[0]
 
-#for s in sites: 
-#    print s, sites[s].prnt()
+#for s in sites:  print s, sites[s].prnt()
     
 #print 'Getting all of the DDM endpoints.'
 
@@ -153,7 +152,7 @@ try:
     for s in res:
         sn=s["rc_site"]
         if sn in sites:
-            print sn, s["name"]
+#            print sn, s["name"]
             sites[sn].ddms.append(s["name"])
                 
 #    print ' got related ddmendpoints from agis.'
@@ -198,7 +197,7 @@ for line in f:
         continue
 
     cds=line[0]
-    dsets[cds]=[0,0]
+    dsets[cds]=dataset()
 
 for d  in dsets.keys():
     print d,'\tcomplete replicas:',dsets[d].complete,'\tincomplete:',dsets[d].incomplete
@@ -206,11 +205,11 @@ for d  in dsets.keys():
 
 #find all the files
 for d in dsets.keys():
-    d.files=LFNs(d).execute()
+    dsets[d].files=LFNs(d).execute()
      
 for d in dsets.keys():
     print 'copying dataset: ', d
     for r in dsets[d].files:
         print 'executing: ', 'xrdcp -d 1 '+ r.filename + ' . &'
-        #com=Command('xrdcp -d 1 '+ r.filename + ' . &' )
-        #com.run(3600)
+        com=Command('xrdcp -d 1 '+ r.filename + ' . &' )
+        com.run(3600)
