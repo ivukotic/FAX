@@ -33,7 +33,7 @@ get_response "This test will try to get gLFNs for all the files of one dataset, 
 
 if [ $do = "y" ]
 then
-    kom="FAX-get-gLFNs.sh user.ilijav.HCtest.1"
+    kom="FAX-get-gLFNs user.ilijav.HCtest.1"
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval "$kom"
     if [ "$?" -eq 0 ]
@@ -82,6 +82,29 @@ then
     SCRIPT=$(readlink -f "$0")
     SCRIPTPATH=$(dirname "$SCRIPT")
     kom=" root -l -b -q \"$SCRIPTPATH/FAX-listFileContent.C(\\\"$STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root\\\")\" "
+    printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
+    eval $kom
+    if [ "$?" -eq 0 ]
+    then
+        echo "TEST RESULT - OK"
+        res=0$res
+    else
+        echo "TEST RESULT - FAIL"
+        res=1$res
+    fi
+    echo "========================================================================================================"
+else
+    echo "Skipping this test."
+    res=x$res
+fi
+
+
+
+get_response  "This test will send an frun job to be executed on the grid, would you like to proceed?";
+
+if [ $do = "y" ]
+then
+    kom=" $SCRIPTPATH/frun -v --inDS=user.ilijav.HCtest.1 --exec \"echo %IN > input.txt\" --athenaTag=17.2.0 --noBuild --outputs=input.txt --outDS=user.ivukotic.HCtestREWRITTEN.1 --site=ANALY_CERN_XROOTD "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
     if [ "$?" -eq 0 ]
