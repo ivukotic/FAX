@@ -104,7 +104,7 @@ get_response  "This test will send an frun job to be executed on the grid, would
 
 if [ $do = "y" ]
 then
-    kom=" $SCRIPTPATH/frun -v --inDS=user.ilijav.HCtest.1 --exec \"echo %IN > input.txt\" --athenaTag=17.2.0 --noBuild --outputs=input.txt --outDS=user.ivukotic.HCtestREWRITTEN.1 --site=ANALY_CERN_XROOTD "
+    kom="frun -v --inDS=user.ilijav.HCtest.1 --exec \"echo %IN > input.txt\" --athenaTag=17.2.0 --noBuild --outputs=input.txt --outDS=user.ivukotic.HCtestREWRITTEN.1 --site=ANALY_CERN_XROOTD "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
     if [ "$?" -eq 0 ]
