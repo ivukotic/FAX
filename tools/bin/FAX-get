@@ -7,10 +7,11 @@ import optparse
 try: import simplejson as json
 except ImportError: import json
 
-parser = optparse.OptionParser(description="Getting a DS through FAX.", version="%prog version 1.0")
+parser = optparse.OptionParser(description="Getting a DS through FAX.", version="%prog version 1.0", usage="Usage: %prog [options] dataset")
 
-parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 10.')
+parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 10.', default=10)
 parser.add_option('-x', '--extreme', help='use extream copy', dest='bool', default=False, action='store_true')
+parser.add_option('-i', '--incomplete', help='copy incomplete datasets too', dest='bool', default=False, action='store_true')
 
 
 try:
@@ -46,15 +47,13 @@ class Command(object):
         return self.process.returncode
 
 
-#print 'Geting data from AGIS ...'
 
 class site:
-    name=''
     host=''
+    ddms=[]
     port=1094
 
-    def __init__(self, na, ho):
-        self.name=na
+    def __init__(self, ho):
         ho=ho.replace("root://","")
         self.host=ho.split(":")[0]
         if ho.count(":"):
@@ -62,7 +61,7 @@ class site:
 
     def prnt(self, what):
         if (what>=0 and self.redirector!=what): return
-        print  'name:', self.name, '\thost:', self.host, '\tport:', self.port
+        print  'host:', self.host, '\tport:', self.port, '\tddms:', ddms
 
 
 
@@ -76,7 +75,11 @@ if (len(args)==0):
 DS=args[0]
 
 
-sites=[];
+
+sites={};
+
+
+print 'Geting FAX endpoints from AGIS ...'
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
@@ -85,17 +88,15 @@ try:
     res=json.load(f)
     for s in res:
 #        print s["name"], s["rc_site"], s["endpoint"]
-        ns = site( s["rc_site"], s["endpoint"] )
-        sites.append(ns)
+        sites[s["rc_site"]]=site(s["endpoint"])
 #    print res
 #    print ' got FAX SEs from AGIS.'
 
 except:
     print "Unexpected error:", sys.exc_info()[0]
 
-#for s in sites: s.prnt(-1)
 
-allddms=set()
+print 'Getting all of the DDM endpoints.'
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
@@ -103,17 +104,18 @@ try:
     f = opener.open(req)
     res=json.load(f)
     for s in res:
-        for c in sites:
-            if s["rc_site"]==c.name:
+        if s["rc_site"] in sites:
  #               print s["rc_site"], s["name"]
-                allddms.add(s["name"])
+                sites[s["rc_site"]].ddms.append(s["name"])
                 break
 #    print ' got related ddmendpoints from agis.'
 
 except:
     print "Unexpected error:", sys.exc_info()[0]
 
+for s in sites: print s, sites[s].prnt(-1)
 
+print 'Getting all of the DDM endpoints having a replica.'
 com=Command('dq2-ls -r '+ DS + ' > fax.tmp' )
 com.run(300)
 dsets={}
