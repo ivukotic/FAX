@@ -50,18 +50,15 @@ class Command(object):
 
 class site:
     host=''
-    ddms=[]
     port=1094
-
     def __init__(self, ho):
         ho=ho.replace("root://","")
         self.host=ho.split(":")[0]
         if ho.count(":"):
             self.port=ho.split(":")[1]
-
-    def prnt(self, what):
-        if (what>=0 and self.redirector!=what): return
-        print  'host:', self.host, '\tport:', self.port, '\tddms:', ddms
+        self.ddms=[]
+    def prnt(self):
+        print  'host:', self.host, '\tport:', self.port, '\tddms:', self.ddms
 
 
 
@@ -91,11 +88,12 @@ try:
         sites[s["rc_site"]]=site(s["endpoint"])
 #    print res
 #    print ' got FAX SEs from AGIS.'
-
 except:
     print "Unexpected error:", sys.exc_info()[0]
 
-
+for s in sites: 
+    print s, sites[s].prnt()
+    
 print 'Getting all of the DDM endpoints.'
 
 try:
@@ -104,16 +102,19 @@ try:
     f = opener.open(req)
     res=json.load(f)
     for s in res:
-        if s["rc_site"] in sites:
- #               print s["rc_site"], s["name"]
-                sites[s["rc_site"]].ddms.append(s["name"])
-                break
+        sn=s["rc_site"]
+        if sn in sites:
+            print sn, s["name"]
+            sites[sn].ddms.append(s["name"])
+                
 #    print ' got related ddmendpoints from agis.'
 
 except:
     print "Unexpected error:", sys.exc_info()[0]
 
-for s in sites: print s, sites[s].prnt(-1)
+#for s in sites: print s, sites[s].prnt()
+
+exit(0)
 
 print 'Getting all of the DDM endpoints having a replica.'
 com=Command('dq2-ls -r '+ DS + ' > fax.tmp' )
