@@ -10,6 +10,7 @@ except ImportError: import json
 
 parser = optparse.OptionParser(description="Getting a DS through FAX.", version="%prog version 1.0", usage="Usage: %prog [options] dataset")
 
+parser.add_option('-r', '--retries', help='a number of retries. Defaults to 3.', default=3)
 parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 10.', default=10)
 parser.add_option('-t', '--timeout', help='seconds to wait before timing out an individual xrdcp. Default is 3600.', default=3600)
 parser.add_option('-x', '--extreme', help='use extream copy', dest='bool', default=False, action='store_true')
@@ -49,7 +50,17 @@ class Command(object):
             thread.join()
         return self.process.returncode
 
-
+class dsfile:
+    def __init__(self, na):
+        self.filename=na
+        self.size=0
+        self.attempts=0
+    
+class dataset:
+    def __init__(self):
+        self.complete=0
+        self.incomplete=0
+        self.files=[]
 
 class site:
     host=''
@@ -90,7 +101,7 @@ class LFNs (DQDashboardTool):
             if lfn.count('.root')==0: continue
             correctedscope = "/".join(scope.split('.'))
             gfn=redir+'/atlas/' + correctedscope+"/"+lfn
-            roots.append(gfn)
+            roots.append(dsfile(gfn))
         return roots
 
 
@@ -198,8 +209,8 @@ for d in dsets.keys():
     d.files=LFNs(d).execute()
      
 for d in dsets.keys():
-    print 'copying datasets: ', d
-    for r in d.files:
-        print 'executing: ', 'xrdcp -d 1 '+ r + ' . &'
-        #com=Command('xrdcp -d 1 '+ r + ' . &' )
+    print 'copying dataset: ', d
+    for r in dsets[d].files:
+        print 'executing: ', 'xrdcp -d 1 '+ r.filename + ' . &'
+        #com=Command('xrdcp -d 1 '+ r.filename + ' . &' )
         #com.run(3600)
