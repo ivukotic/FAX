@@ -7,7 +7,7 @@ try: import simplejson as json
 except ImportError: import json
 
 if (len(sys.argv)!=2 or sys.argv[1]=='-h'):
-    print "Checks if dataset is accessible through FAX.\nUsage: isDSinFAX.py <dataset name>"
+    print "Checks if dataset is accessible through FAX.\nUsage: isDSinFAX <dataset name>"
     sys.exit(0)
 DS=sys.argv[1]
  

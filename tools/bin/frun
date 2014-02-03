@@ -7,7 +7,6 @@ try:
     import dq2.clientapi.cli.cliutil
     from dq2.common.cli.DQDashboardTool import DQDashboardTool
     from dq2.clientapi.cli.cliutil import getDQ2
-    from dq2.filecatalog.lfc.lfcconventions import to_native_lfn
 except ImportError:
     print "Environment not set [error importing DQ2 dependencies]!"
     sys.exit(1)
@@ -24,6 +23,13 @@ class LFNs (DQDashboardTool):
         self.dsn=idsn
  
     def execute(self):
+        
+        if os.environ.get("STORAGEPREFIX") != None:
+            redir=os.environ.get("STORAGEPREFIX")
+        else:
+            print "no FAX redirector given. Please set up FAX (localSetupFAX) or run FAX-setRedirector.(c)sh, first. "
+            sys.exit(1)
+            
         dq = getDQ2(self)
         ret = dq.listFilesInDataset(self.dsn, version=self.options.version)
 
@@ -33,15 +39,13 @@ class LFNs (DQDashboardTool):
             sys.exit(0)
         
         roots=[]
-        
-        redir='glrd.usatlas.org'
-        if os.environ.get("XRDREDIRECTOR") != None:
-            redir=os.environ.get("XRDREDIRECTOR")
- 
+    
         for guid in entry:
-            gfn='root://'+redir+'/' + to_native_lfn(self.dsn, entry[guid]['lfn']).replace("/grid", "")
-            if gfn.count('.root')>0:
-                roots.append(gfn)
+            scope, lfn = entry[guid]['scope'], entry[guid]['lfn']
+            if lfn.count('.root')==0: continue
+            correctedscope = "/".join(scope.split('.'))
+            gfn=redir+'/atlas/' + correctedscope+"/"+lfn
+            roots.append(gfn)
         print roots
         with open('pfn.tmp','w') as f:
             f.write(",".join(roots))

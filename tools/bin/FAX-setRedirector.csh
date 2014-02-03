@@ -11,7 +11,7 @@ if ( $FAXtoolsDir =~ "" ) then
     set FAXtoolsDir = "./"
 endif
 
-set red=`$FAXtoolsDir/bin/getBestRedirector.py`
+set red=`$FAXtoolsDir/bin/FAX-get-best-redirector`
 
 set sc=$status
 if ( $sc == 0 ) then
