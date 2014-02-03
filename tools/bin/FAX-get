@@ -210,6 +210,6 @@ for d in dsets.keys():
 for d in dsets.keys():
     print 'copying dataset: ', d
     for r in dsets[d].files:
-        print 'executing: ', 'xrdcp -d 1 '+ r.filename + ' . &'
-        com=Command('xrdcp -d 1 '+ r.filename + ' . &' )
+        print 'executing: ', 'xrdcp '+ r.filename + ' . &'
+        com=Command('xrdcp '+ r.filename + ' . &' )
         com.run(3600)
