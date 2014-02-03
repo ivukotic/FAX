@@ -7,11 +7,14 @@ import optparse
 try: import simplejson as json
 except ImportError: import json
 
+
 parser = optparse.OptionParser(description="Getting a DS through FAX.", version="%prog version 1.0", usage="Usage: %prog [options] dataset")
 
 parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 10.', default=10)
+parser.add_option('-t', '--timeout', help='seconds to wait before timing out an individual xrdcp. Default is 3600.', default=3600)
 parser.add_option('-x', '--extreme', help='use extream copy', dest='bool', default=False, action='store_true')
 parser.add_option('-i', '--incomplete', help='copy incomplete datasets too', dest='bool', default=False, action='store_true')
+parser.add_option('-nr', '--nonRoot', help='copy nonRoot files too', dest='bool', default=False, action='store_true')
 
 
 try:
@@ -61,6 +64,37 @@ class site:
         print  'host:', self.host, '\tport:', self.port, '\tddms:', self.ddms
 
 
+class LFNs (DQDashboardTool):
+    usage=''
+    version=''
+    description=''
+    toolOptions = [ dq2.clientapi.cli.cliutil.opt_dataset_version  ]
+
+    def __init__ (self, idsn):
+        DQDashboardTool.__init__(self)
+        self.dsn=idsn
+
+    def execute(self):
+        dq = getDQ2(self)
+        ret = dq.listFilesInDataset(self.dsn, version=self.options.version)
+
+        try:
+            entry = ret[0]
+        except IndexError, e:
+            sys.exit(0)
+
+        roots=[]
+
+        for guid in entry:
+            scope, lfn = entry[guid]['scope'], entry[guid]['lfn']
+            if lfn.count('.root')==0: continue
+            correctedscope = "/".join(scope.split('.'))
+            gfn=redir+'/atlas/' + correctedscope+"/"+lfn
+            roots.append(gfn)
+        return roots
+
+
+# =========================================================================================
 
 
 (opts, args) = parser.parse_args()
@@ -71,12 +105,17 @@ if (len(args)==0):
 
 DS=args[0]
 
-
-
+if os.environ.get("STORAGEPREFIX") != None:
+    redir=os.environ.get("STORAGEPREFIX")
+else:
+    print "no FAX redirector given. Please set up FAX (localSetupFAX) or run FAX-setRedirector.(c)sh, first. "
+    sys.exit(1)
+            
+            
 sites={};
 
 
-print 'Geting FAX endpoints from AGIS ...'
+#print 'Geting FAX endpoints from AGIS ...'
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
@@ -87,14 +126,13 @@ try:
 #        print s["name"], s["rc_site"], s["endpoint"]
         sites[s["rc_site"]]=site(s["endpoint"])
 #    print res
-#    print ' got FAX SEs from AGIS.'
 except:
     print "Unexpected error:", sys.exc_info()[0]
 
-for s in sites: 
-    print s, sites[s].prnt()
+#for s in sites: 
+#    print s, sites[s].prnt()
     
-print 'Getting all of the DDM endpoints.'
+#print 'Getting all of the DDM endpoints.'
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
@@ -114,7 +152,6 @@ except:
 
 #for s in sites: print s, sites[s].prnt()
 
-exit(0)
 
 print 'Getting all of the DDM endpoints having a replica.'
 com=Command('dq2-ls -r '+ DS + ' > fax.tmp' )
@@ -152,3 +189,15 @@ for line in f:
 
 for d  in dsets.keys():
     print d,'\tcomplete replicas:',dsets[d][1],'\tincomplete:',dsets[d][0]
+
+
+#find all the files
+for d in dsets.keys():
+    d.files=LFNs(d).execute()
+     
+for d in dsets.keys():
+    print 'copying datasets: ', d
+    for r in d.files:
+        print 'executing: ', 'xrdcp -d 1 '+ r + ' . &'
+        #com=Command('xrdcp -d 1 '+ r + ' . &' )
+        #com.run(3600)
