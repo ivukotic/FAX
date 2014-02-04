@@ -32,9 +32,9 @@ except (IOError, socket.gaierror, socket.error):
 #geting coordinates 
 worked=0
 try:
-    req = urllib2.Request("http://geoip.mwt2.org:4288/json/", None, 5)
+    req = urllib2.Request("http://geoip.mwt2.org:4288/json/", None)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = opener.open(req,timeout=5)
     res=json.load(f)
     if debug: print res
     lon=res['longitude']
@@ -45,9 +45,9 @@ except:
 
 if not worked:
     try:
-        req = urllib2.Request("http://freegeoip.net/json/", None, 5)
+        req = urllib2.Request("http://freegeoip.net/json/", None)
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        f = opener.open(req,timeout=5)
         res=json.load(f)
         if debug: print res
         lon=res['longitude']
