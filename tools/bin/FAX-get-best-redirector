@@ -77,7 +77,7 @@ url="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/getplotdata?time=1&date
 try:
         response=urllib2.Request(url,None)
         opener = urllib2.build_opener()
-        f = opener.open(response)
+        f = opener.open(response, timeout=20)
         data = json.load(f)
         data=data["csvdata"]
 except urllib2.HTTPError:
@@ -110,7 +110,7 @@ for si in data:
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/site/query/list/?json", None)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = opener.open(req, timeout=20)
     res=json.load(f)
     for s in res:
 	na=s["name"]
@@ -152,7 +152,7 @@ if debug: print minsite, mindist,"km"
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD&rc_site="+minsite, None)
     opener = urllib2.build_opener()
-    f = opener.open(req)
+    f = opener.open(req, timeout=20)
     res=json.load(f)
     if debug: print "found corresponding endpoint: ",res[0]["endpoint"]
     print res[0]["endpoint"]
