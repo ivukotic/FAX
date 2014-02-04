@@ -30,18 +30,31 @@ except (IOError, socket.gaierror, socket.error):
 
 
 #geting coordinates 
-
+worked=0
 try:
-    req = urllib2.Request("http://freegeoip.net/json/", None)
+    req = urllib2.Request("http://geoip.mwt2.org:4288/json/", None, 5)
     opener = urllib2.build_opener()
     f = opener.open(req)
     res=json.load(f)
     if debug: print res
     lon=res['longitude']
     lat=res['latitude']
+    worked=1
 except:
-    print "Can't determine client coordinates. ", sys.exc_info()[0]
-    sys.exit(1)
+    print "Can't determine client coordinates using geoip.mwt2.org ", sys.exc_info()[0]
+
+if not worked:
+    try:
+        req = urllib2.Request("http://freegeoip.net/json/", None, 5)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        res=json.load(f)
+        if debug: print res
+        lon=res['longitude']
+        lat=res['latitude']
+    except:
+        print "Can't determine client coordinates using freegeoip.net ", sys.exc_info()[0]
+        sys.exit(1)
 
 # geting FAX endpoints information from SSB
 
