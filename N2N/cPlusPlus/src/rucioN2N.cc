@@ -47,6 +47,8 @@ short iXrdConn4n2n = 0;
 char **sitePrefix;
 int nPrefix = 0;
 char *pssorigin = NULL;
+// Paralle stat() calls for remote storage, to overcome xrootd's default 5 seconds delay if file doesn't exist
+bool parallelstat; 
 
 XrdMsgStream *XrdLog;
 
@@ -167,11 +169,12 @@ int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like stor
     //return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
 }
 
-void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix) {
+void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     int i;
 
     XrdLog = eDest;
     nPrefix = rucioPrefix.size();
+    parallelstat = prllstat;
     if (nPrefix == 0) return;
 
     sitePrefix = (char**)malloc(sizeof(char*) * rucioPrefix.size());
@@ -266,7 +269,7 @@ char* rucio_n2n_glfn(const char *lfn) {
     if (nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
         return pfn = strdup("");
 
-    if (pssorigin != NULL) { // remote xrootd-like storage
+    if (parallelstat && pssorigin != NULL) { // remote xrootd-like storage
         pthread_mutex_t *m = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
         pthread_cond_t *c = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));;
         short *icount = (short*)malloc(sizeof(short));
@@ -324,12 +327,15 @@ char* rucio_n2n_glfn(const char *lfn) {
         delete g;
         return pfn;
     } 
-    else {  // Local file system
+    else {  // Local file system or storage that doesn't require parallel stat() calls
         struct stat buf;
         for (i=0; i<nPrefix; i++) {
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
-            if (stat(input, &buf) == 0) return pfn = strdup(input);
+            if (pssorigin != NULL) 
+                if (x_stat(input, &buf) == 0) return pfn = strdup(input);
+            else 
+                if (stat(input, &buf) == 0) return pfn = strdup(input);
         }
         return pfn = strdup("");
     }
