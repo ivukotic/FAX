@@ -107,6 +107,9 @@ dsets={}
 cds=''
 f = open('fax.tmp', 'r') 
 for line in f:
+    if line.startswith('Missing'):
+        print line
+        break
     if line.startswith('Multiple'): break
     line=line.strip()
     if line.count(':')==0:continue
