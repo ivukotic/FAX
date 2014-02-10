@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include <json/json.h>
 
 // mimic the curl example at http://curl.haxx.se/libcurl/c/getinmemory.html
@@ -25,6 +25,8 @@ struct JsonData {
     char *data;
     size_t size;
 };
+
+/*
 
 static size_t JsonDataCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -37,14 +39,42 @@ static size_t JsonDataCallback(void *contents, size_t size, size_t nmemb, void *
     mem->data[mem->size] = 0;
     return realsize;
 }
+*/
 
+#define BUFSZ 4096
 int GetJsonData(const char* AGISurl, struct JsonData *chunk) 
 {  // caller is responsible to free(chuck->data) 
+    char *buf, *cmd;
+
+    buf = (char*)malloc(BUFSZ);
+    cmd = (char*)malloc(15 + strlen(AGISurl));
+    chunk->data = (char*)malloc(1);  // will be grown as needed by the realloc above
+    chunk->size = 0;    // no data at this point 
+   
+    memset(chunk->data, 0, 1);
+    strcpy(cmd, "wget -q -O - '");
+    strcat(cmd, AGISurl);
+    strcat(cmd, "'");
+    FILE *fp = popen(cmd, "r");
+    do {
+        memset(buf, 0, BUFSZ);
+        fread(buf, BUFSZ -1, 1, fp);
+        chunk->data = (char*)realloc(chunk->data, strlen(chunk->data) + strlen(buf));
+        strcat(chunk->data, buf);
+    } while (! feof(fp));
+    pclose(fp);
+    chunk->size = strlen(chunk->data);
+    free(buf);
+
+    return 1;
+
+/* we no longer use the following code 
+
     CURL *curl_handle;
     CURLcode res;
    
-    chunk->data = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
-    chunk->size = 0;    /* no data at this point */ 
+    chunk->data = (char*)malloc(1);  // will be grown as needed by the realloc above 
+    chunk->size = 0;    // no data at this point  
    
     curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
@@ -54,17 +84,18 @@ int GetJsonData(const char* AGISurl, struct JsonData *chunk)
     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 60L);
    
-    /* some servers don't like requests that are made without a user-agent
-       field, so we provide one */ 
+    // some servers don't like requests that are made without a user-agent
+    //   field, so we provide one 
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
    
     res = curl_easy_perform(curl_handle);
    
-    /* check for errors */ 
+    // check for errors
     if(res != CURLE_OK) return 0;
     curl_easy_cleanup(curl_handle);
 //    curl_global_cleanup();
     return 1;
+ */
 }
 
 char *str_replace(const char *original, const char *pattern, const char *replacement)

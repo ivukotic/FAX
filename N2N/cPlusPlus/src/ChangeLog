@@ -8,3 +8,7 @@
             RUCIO
 2014-01-28: Wei Yang: n2n-cpp-2.0-rc2 address issue with libcurl and 
             openssl the cause N2N to crash on RHEL5 platform
+2014-02-07: Wei Yang: n2n-cpp-2.0-rc3 add prllstat option so parallel
+            stat() call is no long the default.
+2014-02-10: Wei Yang: n2n-cpp-2.0-rc4 use wget instead of call libcurl;
+            limit the total number of parallel stat() call (N2N threads). 

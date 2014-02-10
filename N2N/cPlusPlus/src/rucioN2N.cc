@@ -31,6 +31,7 @@
 using namespace std;
 
 pthread_mutex_t create_thread_lock;
+int totN2Nthreads = 0;
 
 pthread_t cleaner;
 pthread_mutex_t cm;
@@ -47,6 +48,8 @@ short iXrdConn4n2n = 0;
 char **sitePrefix;
 int nPrefix = 0;
 char *pssorigin = NULL;
+// Paralle stat() calls for remote storage, to overcome xrootd's default 5 seconds delay if file doesn't exist
+bool parallelstat; 
 
 XrdMsgStream *XrdLog;
 
@@ -109,6 +112,9 @@ public:
             if (tid[i] != NULL) {
                 pthread_join(*tid[i], NULL);
                 free(tid[i]);
+                pthread_mutex_lock(&create_thread_lock);
+                totN2Nthreads--;
+                pthread_mutex_unlock(&create_thread_lock);
             }
         }
         free(tid);
@@ -167,11 +173,12 @@ int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like stor
     //return (adm.Stat(path2.c_str(), id, size, flags, modtime) ? 0 : 1);  // adm.Stat() works wth both regular and DPM xrootd.
 }
 
-void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix) {
+void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     int i;
 
     XrdLog = eDest;
     nPrefix = rucioPrefix.size();
+    parallelstat = prllstat;
     if (nPrefix == 0) return;
 
     sitePrefix = (char**)malloc(sizeof(char*) * rucioPrefix.size());
@@ -266,7 +273,7 @@ char* rucio_n2n_glfn(const char *lfn) {
     if (nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
         return pfn = strdup("");
 
-    if (pssorigin != NULL) { // remote xrootd-like storage
+    if (parallelstat && pssorigin != NULL) { // remote xrootd-like storage
         pthread_mutex_t *m = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
         pthread_cond_t *c = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));;
         short *icount = (short*)malloc(sizeof(short));
@@ -281,8 +288,25 @@ char* rucio_n2n_glfn(const char *lfn) {
     
         pthread_t **ids = (pthread_t**)malloc(sizeof(pthread_t*) * nPrefix);
         RucioStorageStatPars *p;
-    
-        pthread_mutex_lock(&create_thread_lock); // serialize this part to deal with thread creation failure
+
+        for (i=0; i<5; i++) {
+            if (pthread_mutex_trylock(&create_thread_lock) == 0) // serialize this part to deal with thread creation failure
+                if (totN2Nthreads < 500) break;
+                else {
+                    pthread_mutex_unlock(&create_thread_lock);
+                    *XrdLog << "XRD-N2N: too many N2N threads, try again in 12 seconds" << endl;
+                }
+            sleep(12);
+        }
+        if (i == 5) { // my last chance to create threads
+            pthread_mutex_lock(&create_thread_lock);
+            if (totN2Nthreads > 500) {
+                pthread_mutex_unlock(&create_thread_lock);
+                *XrdLog << "XRD-N2N: too many N2N threads, abort!" << endl;
+                return pfn = strdup("");
+            }
+        }
+        *XrdLog << "XRD-N2N: currently there are " << totN2Nthreads << " threads!" << endl;
         int itry, ntry;
         for (i=0; i<nPrefix; i++) {
             ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
@@ -296,8 +320,12 @@ char* rucio_n2n_glfn(const char *lfn) {
                 *XrdLog << "XRD-N2N: can not create thread, delay N2N by 60 seconds" << endl;
                 sleep(60);
             }
-            if (itry < ntry)  // successfully created a thread
+            if (itry < ntry) { // successfully created a thread
+                totN2Nthreads++;
+                pthread_mutex_lock(m);
                 (*icount)++;
+                pthread_mutex_unlock(m);
+            }
             else {
                 *XrdLog << "XRD-N2N: can not create thread, checking " << input << " is aborted" << endl;
                 ids[i] = NULL;    
@@ -324,12 +352,15 @@ char* rucio_n2n_glfn(const char *lfn) {
         delete g;
         return pfn;
     } 
-    else {  // Local file system
+    else {  // Local file system or storage that doesn't require parallel stat() calls
         struct stat buf;
         for (i=0; i<nPrefix; i++) {
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
-            if (stat(input, &buf) == 0) return pfn = strdup(input);
+            if (pssorigin != NULL) 
+                if (x_stat(input, &buf) == 0) return pfn = strdup(input);
+            else 
+                if (stat(input, &buf) == 0) return pfn = strdup(input);
         }
         return pfn = strdup("");
     }

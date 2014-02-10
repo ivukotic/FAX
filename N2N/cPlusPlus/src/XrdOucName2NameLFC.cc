@@ -12,7 +12,7 @@
 // Drop support of LFC by Ilija Vukotic (ivukotic@uchicago.edu) and Wei Yang, January, 2014
 
 const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2011/12/13 16:06:40 sarah Exp $";
-const char* version = "$Revision: 2.00.rc2 $";
+const char* version = "$Revision: 2.00.rc4 $";
 
 #define LFC_CACHE_TTL 2*3600
 #define LFC_CACHE_MAXSIZE 500000
@@ -53,6 +53,7 @@ using namespace std;
 #endif
 
 #include "rucioN2N.hh"
+bool prllstat = false;
 
 // Hash_map implementation
 #ifdef CXX0X
@@ -282,7 +283,7 @@ XrdOucName2Name *XrdOucgetName2Name(XrdOucgetName2NameArgs)
 //    OpenSSL_add_all_ciphers();
 //    OpenSSL_add_all_digests();
 
-    if (inst->rucioprefix_list.size() != 0) rucio_n2n_init((XrdMsgStream*)(inst->eDest), inst->rucioprefix_list);
+    if (inst->rucioprefix_list.size() != 0) rucio_n2n_init((XrdMsgStream*)(inst->eDest), inst->rucioprefix_list, prllstat);
 
     return (XrdOucName2Name *)inst;
 }
@@ -311,6 +312,10 @@ int XrdOucLFC::parse_parameters(String param_str)
     if (XrdOucEnv::Import("XRDSITE", xrdsite)) sitename = xrdsite;
 
     for_each (it, tokens) {
+        if (*it == "prllstat") { // see parallelstat in rucioN2N.cc
+            prllstat = true;
+            continue;
+        }
 	List keyval = it->split("=");
 	if (keyval.size() != 2) {
 	    // ERROR
