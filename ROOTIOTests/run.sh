@@ -28,7 +28,7 @@ ls
 #python FDR_spec.py > info.txt;
 cat info.txt
 echo "finished FDR part"
-exit 0
+#exit 0
 
 testName='run-generalNTUP-TTC-test.sh'
 echo $testName
