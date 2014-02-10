@@ -31,6 +31,7 @@
 using namespace std;
 
 pthread_mutex_t create_thread_lock;
+int totN2Nthreads = 0;
 
 pthread_t cleaner;
 pthread_mutex_t cm;
@@ -111,6 +112,9 @@ public:
             if (tid[i] != NULL) {
                 pthread_join(*tid[i], NULL);
                 free(tid[i]);
+                pthread_mutex_lock(&create_thread_lock);
+                totN2Nthreads--;
+                pthread_mutex_unlock(&create_thread_lock);
             }
         }
         free(tid);
@@ -284,8 +288,25 @@ char* rucio_n2n_glfn(const char *lfn) {
     
         pthread_t **ids = (pthread_t**)malloc(sizeof(pthread_t*) * nPrefix);
         RucioStorageStatPars *p;
-    
-        pthread_mutex_lock(&create_thread_lock); // serialize this part to deal with thread creation failure
+
+        for (i=0; i<5; i++) {
+            if (pthread_mutex_trylock(&create_thread_lock) == 0) // serialize this part to deal with thread creation failure
+                if (totN2Nthreads < 500) break;
+                else {
+                    pthread_mutex_unlock(&create_thread_lock);
+                    *XrdLog << "XRD-N2N: too many N2N threads, try again in 12 seconds" << endl;
+                }
+            sleep(12);
+        }
+        if (i == 5) { // my last chance to create threads
+            pthread_mutex_lock(&create_thread_lock);
+            if (totN2Nthreads > 500) {
+                pthread_mutex_unlock(&create_thread_lock);
+                *XrdLog << "XRD-N2N: too many N2N threads, abort!" << endl;
+                return pfn = strdup("");
+            }
+        }
+        *XrdLog << "XRD-N2N: currently there are " << totN2Nthreads << " threads!" << endl;
         int itry, ntry;
         for (i=0; i<nPrefix; i++) {
             ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
@@ -299,8 +320,12 @@ char* rucio_n2n_glfn(const char *lfn) {
                 *XrdLog << "XRD-N2N: can not create thread, delay N2N by 60 seconds" << endl;
                 sleep(60);
             }
-            if (itry < ntry)  // successfully created a thread
+            if (itry < ntry) { // successfully created a thread
+                totN2Nthreads++;
+                pthread_mutex_lock(m);
                 (*icount)++;
+                pthread_mutex_unlock(m);
+            }
             else {
                 *XrdLog << "XRD-N2N: can not create thread, checking " << input << " is aborted" << endl;
                 ids[i] = NULL;    

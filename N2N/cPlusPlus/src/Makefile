@@ -10,7 +10,7 @@ HEADERS=XrdMsgStream.hh String.hh rucioN2N.hh
 DEBUG=-g
 
 XrdOucName2NameLFC.so: $(OBJECTS) Makefile
-	g++ ${DEBUG} -shared -fPIC -o $@ $(OBJECTS) -ldl -ljson -lcurl -lXrdClient
+	g++ ${DEBUG} -shared -fPIC -o $@ $(OBJECTS) -ldl -ljson -lssl -lXrdClient
 
 XrdOucName2NameLFC.o: XrdOucName2NameLFC.cc ${HEADERS} Makefile
 	g++ ${DEBUG} ${FLAGS} -fPIC -I ${XRD_INCLUDE} -c -o $@ $<

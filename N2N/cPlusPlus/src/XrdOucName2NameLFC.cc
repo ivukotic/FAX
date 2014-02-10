@@ -12,7 +12,7 @@
 // Drop support of LFC by Ilija Vukotic (ivukotic@uchicago.edu) and Wei Yang, January, 2014
 
 const char* XrdOucName2NameLFCCVSID = "$Id: XrdOucName2NameLFC.cc,v 1.21 2011/12/13 16:06:40 sarah Exp $";
-const char* version = "$Revision: 2.00.rc3 $";
+const char* version = "$Revision: 2.00.rc4 $";
 
 #define LFC_CACHE_TTL 2*3600
 #define LFC_CACHE_MAXSIZE 500000
