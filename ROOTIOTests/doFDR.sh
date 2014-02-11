@@ -28,7 +28,7 @@ if [[ $testtype == 'FAXcopy' ]]; then
         inpSize[i]=$r[9+($i-1)*2]
         echo "To do xrdcp of ${inpFile[i]} ${inpSize[i]}"
         
-        echo "`which time` -f \"COPYTIME=%e\nEXITSTATUS=%x\" --append -o logfile_$i xrdcp -f -np root://$address//${inpFile[i]} -> /dev/null 2>&1" >> toExecute.sh
+        echo "\`which time\` -f \"COPYTIME=%e\\nEXITSTATUS=%x\" --append -o logfile_$i xrdcp -f -np root://$address//${inpFile[i]} -> /dev/null 2>&1" >> toExecute.sh
         echo "echo BYTES=${inpSize[i]} >>logfile_$i" >> toExecute.sh    
     done
     
@@ -39,10 +39,10 @@ if [[ $testtype == 'FAXcopy' ]]; then
     sumbytes=0
     succ=0
     echo "results:"
-    cat logfile_$i
     
     for (( i=1; i<=$files; i++ ))
     do
+        cat logfile_$i
         var1=$(grep "COPYTIME" logfile_$i)
         if [[ -z "$var1" ]] continue
         CT=$(echo $var1 | cut -f2 -d=)
