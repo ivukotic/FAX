@@ -19,7 +19,7 @@ echo "timeout:$timeout "
 
 
 
-if [ $testtype = 'FAXcopy' ]; then
+if [ $testtype == 'FAXcopy' ]; then
     
     for (( i=1; i<=$files; i++ ))
     do
@@ -77,7 +77,7 @@ fi
 
 
 
-if [ $testtype = 'read10pc' ]; then
+if [ $testtype == 'read10pc' ]; then
     
     for (( i=1; i<=$files; i++ ))
     do
