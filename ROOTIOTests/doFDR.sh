@@ -43,6 +43,12 @@ if [[ $testtype == 'FAXcopy' ]]; then
     for (( i=1; i<=$files; i++ ))
     do
         cat logfile_$i
+        
+        var1=$(grep "EXITSTATUS" logfile_$i)
+        if [[ -z "$var1" ]] continue
+        ES=$(echo $var1 | cut -f2 -d=)
+        if [ $ES > 0 ] continue
+            
         var1=$(grep "COPYTIME" logfile_$i)
         if [[ -z "$var1" ]] continue
         CT=$(echo $var1 | cut -f2 -d=)
