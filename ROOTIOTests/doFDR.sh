@@ -64,13 +64,13 @@ if [[ $testtype == 'FAXcopy' ]]; then
     
     report=""
     mbps=0
-    if [ $succ -eq $files ]; then
+    if [[ $succ -eq $files ]]; then
         report="OK " 
     else
         report="Some reads failed. $succ were OK. "
     fi
     
-    if [ $sumtime > 0 ]; then 
+    if [[ $sumtime > 0 ]]; then 
         mbps=$(($sumbytes/1024/1024/$sumtime))
     else
         echo "dont want to divide by 0 "
@@ -124,13 +124,13 @@ if [[ $testtype == 'read10pc' ]]; then
     mbps=0
     evps=0
 
-    if [ $succ -eq $files ]; then
+    if [[ $succ -eq $files ]]; then
         report="OK " 
     else
         report="Some reads failed. $succ were OK. "
     fi
 
-    if [ sum > 0 ]; then 
+    if [[ $sum > 0 ]]; then 
         mbps=$(($rootbytesread/1024/1024/$sum))
         evps=$(($eventsread/$sum))
     else
