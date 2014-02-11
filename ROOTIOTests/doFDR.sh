@@ -67,7 +67,7 @@ if [[ $testtype == 'FAXcopy' ]]; then
     if [[ $succ -eq $files ]]; then
         report="OK " 
     else
-        report="Some reads failed. $succ were OK. "
+        report="Some%20copies%20failed.%20$succ%20were%20OK. "
     fi
     
     if [[ $sumtime > 0 ]]; then 
