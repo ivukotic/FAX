@@ -23,7 +23,7 @@ Job (
  inputsandbox = [ ] ,
  application = Athena (
     atlas_project = '' ,
-    atlas_release = '17.2.7' ,
+    atlas_release = '17.8.0' ,
     collect_stats = True ,
     atlas_environment = [] ,
     exclude_package = [] ,
