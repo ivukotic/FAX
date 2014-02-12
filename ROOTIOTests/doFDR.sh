@@ -93,7 +93,7 @@ if [[ $testtype == 'read10pc' ]]; then
         inpFile[i]="${inpFile[i]/.MWT2./.$server.}"
         inpSize[i]=$r[9+($i-1)*2]
         echo "To do 10pc read of ${inpFile[i]} ${inpSize[i]}"
-        echo "./readDirect root://$address//${inpFile[i]} physics 10 30 > logfile_$i 2>&1 \n" >> toExecute.
+        echo "./readDirect root://$address//${inpFile[i]} physics 10 30 > logfile_$i 2>&1 \n" >> toExecute.sh
     done
     
     chmod +x toExecute.sh
@@ -127,7 +127,7 @@ if [[ $testtype == 'read10pc' ]]; then
     if [[ $succ -eq $files ]]; then
         report="OK " 
     else
-        report="Some reads failed. $succ were OK. "
+        report="Some%20reads%20failed.%20$succ%20were%20OK."
     fi
 
     if [[ $sum > 0 ]]; then 
