@@ -354,10 +354,12 @@ char* rucio_n2n_glfn(const char *lfn) {
         for (i=0; i<nPrefix; i++) {
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
-            if (pssorigin != NULL) 
+            if (pssorigin != NULL) { // don't remove this bracket:-)
                 if (x_stat(input, &buf) == 0) return pfn = strdup(input);
-            else 
+            }
+            else {
                 if (stat(input, &buf) == 0) return pfn = strdup(input);
+            }
         }
         return pfn = strdup("");
     }
