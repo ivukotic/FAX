@@ -100,7 +100,7 @@ class LFNs (DQDashboardTool):
             scope, lfn = entry[guid]['scope'], entry[guid]['lfn']
             if lfn.count('.root')==0: continue
             correctedscope = "/".join(scope.split('.'))
-            gfn=redir+'/atlas/' + correctedscope+"/"+lfn
+            gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
             roots.append(dsfile(gfn))
         return roots
 
@@ -209,7 +209,11 @@ for d in dsets.keys():
      
 for d in dsets.keys():
     print 'copying dataset: ', d
+    
+    if not os.path.exists(d):
+        os.makedirs(d)
+        
     for r in dsets[d].files:
-        print 'executing: ', 'xrdcp '+ r.filename + ' . &'
-        com=Command('xrdcp '+ r.filename + ' . &' )
+        print 'executing: ', 'xrdcp '+ r.filename + ' '+d+'/. &'
+        com=Command('xrdcp '+ r.filename + ' '+d+'/. &' )
         com.run(3600)
