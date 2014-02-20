@@ -19,7 +19,7 @@ echo "timeout:$timeout "
 
 
 
-if [ $testtype == 'FAXcopy' ]; then
+if [[ $testtype == 'FAXcopy' ]]; then
     
     for (( i=1; i<=$files; i++ ))
     do
@@ -28,7 +28,7 @@ if [ $testtype == 'FAXcopy' ]; then
         inpSize[i]=$r[9+($i-1)*2]
         echo "To do xrdcp of ${inpFile[i]} ${inpSize[i]}"
         
-        echo "`which time` -f \"COPYTIME=%e\" --append -o logfile_$i xrdcp -f -np root://$address//${inpFile[i]} -> /dev/null 2>&1" >>toExecute.sh
+        echo "\`which time\` -f \"COPYTIME=%e\\nEXITSTATUS=%x\" --append -o logfile_$i xrdcp -f -np root://$address//${inpFile[i]} -> /dev/null 2>&1" >> toExecute.sh
         echo "echo BYTES=${inpSize[i]} >>logfile_$i" >> toExecute.sh    
     done
     
@@ -38,9 +38,17 @@ if [ $testtype == 'FAXcopy' ]; then
     sumtime=0
     sumbytes=0
     succ=0
+    echo "results:"
     
     for (( i=1; i<=$files; i++ ))
     do
+        cat logfile_$i
+        
+        var1=$(grep "EXITSTATUS" logfile_$i)
+        if [[ -z "$var1" ]] continue
+        ES=$(echo $var1 | cut -f2 -d=)
+        if [[ $ES > 0 ]] continue
+            
         var1=$(grep "COPYTIME" logfile_$i)
         if [[ -z "$var1" ]] continue
         CT=$(echo $var1 | cut -f2 -d=)
@@ -56,13 +64,13 @@ if [ $testtype == 'FAXcopy' ]; then
     
     report=""
     mbps=0
-    if [ $succ -eq $files ]; then
+    if [[ $succ -eq $files ]]; then
         report="OK " 
     else
-        report="Some reads failed. $succ were OK. "
+        report="Some%20copies%20failed.%20$succ%20were%20OK. "
     fi
     
-    if [ $sumtime > 0 ]; then 
+    if [[ $sumtime > 0 ]]; then 
         mbps=$(($sumbytes/1024/1024/$sumtime))
     else
         echo "dont want to divide by 0 "
@@ -77,7 +85,7 @@ fi
 
 
 
-if [ $testtype == 'read10pc' ]; then
+if [[ $testtype == 'read10pc' ]]; then
     
     for (( i=1; i<=$files; i++ ))
     do
@@ -85,7 +93,7 @@ if [ $testtype == 'read10pc' ]; then
         inpFile[i]="${inpFile[i]/.MWT2./.$server.}"
         inpSize[i]=$r[9+($i-1)*2]
         echo "To do 10pc read of ${inpFile[i]} ${inpSize[i]}"
-        echo "./readDirect root://$address//${inpFile[i]} physics 10 30 > logfile_$i 2>&1 \n" >> toExecute.
+        echo "./readDirect root://$address//${inpFile[i]} physics 10 30 > logfile_$i 2>&1 \n" >> toExecute.sh
     done
     
     chmod +x toExecute.sh
@@ -116,13 +124,13 @@ if [ $testtype == 'read10pc' ]; then
     mbps=0
     evps=0
 
-    if [ $succ -eq $files ]; then
+    if [[ $succ -eq $files ]]; then
         report="OK " 
     else
-        report="Some reads failed. $succ were OK. "
+        report="Some%20reads%20failed.%20$succ%20were%20OK."
     fi
 
-    if [ sum > 0 ]; then 
+    if [[ $sum > 0 ]]; then 
         mbps=$(($rootbytesread/1024/1024/$sum))
         evps=$(($eventsread/$sum))
     else

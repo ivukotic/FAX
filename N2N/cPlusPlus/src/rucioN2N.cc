@@ -261,6 +261,7 @@ void *rucio_xrootd_storage_stat(void *pars) {  // xrootd-like storage
     pthread_exit(NULL);
 }
 
+#define MaxN2Nthreads 500 
 // export this function
 char* rucio_n2n_glfn(const char *lfn) {
     int i; 
@@ -289,20 +290,17 @@ char* rucio_n2n_glfn(const char *lfn) {
         pthread_t **ids = (pthread_t**)malloc(sizeof(pthread_t*) * nPrefix);
         RucioStorageStatPars *p;
 
-        for (i=0; i<5; i++) {
+        for (i=0; i<10; i++) {
             if (pthread_mutex_trylock(&create_thread_lock) == 0) // serialize this part to deal with thread creation failure
-                if (totN2Nthreads < 500) break;
-                else {
-                    pthread_mutex_unlock(&create_thread_lock);
-                    *XrdLog << "XRD-N2N: too many N2N threads, try again in 12 seconds" << endl;
-                }
-            sleep(12);
+                if (totN2Nthreads < MaxN2Nthreads) break;
+                else pthread_mutex_unlock(&create_thread_lock);
+            sleep(5);
         }
-        if (i == 5) { // my last chance to create threads
+        if (i == 10) { // my last chance to create threads
             pthread_mutex_lock(&create_thread_lock);
-            if (totN2Nthreads > 500) {
+            if (totN2Nthreads > MaxN2Nthreads) {
                 pthread_mutex_unlock(&create_thread_lock);
-                *XrdLog << "XRD-N2N: too many N2N threads, abort!" << endl;
+                *XrdLog << "XRD-N2N: too many N2N threads, look up aborted" << endl;
                 return pfn = strdup("");
             }
         }
@@ -317,8 +315,7 @@ char* rucio_n2n_glfn(const char *lfn) {
             ntry = 2;
             while (itry < ntry && pthread_create(ids[i], &attr, rucio_xrootd_storage_stat, p)) {
                 itry++;
-                *XrdLog << "XRD-N2N: can not create thread, delay N2N by 60 seconds" << endl;
-                sleep(60);
+                sleep(30);
             }
             if (itry < ntry) { // successfully created a thread
                 totN2Nthreads++;
@@ -327,7 +324,7 @@ char* rucio_n2n_glfn(const char *lfn) {
                 pthread_mutex_unlock(m);
             }
             else {
-                *XrdLog << "XRD-N2N: can not create thread, checking " << input << " is aborted" << endl;
+                *XrdLog << "XRD-N2N: can not create thread, stat() " << input << " is aborted" << endl;
                 ids[i] = NULL;    
             }
         }
@@ -357,10 +354,12 @@ char* rucio_n2n_glfn(const char *lfn) {
         for (i=0; i<nPrefix; i++) {
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
-            if (pssorigin != NULL) 
+            if (pssorigin != NULL) { // don't remove this bracket:-)
                 if (x_stat(input, &buf) == 0) return pfn = strdup(input);
-            else 
+            }
+            else {
                 if (stat(input, &buf) == 0) return pfn = strdup(input);
+            }
         }
         return pfn = strdup("");
     }

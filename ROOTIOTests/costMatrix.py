@@ -94,20 +94,26 @@ def upload(SITE_FROMLOG, SITE_TO):
         return 
     with open(SITE_FROMLOG, 'r') as f:
         lines=f.readlines()
-        if len(lines)>0:
-            res=lines[0]
-            if res.count('COPYTIME=')>0:
-                res=res.replace('COPYTIME=','')
-                print '--------------------------------- Uploading result ---------------------------------'
+        rate=0
+        for l in lines:
+            l=l.strip()
+            
+            if l.count('COPYTIME=')>0:
+                res=l.replace('COPYTIME=','')
                 rate=100/float(res)
-                print rate    
-                ts=datetime.datetime.utcnow()
-                ts=ts.replace(microsecond=0)
-                toSend='site_from: '+ SITE_FROM + '\nsite_to: '+SITE_TO+'\nmetricName: FAXprobe4\nrate: '+str(rate)+'\ntimestamp: '+ts.isoformat(' ')+'\n'
-                print toSend
-                send (toSend)
-            else:
-                print 'will not upload result. First line of output: ', res 
+            
+            if l.count('EXITSTATUS')>0:
+                res=l.replace('EXITSTATUS=','')
+                if res=='0':
+                    print '--------------------------------- Uploading result ---------------------------------'
+                    print rate    
+                    ts=datetime.datetime.utcnow()
+                    ts=ts.replace(microsecond=0)
+                    toSend='site_from: '+ SITE_FROM + '\nsite_to: '+SITE_TO+'\nmetricName: FAXprobe4\nrate: '+str(rate)+'\ntimestamp: '+ts.isoformat(' ')+'\n'
+                    print toSend
+                    send (toSend)
+                else:
+                    print 'non 0 exit code. will not upload result. ' 
 
 def main():
         
@@ -185,7 +191,7 @@ def main():
             f.write("""for (( ; ; ))\n""")
             f.write("""do\n""")
             f.write(""" echo "--------------------------------------"\n """)
-            f.write('   `which time`  -f "COPYTIME=%e" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
+            f.write('   `which time`  -f "COPYTIME=%e\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
             f.write('   python costMatrix.py '+logfile+"\n")
             f.write('   rm '+logfile+"\n")
             f.write("   sleep 900\n")
