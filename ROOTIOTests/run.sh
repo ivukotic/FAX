@@ -43,7 +43,7 @@ done
 echo -n "time> finished general NTUP TTC tests "; date
 
 
-if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF_SL6" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW" -o "${PANDA_SITE_NAME}" == "ANALY_LAPP" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" -o "${PANDA_SITE_NAME}" == "ANALY_INFN-FRASCATI" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_SLC6" ]; then
+if [ "${PANDA_SITE_NAME}" == "ANALY_ECDF_SL6" -o "${PANDA_SITE_NAME}" == "ANALY_GLASGOW_SL6" -o "${PANDA_SITE_NAME}" == "ANALY_LAPP" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" -o "${PANDA_SITE_NAME}" == "ANALY_INFN-FRASCATI" -o "${PANDA_SITE_NAME}" == "ANALY_CERN_SLC6" ]; then
     echo -n "Starting DPM tests";
     testName='run-DPM.sh'
     ./$testName $v
