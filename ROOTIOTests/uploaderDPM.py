@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import os
 import sys
-#import cx_Oracle
-import pycurl
+
+import urllib
+import urllib2
  
 
 l=len(sys.argv)
@@ -205,10 +206,15 @@ print doc.toprettyxml(indent="  ")
 
 PrettyPrint(doc, open(JOBTYPE+".xml", "w"))
 
-c = pycurl.Curl()
-c.setopt(c.URL, 'ivukotic.web.cern.ch/ivukotic/DPM/addResult.asp')
-c.setopt(c.POSTFIELDS, 'result='+doc.toxml())
-c.perform()
+
+
+url = 'ivukotic.web.cern.ch/ivukotic/DPM/addResult.asp'
+values = {'result' : doc.toxml() }
+
+data = urllib.urlencode(values)
+req = urllib2.Request(url, data)
+response = urllib2.urlopen(req)
+the_page = response.read()
 
 # try:
 #     connection = cx_Oracle.Connection(line)
