@@ -38,8 +38,8 @@ echo "=o= check that cache is empty "
 
 echo -n "time> generalNTUP-TTC-test > File $1 released from cache "; date
 
-echo "not running until debuged. " >& info.txt
-exit
+#echo "not running until debuged. " >& info.txt
+#exit
 
 # root -l -q -b "readint.C++(\"$1\",\"$treeToUse\", 100, 30 )" >& info.txt
 ./readDirect $1 $treeToUse 100 30 >& info.txt

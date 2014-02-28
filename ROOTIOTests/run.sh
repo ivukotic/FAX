@@ -12,8 +12,9 @@ localSetupROOT --skipConfirm
 
 # compiling releaseFileCache as staticly compiled one does not work on all sites.
 g++ releaseFileCache.cxx -o releaseFileCache
+ls releaseFileCache
 g++ checkCache.cxx -o checkCache
-
+ls checkCache
 echo -n "time> compiled cache cleaning tools "; date
 
 echo "=o= compiling read.C"
@@ -24,8 +25,6 @@ ls
 
 ./doFDR.sh > info.txt
 
-#python FDR.py > info.txt;
-#python FDR_spec.py > info.txt;
 cat info.txt
 echo "finished FDR part"
 #exit 0
