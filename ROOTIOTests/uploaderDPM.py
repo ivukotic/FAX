@@ -205,8 +205,6 @@ print doc.toprettyxml(indent="  ")
 
 PrettyPrint(doc, open(JOBTYPE+".xml", "w"))
 
-
-
 url = 'http://ivukotic.web.cern.ch/ivukotic/DPM/addResult.asp'
 values = {'result' : doc.toxml() }
 
