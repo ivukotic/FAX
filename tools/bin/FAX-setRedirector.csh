@@ -12,19 +12,14 @@ if ( $FAXtoolsDir =~ "" ) then
 endif
 
 set red=`$FAXtoolsDir/bin/FAX-get-best-redirector`
-
 set sc=$status
+
+if ( $deb > 0 ) then
+    echo $red
+endif
+    
 if ( $sc == 0 ) then
-    if ($red !~ "*/" ) then 
-        # echo "slash not found "
-        set red="$red/" 
-    endif
-    
-    if ( $deb > 0 ) then
-       echo "Setting STORAGEPREFIX to be $red"
-    endif
-    
-    setenv STORAGEPREFIX "$red"
+    eval $red
 else
     if ( $deb > 0 ) then
         echo "problem in getting best redirector. Setting it to glrd.usatlas.org."

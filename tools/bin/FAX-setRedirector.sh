@@ -13,7 +13,10 @@ fi
 
 red=$($FAXtoolsDir/bin/FAX-get-best-redirector)
 sc=$?
-echo $red
+
+if [ $deb -eq 1 ]; then
+    echo $red
+fi
 
 if [ $sc -eq 0 ]; then
     eval $red
