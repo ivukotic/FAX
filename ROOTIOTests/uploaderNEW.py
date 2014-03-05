@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import os
 import sys
-
-
 import urllib
 import urllib2
 
@@ -11,7 +9,6 @@ if l==1:
     print 'Need at least a name for the test.'
     sys.exit(2)
 
-#line='ATLAS_HCLOUDTEST/HCLOUDTEST_2013@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=intr1-v.cern.ch)(PORT=10121))(ADDRESS=(PROTOCOL=TCP)(HOST=intr2-v.cern.ch)(PORT=10121))(LOAD_BALANCE=yes)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=intr.cern.ch)(FAILOVER_MODE=(TYPE=SELECT)(METHOD=BASIC)(RETRIES=200)(DELAY=15))))'
 
 SITE='d'
 VERSION = 'd'
@@ -213,19 +210,3 @@ response = urllib2.urlopen(req)
 the_page = response.read()
 print the_page
 
-# try:
-#     connection = cx_Oracle.Connection(line)
-#     cursor = cx_Oracle.Cursor(connection)
-#     print 'Connection established.'
-#     clob_var = cursor.var(cx_Oracle.CLOB)
-#     clob_var.setvalue(0, doc.toxml())
-#     
-#     cursor.callproc('ACCEPTDATAXML',(clob_var,))
-#     connection.commit()
-#     print 'Uploaded'
-#     print
-# except cx_Oracle.DatabaseError, exc:
-#     error, = exc.args
-#     print "uploader.py - problem in establishing connection to db"
-#     print "uploader.py Oracle-Error-Code:", error.code
-#     print "uploader.py Oracle-Error-Message:", error.message
