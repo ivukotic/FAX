@@ -13,9 +13,10 @@ fi
 
 red=$($FAXtoolsDir/bin/FAX-get-best-redirector)
 sc=$?
+echo $red
 
 if [ $sc -eq 0 ]; then
-    res=$(red)
+    eval $red
 else
     if [ $deb -eq 1 ]; then
     	echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
