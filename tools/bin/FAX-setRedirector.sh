@@ -15,11 +15,7 @@ red=$($FAXtoolsDir/bin/FAX-get-best-redirector)
 sc=$?
 
 if [ $sc -eq 0 ]; then
-    [[ $red != */ ]] && red="$red"/ 
-	if [ $deb -eq 1 ]; then
-        echo "Setting STORAGEPREFIX to be $red"
-    fi
-	export STORAGEPREFIX="$red"
+    res=$(red)
 else
     if [ $deb -eq 1 ]; then
     	echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
