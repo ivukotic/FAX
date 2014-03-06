@@ -38,7 +38,6 @@ try:
     opener = urllib2.build_opener()
     f = opener.open(req,timeout=5)
     res=json.load(f)
-    if debug: print res
     lon=res['longitude']
     lat=res['latitude']
     worked=1
@@ -52,7 +51,6 @@ if not worked:
         opener = urllib2.build_opener()
         f = opener.open(req,timeout=5)
         res=json.load(f)
-        if debug: print '#',res
         lon=res['longitude']
         lat=res['latitude']
     except:

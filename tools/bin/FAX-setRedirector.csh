@@ -17,9 +17,11 @@ set sc=$status
 if ( $deb > 0 ) then
     echo $red
 endif
-    
+
+set r=`echo $red | awk -F "export" '{print "set",$2}'`   
+echo "$r" 
 if ( $sc == 0 ) then
-    eval $red
+    eval $r
 else
     if ( $deb > 0 ) then
         echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
