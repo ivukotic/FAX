@@ -15,13 +15,13 @@ set red=`$FAXtoolsDir/bin/FAX-get-best-redirector`
 set sc=$status
 
 if ( $deb > 0 ) then
-    echo $red
+    echo "$red"
 endif
 
 set r=`echo $red | awk -F "export" '{print "set",$2}'`   
 echo "$r" 
 if ( $sc == 0 ) then
-    eval $r
+    eval "$r"
 else
     if ( $deb > 0 ) then
         echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
