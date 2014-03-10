@@ -11,15 +11,12 @@ if ( $FAXtoolsDir =~ "" ) then
     set FAXtoolsDir = "./"
 endif
 
-set red=`$FAXtoolsDir/bin/FAX-get-best-redirector`
-set sc=$status
+$FAXtoolsDir/bin/FAX-get-best-redirector > FAXgetBestRedirector
 
-if ( $deb > 0 ) then
-    echo "$red"
-endif
+cat FAXgetBestRedirector
 
-set r=`echo $red | awk -F "export" '{print "set",$2}'`   
-echo "$r" 
+set r=`grep export FAXgetBestRedirector | awk -F "export" '{print "set",$2}'`
+echo "$r"
 if ( $sc == 0 ) then
     eval "$r"
 else
@@ -27,4 +24,6 @@ else
         echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
     endif
     setenv STORAGEPREFIX "root://glrd.usatlas.org/"
-endif    
+endif
+
+rm FAXgetBestRedirector
