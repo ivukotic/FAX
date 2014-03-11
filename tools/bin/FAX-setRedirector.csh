@@ -15,7 +15,7 @@ $FAXtoolsDir/bin/FAX-get-best-redirector > FAXgetBestRedirector
 
 cat FAXgetBestRedirector
 
-set r=`grep export FAXgetBestRedirector | awk -F "export" '{print "set",$2}'`
+set r=`grep export FAXgetBestRedirector | awk -F "export" '{print $2}'`
 echo "$r"
 if ( $sc == 0 ) then
     eval "set $r"
