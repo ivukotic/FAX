@@ -17,13 +17,13 @@ cat FAXgetBestRedirector
 
 set r=`grep export FAXgetBestRedirector | awk -F "export" '{print $2}'`
 echo "$r"
-if ( $sc == 0 ) then
-    eval "set $r"
-else
+if ( $r =~ "" ) then
     if ( $deb > 0 ) then
         echo "problem in getting best redirector. Setting it to glrd.usatlas.org."
     endif
     setenv STORAGEPREFIX "root://glrd.usatlas.org/"
+else
+    eval "set $r"
 endif
 
 rm FAXgetBestRedirector
