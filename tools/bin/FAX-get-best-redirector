@@ -157,7 +157,7 @@ try:
     f = opener.open(req, timeout=20)
     res=json.load(f)
     if debug: print "# found corresponding endpoint: ",res[0]["endpoint"]
-    print 'export STORAGEPREFIX="'+res[0]["endpoint"]+'"'
+    print 'export STORAGEPREFIX='+res[0]["endpoint"]
 except urllib2.HTTPError:
     print "# Can't connect to AGIS to get endpoint address."
     sys.exit(4)
