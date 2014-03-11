@@ -26,4 +26,4 @@ else
     eval "set $r"
 endif
 
-eval "rm FAXgetBestRedirector"
+eval "rm -f FAXgetBestRedirector"
