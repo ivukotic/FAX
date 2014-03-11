@@ -15,7 +15,7 @@ $FAXtoolsDir/bin/FAX-get-best-redirector > FAXgetBestRedirector
 
 cat FAXgetBestRedirector
 
-set r=`grep export FAXgetBestRedirector | awk -F "export" '{print $2}'`
+set r=`grep export FAXgetBestRedirector | awk -F "STORAGEPREFIX=" '{print $2}'`
 echo "$r"
 if ( $r =~ "" ) then
     if ( $deb > 0 ) then
@@ -23,7 +23,7 @@ if ( $r =~ "" ) then
     endif
     setenv STORAGEPREFIX "root://glrd.usatlas.org/"
 else
-    eval "set $r"
+    setenv STORAGEPREFIX $r/
 endif
 
 eval "rm -f FAXgetBestRedirector"
