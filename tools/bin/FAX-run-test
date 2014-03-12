@@ -13,8 +13,13 @@ else
 fi
 }
 
+
 dontask=n
 res=""
+
+if [ "$1" = "-a" -o "$1" = "--runAll" ]; then
+    dontask=y
+fi
 
 if [ -z "$X509_USER_PROXY" ]
 then
