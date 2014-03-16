@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# to fix
+# get file size here: roots.append(dsfile(correctedscope,lfn))
+# make sure number of parallel streams is respected
+# check that files are copied right by checking their size 
+
 import subprocess, threading, os, sys
 import urllib2
 import optparse
@@ -8,14 +13,17 @@ try: import simplejson as json
 except ImportError: import json
 
 
-parser = optparse.OptionParser(description="Getting a DS through FAX.", version="%prog version 1.0", usage="Usage: %prog [options] dataset")
+parser = optparse.OptionParser(description="Getting a DS through FAX.", version="%prog version 2.0", usage="Usage: %prog [options] dataset")
 
-parser.add_option('-r', '--retries', help='a number of retries. Defaults to 3.', default=3)
-parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 10.', default=10)
-parser.add_option('-t', '--timeout', help='seconds to wait before timing out an individual xrdcp. Default is 3600.', default=3600)
-parser.add_option('-x', '--extreme', help='use extream copy', dest='bool', default=False, action='store_true')
-parser.add_option('-i', '--incomplete', help='copy incomplete datasets too', dest='bool', default=False, action='store_true')
-parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='bool', default=False, action='store_true')
+parser.add_option('-r', '--retries', help='a number of retries. Defaults to 3.', default=3, dest='oRetries')
+parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 10.', default=10, dest='oStreams')
+parser.add_option('-t', '--timeout', help='seconds to wait before timing out an individual xrdcp. Default is 3600.', default=3600, dest='oTimeout')
+parser.add_option('-f', '--files',   help='a number of files to copy', default=0, dest='oFilesToCopy')
+parser.add_option('-x', '--extreme', help='use extreme copy', dest='oExtreme', action='store_true')
+parser.add_option('-i', '--incomplete', help='copy incomplete datasets too', dest='oIncomplete', action='store_true')
+parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='oNonRoot', action='store_true')
+parser.add_option('-v', action="store_true", dest="verbose")
+parser.add_option('-q', action="store_false", dest="verbose")
 
 
 try:
@@ -36,13 +44,12 @@ class Command(object):
 
     def run(self, timeout):
         def target():
-#            print 'command started: ', self.cmd
+            #print 'command started: ', self.cmd
             self.process = subprocess.Popen(self.cmd, shell=True)
             self.process.communicate()
-
+        
         thread = threading.Thread(target=target)
         thread.start()
-
         thread.join(timeout)
         if thread.is_alive():
             print 'Terminating process'
@@ -50,11 +57,12 @@ class Command(object):
             thread.join()
         return self.process.returncode
 
+
 class dsfile:
-    def __init__(self, sc,na):
+    def __init__(self, sc, na, si=0):
         self.scope=sc
         self.filename=na
-        self.size=0
+        self.size=si
         self.attempts=0
     
 class dataset:
@@ -99,7 +107,7 @@ class LFNs (DQDashboardTool):
 
         for guid in entry:
             scope, lfn = entry[guid]['scope'], entry[guid]['lfn']
-            if lfn.count('.root')==0: continue
+            if lfn.count('.root')==0 and oNonRoot : continue
             correctedscope = "/".join(scope.split('.'))
             # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
             roots.append(dsfile(correctedscope,lfn))
@@ -164,7 +172,7 @@ except:
 #for s in sites: print s, sites[s].prnt()
 
 
-print 'Getting all of the DDM endpoints having a replica.'
+if (verbose):  print '--------------- Getting all of the DDM endpoints having a replica. ------------------'
 com=Command('dq2-ls -r '+ DS + ' > fax.tmp' )
 com.run(300)
 dsets={}
@@ -177,7 +185,7 @@ for line in f:
     line=line.split(":")
   #  print line
 
-    if line[0]=='INCOMPLETE':
+    if line[0]=='INCOMPLETE' and oIncomplete:
         if len(line[1])==0: continue
         rep=line[1].split(',')
         for r in rep:
@@ -203,11 +211,20 @@ for line in f:
 for d  in dsets.keys():
     print d,'\tcomplete replicas:',dsets[d].complete,'\tincomplete:',dsets[d].incomplete
 
+com=Command('rm -f fax.tmp' )
+com.run(10)
 
-#find all the files
+
+
+if (verbose):  print '--------------- find all the files ----------------------'
 for d in dsets.keys():
     dsets[d].files=LFNs(d).execute()
      
+
+if (verbose):  print '--------------- copying the files ----------------------'
+
+copied=0
+
 for d in dsets.keys():
     print 'copying dataset: ', d
     
@@ -215,10 +232,17 @@ for d in dsets.keys():
         os.makedirs(d)
         
     for r in dsets[d].files:
+        if (copied>=oFilesToCopy): continue
+        while(threading.active_count()>=oStreams){
+            sleep(1000)
+        }
+        print 'starting copy of ', r.scope+":"+r.filename
         c='xrdcp '+ redir+"/atlas/rucio/"+r.scope+":"+r.filename + ' '+d+'/'+r.filename 
-        print 'executing: ', c
+        if (verbose): print 'executing: ', c
         com=Command( c )
-        com.run(3600)
+        rc=com.run(3600)
+        if (verbose): print 'copy finished with status ',rc
+        copied+=1
         
         
         
