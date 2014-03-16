@@ -27,10 +27,7 @@ parser.add_option('-q', '--quiet',   action="store_false", dest="verbose")
 
 
 try:
-    import dq2.clientapi.cli.cliutil
-    from dq2.common.cli.DQDashboardTool import DQDashboardTool
-    from dq2.clientapi.cli.cliutil import getDQ2
-    from dq2.filecatalog.lfc.lfcconventions import to_native_lfn
+    from dq2.clientapi.DQ2 import DQ2
 except ImportError:
     print "Environment not set [error importing DQ2 dependencies]!"
     sys.exit(1)
@@ -84,34 +81,54 @@ class site:
         print  'host:', self.host, '\tport:', self.port, '\tddms:', self.ddms
 
 
-class LFNs (DQDashboardTool):
-    usage=''
-    version=''
-    description=''
-    toolOptions = [ dq2.clientapi.cli.cliutil.opt_dataset_version  ]
 
-    def __init__ (self, idsn):
-        DQDashboardTool.__init__(self)
-        self.dsn=idsn
-
-    def execute(self):
-        dq = getDQ2(self)
-        ret = dq.listFilesInDataset(self.dsn, version=self.options.version)
-
-        try:
-            entry = ret[0]
-        except IndexError, e:
-            sys.exit(0)
-
-        roots=[]
-
-        for guid in entry:
-            scope, lfn = entry[guid]['scope'], entry[guid]['lfn']
-            if lfn.count('.root')==0 and opts.NonRoot : continue
-            correctedscope = "/".join(scope.split('.'))
-            # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
-            roots.append(dsfile(correctedscope,lfn))
-        return roots
+def LFNs(idsn):
+    ret = DQ2().listFilesInDataset(idsn)
+    
+    try:
+        entry = ret[0]
+    except IndexError, e:
+        sys.exit(0)
+    
+    roots=[]
+    
+    for guid in entry:
+        scope, lfn, fs = entry[guid]['scope'], entry[guid]['lfn'], entry[guid]['filesize']
+        if lfn.count('.root')==0 and opts.NonRoot : continue
+        correctedscope = "/".join(scope.split('.'))
+        # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
+        roots.append(dsfile(correctedscope,lfn, fs))
+    return roots
+    
+# class LFNs (DQDashboardTool):
+#     ret = DQ2().listFilesInDataset("user.ivukotic.xrootd.cern-prod")
+#     usage=''
+#     version=''
+#     description=''
+#     toolOptions = [ dq2.clientapi.cli.cliutil.opt_dataset_version  ]
+#     
+#     def __init__ (self, idsn):
+#         DQDashboardTool.__init__(self)
+#         self.dsn=idsn
+#     
+#     def execute(self):
+#         dq = getDQ2(self)
+#         ret = dq.listFilesInDataset(self.dsn, version=self.options.version)
+#         
+#         try:
+#             entry = ret[0]
+#         except IndexError, e:
+#             sys.exit(0)
+#         
+#         roots=[]
+#         
+#         for guid in entry:
+#             scope, lfn = entry[guid]['scope'], entry[guid]['lfn']
+#             if lfn.count('.root')==0 and opts.NonRoot : continue
+#             correctedscope = "/".join(scope.split('.'))
+#             # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
+#             roots.append(dsfile(correctedscope,lfn))
+#         return roots
 
 
 # =========================================================================================
@@ -218,7 +235,7 @@ com.run(10)
 
 if (opts.verbose):  print '--------------- find all the files ----------------------'
 for d in dsets.keys():
-    dsets[d].files=LFNs(d).execute()
+    dsets[d].files=LFNs(d)
      
 
 if (opts.verbose):  print '--------------- copying the files ----------------------'
