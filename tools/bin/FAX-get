@@ -5,7 +5,7 @@
 # make sure number of parallel streams is respected
 # check that files are copied right by checking their size 
 
-import subprocess, threading, os, sys
+import subprocess, threading, os, sys,time
 import urllib2
 import optparse
 
@@ -233,9 +233,9 @@ for d in dsets.keys():
         
     for r in dsets[d].files:
         if (copied>=oFilesToCopy): continue
-        while(threading.active_count()>=oStreams){
-            sleep(1000)
-        }
+        while(threading.active_count()>=oStreams):
+            time.sleep(1)
+        
         print 'starting copy of ', r.scope+":"+r.filename
         c='xrdcp '+ redir+"/atlas/rucio/"+r.scope+":"+r.filename + ' '+d+'/'+r.filename 
         if (verbose): print 'executing: ', c
