@@ -83,6 +83,7 @@ class site:
 
 
 def LFNs(idsn):
+    print idsn
     ret = DQ2().listFilesInDataset(idsn)
     
     try:
@@ -97,40 +98,9 @@ def LFNs(idsn):
         if lfn.count('.root')==0 and opts.NonRoot : continue
         correctedscope = "/".join(scope.split('.'))
         # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
-        roots.append(dsfile(correctedscope,lfn, fs))
+        roots.append(dsfile(correctedscope, lfn, fs))
     return roots
     
-# class LFNs (DQDashboardTool):
-#     ret = DQ2().listFilesInDataset("user.ivukotic.xrootd.cern-prod")
-#     usage=''
-#     version=''
-#     description=''
-#     toolOptions = [ dq2.clientapi.cli.cliutil.opt_dataset_version  ]
-#     
-#     def __init__ (self, idsn):
-#         DQDashboardTool.__init__(self)
-#         self.dsn=idsn
-#     
-#     def execute(self):
-#         dq = getDQ2(self)
-#         ret = dq.listFilesInDataset(self.dsn, version=self.options.version)
-#         
-#         try:
-#             entry = ret[0]
-#         except IndexError, e:
-#             sys.exit(0)
-#         
-#         roots=[]
-#         
-#         for guid in entry:
-#             scope, lfn = entry[guid]['scope'], entry[guid]['lfn']
-#             if lfn.count('.root')==0 and opts.NonRoot : continue
-#             correctedscope = "/".join(scope.split('.'))
-#             # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
-#             roots.append(dsfile(correctedscope,lfn))
-#         return roots
-
-
 # =========================================================================================
 
 
@@ -202,8 +172,8 @@ for line in f:
     line=line.split(":")
   #  print line
 
-    if line[0]=='INCOMPLETE' and opts.Incomplete:
-        if len(line[1])==0: continue
+    if line[0]=='INCOMPLETE':
+        if len(line[1])==0 or not opts.Incomplete: continue
         rep=line[1].split(',')
         for r in rep:
             r=r.strip()
