@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # to fix
-# get file size here: roots.append(dsfile(correctedscope,lfn))
 # make sure number of parallel streams is respected
 # check that files are copied right by checking their size 
 
@@ -125,7 +124,8 @@ else:
 sites={};
 
 
-#print 'Geting FAX endpoints from AGIS ...'
+
+if (opts.verbose):  print '--------------- Geting FAX endpoints from AGIS ---------------'
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
@@ -141,7 +141,8 @@ except:
 
 #for s in sites:  print s, sites[s].prnt()
     
-#print 'Getting all of the DDM endpoints.'
+    
+if (opts.verbose):  print '--------------- Getting all of the DDM endpoints. ---------------'
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
@@ -230,8 +231,7 @@ for d in dsets.keys():
         c='xrdcp '+ redir+"/atlas/rucio/"+r.scope+":"+r.filename + ' '+d+'/'+r.filename 
         if (opts.verbose): print 'executing: ', c
         com=Command( c )
-        rc=com.run(opts.Timeout)
-        if (opts.verbose): print 'copy finished with status ',rc
+        com.run(opts.Timeout)
         copied+=1
         
         
