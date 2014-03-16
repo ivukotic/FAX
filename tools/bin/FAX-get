@@ -83,7 +83,7 @@ class site:
 
 
 def LFNs(idsn):
-    print idsn
+    
     ret = DQ2().listFilesInDataset(idsn)
     
     try:
@@ -99,6 +99,9 @@ def LFNs(idsn):
         correctedscope = "/".join(scope.split('.'))
         # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
         roots.append(dsfile(correctedscope, lfn, fs))
+        
+    if (opts.verbose): print idsn, len(roots), "files"
+    
     return roots
     
 # =========================================================================================
@@ -219,7 +222,7 @@ for d in dsets.keys():
         os.makedirs(d)
         
     for r in dsets[d].files:
-        if (copied>=opts.FilesToCopy): continue
+        if ( opts.FilesToCopy>0 and copied>=opts.FilesToCopy): continue
         while(threading.active_count()>=opts.Streams):
             time.sleep(1)
         
