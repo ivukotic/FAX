@@ -41,9 +41,9 @@ How to use FAX - Tutorial
 
 3. Find gLFN's of your files 
 
-    Use tool FAX-get-gLFNs.sh:
+    Use tool fax-get-gLFNs.sh:
 
-    FAX-get-gLFNs.sh user.ilijav.HCtest.1  > my_list_of_gLFNS.txt 
+    fax-get-gLFNs.sh user.ilijav.HCtest.1  > my_list_of_gLFNS.txt 
 
     
 
@@ -67,7 +67,7 @@ How to use FAX - Tutorial
     listNumberOfEvents.C opens each of the files listed in a file and prints number of events in them
     
     create a file listing all files of a dataset:
-    FAX-get-gLFNs.sh user.flegger.MWT2.data12_8TeV.00212172.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid01007411_00 > MWT2_files.txt
+    fax-get-gLFNs.sh user.flegger.MWT2.data12_8TeV.00212172.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid01007411_00 > MWT2_files.txt
     
     execute it by doing:
     root -l -b -q listNumberOfEvents.C
