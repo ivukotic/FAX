@@ -27,7 +27,7 @@ class LFNs (DQDashboardTool):
         if os.environ.get("STORAGEPREFIX") != None:
             redir=os.environ.get("STORAGEPREFIX")
         else:
-            print "no FAX redirector given. Please set up FAX (localSetupFAX) or run FAX-setRedirector.(c)sh, first. "
+            print "no FAX redirector given. Please set up FAX (localSetupFAX) or run fax-setRedirector.(c)sh, first. "
             sys.exit(1)
             
         dq = getDQ2(self)

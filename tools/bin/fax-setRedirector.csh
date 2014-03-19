@@ -11,7 +11,7 @@ if ( $FAXtoolsDir =~ "" ) then
     set FAXtoolsDir = "./"
 endif
 
-$FAXtoolsDir/bin/FAX-get-best-redirector > FAXgetBestRedirector
+$FAXtoolsDir/bin/fax-get-best-redirector > FAXgetBestRedirector
 
 cat FAXgetBestRedirector
 

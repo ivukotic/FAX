@@ -38,7 +38,7 @@ get_response "This test will try to get gLFNs for all the files of one dataset, 
 
 if [ $do = "y" ]
 then
-    kom="FAX-get-gLFNs user.ilijav.HCtest.1"
+    kom="fax-get-gLFNs user.ilijav.HCtest.1"
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval "$kom"
     if [ "$?" -eq 0 ]

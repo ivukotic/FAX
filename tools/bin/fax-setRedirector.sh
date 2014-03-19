@@ -11,7 +11,7 @@ if [ "$FAXtoolsDir" = "" ]; then
     FAXtoolsDir="./"
 fi
 
-red=$($FAXtoolsDir/bin/FAX-get-best-redirector)
+red=$($FAXtoolsDir/bin/fax-get-best-redirector)
 sc=$?
 
 if [ $deb -eq 1 ]; then
