@@ -23,14 +23,14 @@ if debug: print "# trying to resolve localredirector..."
 
 try:
 	socket.gethostbyname('localredirector')
-	if debug: print '# localredirector exist. using it...'
+	if debug: print '# localredirector exists. using it...'
 	print 'export STORAGEPREFIX="localredirector"'
 	sys.exit(0)
 except (IOError, socket.gaierror, socket.error):
 	if debug: print '# localredirector does not resolve.'
 
 
-if debug: print "# geting client coordinates..." 
+if debug: print "# getting client coordinates..." 
 
 worked=0
 try:
@@ -58,7 +58,7 @@ if not worked:
         sys.exit(1)
 
 
-if debug: print "# geting FAX endpoints information from SSB..."
+if debug: print "# getting FAX endpoints information from SSB..."
 
 class site:
         name=''
@@ -90,7 +90,7 @@ except:
 
 
 
-if debug: print "# geting FAX endpoints coordinates from AGIS..."
+if debug: print "# getting FAX endpoints coordinates from AGIS..."
 Sites=dict()
 
 curtime=datetime.now()
