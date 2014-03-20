@@ -156,15 +156,31 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     netSt(netSt1);
     TFile *f ;
     //    if (xrootdaccess) {
-    cout << "Parameters for SetUpSSL( " << proxyfn.c_str() << "," << certdir.c_str()  << "," << proxyfn.c_str()  << "," << proxyfn.c_str() << ")" << endl;
-    f = TFile::Open(fn.c_str());
-    //}
-    //    else {
-    //      TSSLSocket::SetUpSSL(proxyfn.c_str(),certdir.c_str(),proxyfn.c_str(),proxyfn.c_str());
-    //      f = new TWebFile(fn.c_str());
-    //    }
-    TTree *tree = (TTree*)f->Get(trname.c_str());
+    cout << "Invoking SetUpSSL( \"\", \"\", " << proxyfn.c_str()  << ", " << proxyfn.c_str() << " )" << endl;
+    TSSLSocket::SetUpSSL(proxyfn.c_str(),certdir.c_str(),proxyfn.c_str(),proxyfn.c_str());
+
+    // Set up the Davix auth, for when Davix will be available
+    gEnv->SetValue("Davix.GSI.UserProxy", proxyfn.c_str());
+    gEnv->SetValue("Davix.GSI.GridMode", "y");
+
+    // Also setup the xrootd auth, in the case xrootd is used
+    gEnv->SetValue("XSec.GSI.UserProxy", proxyfn.c_str());
     
+    f = TFile::Open(fn.c_str());
+    if (!f) {
+      cout << "TFile::Open failed. Trying again with TWebFile...";
+      f = new TWebFile(fn.c_str());
+      }
+
+
+    if (!f) {
+      cout << "File open failed... every hope is vain. Surrender.";
+      return -1;
+    }
+
+    TTree *tree = (TTree*)f->Get(trname.c_str());
+    TTreeCache::SetLearnEntries(1);
+
     Int_t nentries = (Int_t)tree->GetEntries();
     if (endevent > 0 ) nentries = endevent; 
     cout << "nentries " << nentries << endl;
