@@ -136,6 +136,12 @@ if os.environ.has_key('PandaID'):
 
 print 'SITE: ',SITE,"\tVERSION: ",VERSION,"\tPANDAID: ",PANDAID
 
+
+# If the values do not make sense, we don't upload them
+if (WALLTIME == 0 and CPUTIME == 0) :
+  print "WALLTIME and CPUTIME are zero. Likely the test had failed. Exiting."
+  sys.exit(1)
+
 print "create xml"
 
 from xml.dom.minidom import Document
