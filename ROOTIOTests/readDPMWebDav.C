@@ -156,8 +156,8 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     netSt(netSt1);
     TFile *f ;
     //    if (xrootdaccess) {
-    cout << "Invoking SetUpSSL( \"\", \"\", " << proxyfn.c_str()  << ", " << proxyfn.c_str() << " )" << endl;
-    TSSLSocket::SetUpSSL(proxyfn.c_str(),certdir.c_str(),proxyfn.c_str(),proxyfn.c_str());
+    cout << "Invoking SetUpSSL( \"\", \"/etc/grid-security/certificates/\", " << proxyfn.c_str()  << ", " << proxyfn.c_str() << " )" << endl;
+    TSSLSocket::SetUpSSL(0, "/etc/grid-security/certificates/", proxyfn.c_str(), proxyfn.c_str());
 
     // Set up the Davix auth, for when Davix will be available
     gEnv->SetValue("Davix.GSI.UserProxy", proxyfn.c_str());
