@@ -13,7 +13,7 @@ urls=("http://lxfsra04a04.cern.ch/dpm/cern.ch/home/atlas/group.test.hc.NTUP_SMWZ
 destnames=("CERN_DPM_TRUNK" "CERN_DPM_TRUNK" "DESY_DCACHETEST" "GRIDPP_DPM_EPELTEST" "GRIDPP_DPM_EPELTEST" "LNF_DPM_EPELTEST" "CERN_EOS")
 
 # And this is a human readable word that tells us what we tested
-desttag=("DPMhttp" "DPMxrootd" "DCACHEhttp" "DCACHExrootd" "DPMhttp" "DPMxrootd" "DPMhttp" "EOSxrootd")
+desttag=("DPMhttp" "DPMxrootd" "DCACHEhttp" "DPMhttp" "DPMxrootd" "DPMhttp" "EOSxrootd")
 
 for i in 0 1 2 3 4 5 6 7; do
  dest=${urls[$i]}
