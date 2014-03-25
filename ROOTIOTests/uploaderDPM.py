@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import platform
 
 import urllib
 import urllib2
@@ -114,9 +115,12 @@ with open('info.txt', 'r') as f:
         except:
           pass
 
-
+SITE=platform.node()
 if os.environ.has_key('PANDA_SITE_NAME'):
     SITE=os.environ['PANDA_SITE_NAME']
+
+if os.environ.has_key('DEST_SITE_NAME'):
+    DESTSITE=os.environ['DEST_SITE_NAME']
 
 if os.environ.has_key('COPY_TOOL'):
     FILESYSTEM=os.environ['COPY_TOOL']
@@ -132,10 +136,15 @@ if os.environ.has_key('PandaID'):
 
 print 'SITE: ',SITE,"\tVERSION: ",VERSION,"\tPANDAID: ",PANDAID
 
+
+# If the values do not make sense, we don't upload them
+if (WALLTIME == 0 and CPUTIME == 0) :
+  print "WALLTIME and CPUTIME are zero. Likely the test had failed. Exiting."
+  sys.exit(1)
+
 print "create xml"
 
 from xml.dom.minidom import Document
-from xml.dom.ext import PrettyPrint
 
 doc = Document()
 
@@ -144,7 +153,7 @@ pro.setAttribute("name",JOBTYPE)
 pro.setAttribute("parameter1",PARAM1)
 doc.appendChild(pro)
 
-SITEFILESYSTEM = SITE.replace('_XROOTD','').replace('ANALY_','') + '_' + FILESYSTEM.replace('xrdcp','xrd')
+SITEFILESYSTEM = SITE.replace('_XROOTD','').replace('ANALY_','') + '-' + FILESYSTEM + '-' + DESTSITE
 sit = doc.createElement("site")
 sit.setAttribute("name", SITEFILESYSTEM)
 #sit.setAttribute("storage",FILESYSTEM)
@@ -158,7 +167,8 @@ pro.appendChild(sto)
 res = doc.createElement("result")
 res.setAttribute("cputime", str(CPUTIME))
 res.setAttribute("walltime", str(WALLTIME))
-SHORTFILENAME = str(FILENAME)[-100:]
+#SHORTFILENAME = str(FILENAME)[-100:]
+SHORTFILENAME = "thefile"
 res.setAttribute("filename", str(SHORTFILENAME))
 res.setAttribute("rss", str(RSS))
 res.setAttribute("vmem", str(VMEM))
@@ -203,7 +213,7 @@ if (HDDTIME!=0):
 
 print doc.toprettyxml(indent="  ")
 
-PrettyPrint(doc, open(JOBTYPE+".xml", "w"))
+#PrettyPrint(doc, open(JOBTYPE+".xml", "w"))
 
 url = 'http://ivukotic.web.cern.ch/ivukotic/DPM/addResult.asp'
 values = {'result' : doc.toxml() }
