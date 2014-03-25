@@ -19,7 +19,7 @@ public class RucioN2NTest extends TestCase {
 		p.setProperty("site","MWT2");
 		RucioN2N rucio=new RucioN2N(p);
 		assert(rucio!=null);
-		String gLFN3="/atlas/rucio/ivukotic:user.ivukotic.xrootd.mwt2-1M";
+		String gLFN3="/atlas/rucio/user/ivukotic:user.ivukotic.xrootd.mwt2-1M";
 		String pfn3=rucio.translate(gLFN3);
 		log.info(pfn3);
 		assertTrue(pfn3!=null);
