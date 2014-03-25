@@ -19,23 +19,10 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
 	final static Logger log = LoggerFactory.getLogger(AtlasAuthorizationHandler.class);
 
-	private String SRM_HOST = "";
-
 	private static RucioN2N rucio = null;
 
 	public AtlasAuthorizationHandler(RucioN2N rc, Properties properties) throws IllegalArgumentException, MissingResourceException {
-
 		rucio = rc;
-
-		SRM_HOST = properties.getProperty("srm_host");
-
-		if (SRM_HOST == null) {
-			log.error("*** Error: SRM_HOST parameter not defined. Please set it (in etc/dcache.conf)  and restart the server.");
-			throw new IllegalArgumentException("SRM_HOST parameter not defined. Please set it (in etc/dcache.conf) and restart the server.");
-		} else {
-			log.info("Setting SRM_HOST to: " + SRM_HOST);
-		}
-
 	}
 
 
