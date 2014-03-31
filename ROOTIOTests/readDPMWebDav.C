@@ -165,7 +165,8 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
 
     // Also setup the xrootd auth, in the case xrootd is used
     gEnv->SetValue("XSec.GSI.UserProxy", proxyfn.c_str());
-    
+   
+    cout << "Opening '" << fn << "'" << endl; 
     f = TFile::Open(fn.c_str());
     if (!f) {
       cout << "TFile::Open failed. Trying again with TWebFile...";
