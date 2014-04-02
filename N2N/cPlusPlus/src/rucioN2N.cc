@@ -194,7 +194,7 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     pthread_create(&cleaner, NULL, garbageCleaner, NULL);
 
     if (XrdOucEnv::Import("XRDXROOTD_PROXY", pssorigin)) {
-        char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio"));
+        char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio") +1);
         strcpy(tmp, sitePrefix[0]);
         strcat(tmp, "/rucio");
         struct stat stbuf;
