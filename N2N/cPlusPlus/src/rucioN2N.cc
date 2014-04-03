@@ -234,6 +234,7 @@ bool rucioMd5(const char *lfn, char *sfn) {
         if (tmp[i] == '.') tmp[i] = '/';
         else if (tmp[i] == ':') break;
     strncat(sfn, tmp, strlen(p1) - strlen(p2));
+    free(tmp);
     strcat(sfn, "/");
     strncat(sfn, md5string, 2); 
     strcat(sfn, "/");
