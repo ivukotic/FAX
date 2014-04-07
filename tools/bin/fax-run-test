@@ -13,6 +13,8 @@ else
 fi
 }
 
+countall=0
+countsucc=0
 
 dontask=n
 res=""
@@ -38,6 +40,7 @@ get_response "This test will try to get gLFNs for all the files of one dataset, 
 
 if [ $do = "y" ]
 then
+    countall=$((countall+1))
     kom="fax-get-gLFNs user.ilijav.HCtest.1"
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval "$kom"
@@ -45,6 +48,7 @@ then
     then
         echo "TEST RESULT - OK"
         res=0$res
+        countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
         res=1$res
@@ -60,6 +64,7 @@ get_response "This test will try to copy (using xrdcp) a small file to /dev/null
 
 if [ $do = "y" ]
 then
+    countall=$((countall+1))
     kom="xrdcp -d 1 $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root -> /dev/null "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
@@ -67,6 +72,7 @@ then
     then
         echo "TEST RESULT - OK"
         res=0$res
+        countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
         res=1$res
@@ -82,6 +88,7 @@ get_response  "This test will set-up ROOT and list content of a file, would you 
 
 if [ $do = "y" ]
 then
+    countall=$((countall+1))
 	source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
 	source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --quiet
     SCRIPT=$(readlink -f "$0")
@@ -93,6 +100,7 @@ then
     then
         echo "TEST RESULT - OK"
         res=0$res
+        countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
         res=1$res
@@ -109,6 +117,7 @@ fi
 # 
 # if [ $do = "y" ]
 # then
+#     countall=$((countall+1))
 #     kom="frun -v --inDS=user.ilijav.HCtest.1 --exec \"echo %IN > input.txt\" --athenaTag=17.2.0 --noBuild --outputs=input.txt --outDS=user.ivukotic.HCtestREWRITTEN.1 --site=ANALY_CERN_XROOTD "
 #     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
 #     eval $kom
@@ -116,6 +125,7 @@ fi
 #     then
 #         echo "TEST RESULT - OK"
 #         res=0$res
+#         countsucc=$((countsucc+1))
 #     else
 #         echo "TEST RESULT - FAIL"
 #         res=1$res
@@ -126,6 +136,7 @@ fi
 #     res=x$res
 # fi
 
+echo "From $countall tests $countsucc were successfull."
 echo "Uploading test results..."
 java -jar $SCRIPTPATH/FAX2Google-0.0.2-jar-with-dependencies.jar $res > /dev/null
 echo "Done."

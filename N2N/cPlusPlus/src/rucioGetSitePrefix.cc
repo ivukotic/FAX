@@ -47,7 +47,7 @@ int GetJsonData(const char* AGISurl, struct JsonData *chunk)
     char *buf, *cmd;
 
     buf = (char*)malloc(BUFSZ);
-    cmd = (char*)malloc(15 + strlen(AGISurl));
+    cmd = (char*)malloc(16 + strlen(AGISurl));
     chunk->data = (char*)malloc(1);  // will be grown as needed by the realloc above
     chunk->size = 0;    // no data at this point 
    
@@ -59,7 +59,7 @@ int GetJsonData(const char* AGISurl, struct JsonData *chunk)
     do {
         memset(buf, 0, BUFSZ);
         fread(buf, BUFSZ -1, 1, fp);
-        chunk->data = (char*)realloc(chunk->data, strlen(chunk->data) + strlen(buf));
+        chunk->data = (char*)realloc(chunk->data, strlen(chunk->data) + strlen(buf) +1);
         strcat(chunk->data, buf);
     } while (! feof(fp));
     pclose(fp);

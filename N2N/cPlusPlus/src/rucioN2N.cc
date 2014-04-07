@@ -194,7 +194,7 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     pthread_create(&cleaner, NULL, garbageCleaner, NULL);
 
     if (XrdOucEnv::Import("XRDXROOTD_PROXY", pssorigin)) {
-        char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio"));
+        char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio") +1);
         strcpy(tmp, sitePrefix[0]);
         strcat(tmp, "/rucio");
         struct stat stbuf;
@@ -234,6 +234,7 @@ bool rucioMd5(const char *lfn, char *sfn) {
         if (tmp[i] == '.') tmp[i] = '/';
         else if (tmp[i] == ':') break;
     strncat(sfn, tmp, strlen(p1) - strlen(p2));
+    free(tmp);
     strcat(sfn, "/");
     strncat(sfn, md5string, 2); 
     strcat(sfn, "/");

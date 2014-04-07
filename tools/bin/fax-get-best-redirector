@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import subprocess, threading, os, sys, time 
 import urllib2
-from  datetime import datetime
-from datetime import timedelta
+import datetime
 import math
 
 try: import simplejson as json
@@ -45,6 +44,18 @@ except:
     if debug: 
         print "# Can't determine client coordinates using geoip.mwt2.org ", sys.exc_info()[0]
 
+# if not worked:
+#     try:
+#         req = urllib2.Request("http://hereCERNserver/json/", None)
+#         opener = urllib2.build_opener()
+#         f = opener.open(req,timeout=5)
+#         res=json.load(f)
+#         lon=res['longitude']
+#         lat=res['latitude']
+#     except:
+#         if debug: 
+#             print "# Can't determine client coordinates using freegeoip.net ", sys.exc_info()[0]
+        
 if not worked:
     try:
         req = urllib2.Request("http://freegeoip.net/json/", None)
@@ -60,27 +71,42 @@ if not worked:
 
 if debug: print "# getting FAX endpoints information from SSB..."
 
+n = datetime.datetime.utcnow()
+one_day = datetime.timedelta(days=1)
+n = n + one_day
+t = n + one_day
+today = datetime.datetime.date(n)
+tomorrow = datetime.datetime.date(t)
+
 class site:
         name=''
         direct=0
-        directfails=timedelta(0)
         def __init__(self,na):
                 self.name=na
 	def coo(self, lo, la):
 		self.longitude=lo
 		self.latitude=la
         def prn(self):
-                print "#", self.name, "\tlong:",self.longitude,"\t lat:",self.latitude, "\tdirect: ",self.directfails,"/",self.direct
+                print "#", self.name, "\tlong:",self.longitude,"\t lat:",self.latitude,"/",self.direct
 
+
+Sites=dict()
 
 #direct
-url="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/getplotdata?time=1&dateFrom=&dateTo=&sites=all&clouds=all&batch=1&columnid=10083"
+url="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/getplotdata?time=custom&dateFrom="+ str(today) +"&dateTo="+ str(tomorrow) +"&batch=1&columnid=10083"
+# print url
 try:
     response=urllib2.Request(url,None)
     opener = urllib2.build_opener()
-    f = opener.open(response, timeout=20)
+    f = opener.open(response, timeout=40)
     data = json.load(f)
     data=data["csvdata"]
+    for si in data:
+        n=si['VOName']
+        if n not in Sites:
+            s=site(n)
+            Sites[n]=s
+            Sites[n].direct=si['COLOR']
 except urllib2.HTTPError:
 	print "# Can't connect to SSB."
 	sys.exit(2)
@@ -91,24 +117,6 @@ except:
 
 
 if debug: print "# getting FAX endpoints coordinates from AGIS..."
-Sites=dict()
-
-curtime=datetime.now()
-cuttime=curtime-timedelta(0,5*3600)
-
-for si in data:
-        n=si['VOName']
-        if n not in Sites:
-                s=site(n)
-                Sites[n]=s
-        st= datetime(*(time.strptime(si["Time"], '%Y-%m-%dT%H:%M:%S')[0:6])) 
-        et= datetime(*(time.strptime(si["EndTime"], '%Y-%m-%dT%H:%M:%S')[0:6])) 
-        if et<cuttime: continue  # throws away too early measurements
-        if st<cuttime: st=cuttime # cuts to exact cutoff time
-        if et>curtime: # current state
-                et=curtime
-                Sites[n].direct=si['COLOR']
-        if si['COLOR']==3: Sites[n].directfails+= (et-st)
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/site/query/list/?json", None)
@@ -134,7 +142,6 @@ minsite=''
 
 for s in Sites:
 	if not Sites[s].direct==5: continue
-
 	dlon = math.radians(lon - Sites[s].longitude)
 	dlat = math.radians(lat - Sites[s].latitude)
 	a = pow(math.sin(dlat/2),2) + math.cos(math.radians(Sites[s].latitude)) * math.cos(math.radians(lat)) * pow(math.sin(dlon/2),2)

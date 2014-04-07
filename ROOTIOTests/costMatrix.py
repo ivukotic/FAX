@@ -188,7 +188,7 @@ def main():
             f.write( """#!/bin/bash\n""")
             #staggering start
             f.write("sleep "+str(random.randint(0,300))+"\n")
-            f.write("""for (( ; ; ))\n""")
+            f.write("""for st in {1..96}\n""")
             f.write("""do\n""")
             f.write(""" echo "--------------------------------------"\n """)
             f.write('   `which time`  -f "COPYTIME=%e\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
