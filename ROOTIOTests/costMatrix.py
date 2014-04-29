@@ -7,7 +7,7 @@
 import subprocess, threading, os, sys, random
 import stomp, logging, datetime, ConfigParser
 
-import urllib2
+import urllib,urllib2
 import json as simplejson
 
         
@@ -112,6 +112,11 @@ def upload(SITE_FROMLOG, SITE_TO):
                     toSend='site_from: '+ SITE_FROM + '\nsite_to: '+SITE_TO+'\nmetricName: FAXprobe4\nrate: '+str(rate)+'\ntimestamp: '+ts.isoformat(' ')+'\n'
                     print toSend
                     send (toSend)
+
+                    print '-------------------------------- Writing to GAE -------------------------------------------'
+                    data = dict(source=SITE_FROM, destination=SITE_TO, rate=rate)
+                        u = urllib2.urlopen('http://1-dot-waniotest.appspot.com/wancost', urllib.urlencode(data))
+                        print u.read()
                 else:
                     print 'non 0 exit code. will not upload result. ' 
 
