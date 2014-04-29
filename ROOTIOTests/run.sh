@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python sleeper.py
+#python sleeper.py
 
 echo "version 2013/01/28 11:35"
 # this file should be used just to call real test script.
