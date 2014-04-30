@@ -119,9 +119,17 @@ def upload(SITE_FROMLOG, SITE_TO):
                     print u.read()
                 else:
                     print 'non 0 exit code. will not upload result. ' 
+                    
 
 def main():
-        
+            
+    if len(sys.argv)>1:
+        print 'uploading results from file ', sys.argv[1]
+        print 'I was told the site name is ', sys.argv[2]
+        upload(sys.argv[1],sys.argv[2])
+        return
+
+
     QUEUE = ''    
     SITE = ''
     if os.environ.has_key('PANDA_SITE_NAME'):
@@ -146,13 +154,6 @@ def main():
     except:
         print "Unexpected error:", sys.exc_info()[0]
         
-        
-
-    if len(sys.argv)>1:
-        print 'uploading results from file ', sys.argv[1]
-        upload(sys.argv[1],SITE)
-        return
-
 
 
 
@@ -182,25 +183,25 @@ def main():
 
         with open('exec'+s.name+'.sh', 'w') as f:
         
-            # fn=s.host+"//atlas/dq2/user/"
-            # fn+="HironoriIto/user.HironoriIto.xrootd."+s.name.lower()+"/user.HironoriIto.xrootd."+s.name.lower()+"-100M"
-            
-            fn=s.host+"//atlas/rucio/user/ivukotic:user.ivukotic.xrootd."+s.name.lower()+"-100M"
-            
+            fn=s.host+"//atlas/rucio/user/ivukotic:user.ivukotic.xrootd."+s.name.lower()+"-100M"    
             logfile = s.name + '.log'
         
         
             f.write( """#!/bin/bash\n""")
             #staggering start
-            f.write("sleep "+str(random.randint(0,300))+"\n")
+            f.write("sleep "+str(random.randint(0,900))+"\n")
             f.write("""for st in {1..96}\n""")
-            f.write("""do\n""")
-            f.write(""" echo "--------------------------------------"\n """)
+            f.write('do\n ')
+            f.write('echo "--------------------------------------"\n ')
             f.write('   `which time`  -f "COPYTIME=%e\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
-            f.write('   python costMatrix.py '+logfile+"\n")
+            f.write('   python costMatrix.py '+logfile+" "+SITE+"\n")
             f.write('   rm '+logfile+"\n")
-            f.write("   sleep 900\n")
-            f.write("""done\n""")
+            f.write('   for sl in {1..15}\n ')
+            f.write('   do\n')
+            f.write('      echo "sleeping a minute $sl"\n')
+            f.write('      sleep 60\n')
+            f.write('   done\n')
+            f.write('done\n')
 
         f.close()
         os.chmod('exec'+s.name+'.sh', 0755);
@@ -214,11 +215,41 @@ def main():
         c.run(24*3600)
     print 'jobs started'
     
-    comm4 = Command("sleep 84500") 
-    print 'now wating'
-    comm4.run(84510,True)
+    for wloop in range(0,1420):
+        print 'now wating'
+        comm4 = Command("sleep 60") 
+        comm4.run(60,True)
+    
     print 'stopping.'
     
     
 if __name__ == "__main__":
     main()
+
+# import  os, sys, random
+# s='MWT2'
+# h='root://fax.mwt2.org'
+# with open('exec'+s.name+'.sh', 'w') as f:
+# 
+#     fn=h+"//atlas/rucio/user/ivukotic:user.ivukotic.xrootd."+s.lower()+"-100M"    
+#     logfile = s + '.log'
+# 
+# 
+#     f.write( """#!/bin/bash\n""")
+#     #staggering start
+#     f.write("sleep "+str(random.randint(0,900))+"\n")
+#     f.write("""for st in {1..96}\n""")
+#     f.write('do\n ')
+#     f.write('echo "--------------------------------------"\n ')
+#     f.write('   `which time`  -f "COPYTIME=%e\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
+#     f.write('   python costMatrix.py '+logfile+" "+"SITE"+"\n")
+#     f.write('   rm '+logfile+"\n")
+#     f.write('   for sl in {1..15}\n ')
+#     f.write('   do\n')
+#     f.write('      echo "sleeping a minute $sl"\n')
+#     f.write('      sleep 60\n')
+#     f.write('   done\n')
+#     f.write('done\n')
+# 
+# f.close()
+# os.chmod('exec'+s+'.sh', 0755);
