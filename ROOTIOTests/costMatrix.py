@@ -79,7 +79,10 @@ class Command(object):
         thread.join(timeout)
         if thread.is_alive():
             print 'Terminating process'
-            self.process.terminate()
+            try:
+                self.process.terminate()
+            except OSError as e:
+                print >>sys.stderr, "Forced termination failed:", e
             thread.join()
         return self.process.returncode
     
@@ -124,8 +127,8 @@ def upload(SITE_FROMLOG, SITE_TO):
 def main():
             
     if len(sys.argv)>1:
-        print 'uploading results from file ', sys.argv[1]
-        print 'I was told the site name is ', sys.argv[2]
+        # print 'uploading results from file ', sys.argv[1]
+        # print 'I was told the site name is ', sys.argv[2]
         upload(sys.argv[1],sys.argv[2])
         return
 
@@ -198,7 +201,7 @@ def main():
             f.write('   rm '+logfile+"\n")
             f.write('   for sl in {1..15}\n ')
             f.write('   do\n')
-            f.write('      echo "sleeping a minute $sl"\n')
+            f.write('      echo "'+s.name+' sleeping a minute $sl"\n')
             f.write('      sleep 60\n')
             f.write('   done\n')
             f.write('done\n')
@@ -215,9 +218,9 @@ def main():
         c.run(24*3600)
     print 'jobs started'
     
-    for wloop in range(0,1420):
+    for wloop in range(0,1440):
         print 'now wating'
-        comm4 = Command("sleep 60") 
+        comm4 = Command("sleep 59") 
         comm4.run(60,True)
     
     print 'stopping.'
