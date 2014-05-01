@@ -224,7 +224,7 @@ def main():
         c.run(24*3600)
     print 'jobs started'
     
-    generateLoad(86400,1,3); // total duration, load of 1 second, sleep of 3 
+    generateLoad(86400,1,3); # total duration, load of 1 second, sleep of 3 
     
     # for wloop in range(0,1440):
     #     print 'now wating'
