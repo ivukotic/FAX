@@ -4,8 +4,8 @@
 # it takes list of active xrootd doors from AGIS, copy a file from each of them
 # uploads MB/s results using ActiveMQ to a machine in CERN
 
-import subprocess, threading, os, sys, random
-import stomp, logging, datetime, ConfigParser
+import subprocess, threading, os, sys, random, math
+import stomp, logging, datetime, time, ConfigParser
 
 import urllib,urllib2
 import json as simplejson
@@ -39,7 +39,13 @@ def send (message):
         'Exception on disconnect'
     
 
-
+def generateLoad(duration, active, passive):
+    stime=time.time()
+    while(time.time()-stime<duration):
+        sstime=time.time()
+        while(time.time()-sstime<active):
+            a=math.sin(100)+math.cos(100)
+        time.sleep(passive)
 
 # getting all sites details from AGIS
 
@@ -218,10 +224,12 @@ def main():
         c.run(24*3600)
     print 'jobs started'
     
-    for wloop in range(0,1440):
-        print 'now wating'
-        comm4 = Command("sleep 59") 
-        comm4.run(60,True)
+    generateLoad(86400,1,3); // total duration, load of 1 second, sleep of 3 
+    
+    # for wloop in range(0,1440):
+    #     print 'now wating'
+    #     comm4 = Command("sleep 59") 
+    #     comm4.run(60,True)
     
     print 'stopping.'
     
