@@ -4,10 +4,10 @@ A script to
  - check existence of datasets in FAX,
  - and generate gLFN in FAX for given input datasets,
    using the closest xrootd redirector
-Date: May 8, 2014
+Date: May 13, 2014
 Contact: Shuwei Ye <yesw@bnl.gov>
 """
-myVersion="fax-ls-00-02-02"
+myVersion="fax-ls-00-02-03"
 
 import os, sys
 import json
@@ -45,6 +45,8 @@ optParser.add_option('-u','--updateFAXInfo',action='store_const',const=True,
                   dest='updateFAXInfo',default=False, help='update saved FAX info in picke file')
 optParser.add_option('-p', action='store_const', const=True, dest='pfnGen',
                   default=False, help='Generate xrootd gLFN (global Logical File Name) list')
+optParser.add_option('-a','--allFilesInDset', action='store_const', const=True, dest='allFiles',
+                  default=False, help='Take all files in dataset in gLFN generation, on default only take "*.root*" files')
 optParser.add_option('-o','--outgLFNFile', action='store',dest='outPFNFile',
                   type='string', default='',
                   help='Use with option -p, write gLFN list into a file instead of print to screen')
@@ -416,7 +418,7 @@ for dsetName in dsetsFound:
 
        print >>stdout_pfn, "#"+dsetName
        for filename_scope in filenames_scope:
-            if filename_scope.find(".root") >= 0:
+            if options.allFiles or filename_scope.find(".root") >= 0:
                path_filename = bestFaxXrd + PathPrefix + filename_scope
                print >>stdout_pfn, path_filename
 
