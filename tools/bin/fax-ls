@@ -1,0 +1,439 @@
+#!/usr/bin/env python
+"""
+A script to
+ - check existence of datasets in FAX,
+ - and generate gLFN in FAX for given input datasets,
+   using the closest xrootd redirector
+Date: May 8, 2014
+Contact: Shuwei Ye <yesw@bnl.gov>
+"""
+myVersion="fax-ls-00-02-02"
+
+import os, sys
+import json
+import urllib2 as urllib
+import cPickle as pickle
+import optparse
+import fnmatch
+import re
+import commands,time,os
+from datetime import datetime
+
+# get xrootd path for a given dset
+# from dq2.filecatalog.lfc.lfcconventions import to_native_ldn
+# to_native_ldn(dsetName, "", "/atlas/dq2")
+
+PathPrefix = "//atlas/rucio/"
+timeout = 10  # 10 second
+
+pickleFile = os.getenv("HOME")+"/.FAX_info.pickle"
+
+usage = """
+     %prog [options] dsetListFile
+  or
+     %prog [options] dsetNamePattern
+  or
+     %prog [options] dsetNamePattern1,dsetNamePattern2[,more name patterns]
+"""
+ 
+optParser = optparse.OptionParser(usage=usage,conflict_handler="resolve")
+optParser.add_option('-v',action='store_const',const=True,dest='verbose',
+                  default=False, help='Verbose')
+optParser.add_option('-V','--version',action='store_const',const=True,
+                  dest='printVersion',default=False, help='print my version')
+optParser.add_option('-u','--updateFAXInfo',action='store_const',const=True,
+                  dest='updateFAXInfo',default=False, help='update saved FAX info in picke file')
+optParser.add_option('-p', action='store_const', const=True, dest='pfnGen',
+                  default=False, help='Generate xrootd gLFN (global Logical File Name) list')
+optParser.add_option('-o','--outgLFNFile', action='store',dest='outPFNFile',
+                  type='string', default='',
+                  help='Use with option -p, write gLFN list into a file instead of print to screen')
+optParser.add_option('-d','--dirForgLFN', action='store',dest='outPFNDir',
+                  type='string', default='',
+                  help='write gLFN list into a directory with a file per dataset')
+
+
+# parse options and args
+options, args = optParser.parse_args()
+if options.verbose:
+    print options
+    print "args=",args
+    print
+
+if options.printVersion:
+   print "Version:", myVersion
+   sys.exit(0)
+
+if len(args) == 0:
+    optParser.print_help()
+    optParser.exit(1)
+
+updateFAXInfo = options.updateFAXInfo
+if os.path.isfile(pickleFile):
+   lastTime = datetime.fromtimestamp( os.path.getmtime(pickleFile) )
+   nowTime  = datetime.now()
+   diffInDays = (nowTime - lastTime).days
+   # update every 7 days on default
+   if diffInDays > 6:
+      updateFAXInfo = True
+else:
+   updateFAXInfo = True
+
+# out method: File or Dir
+outMethod = None
+outPFN = None
+
+outPFNDir = options.outPFNDir
+if len(outPFNDir)>0:
+   outMethod = "Dir"
+
+outPFNFile = options.outPFNFile
+if len(outPFNFile)>0:
+   outPFN = open(outPFNFile, 'w')
+   outMethod = "File"
+
+pfnGen = options.pfnGen
+if outMethod != None:
+   pfnGen = True
+
+if pfnGen:
+   status,output = commands.getstatusoutput("which root")
+   if status != 0:
+      sys.exit("Warning!! Command \"root\" not found, pls set ROOT env first")
+
+# bothRepList={}
+
+class FAX_dsets:
+
+  def __init__(self,dict_faxDsets={}):
+    searchmetadata = {'name' : "user.ivukotic.xrootd.*"}
+    fax_dsets_ls = dq2.listDatasets2(searchmetadata, False, False, None)
+    self.dsets = fax_dsets_ls.keys()
+    self.dsetPath = "//atlas/rucio/user/ivukotic"
+    self.dsets_dict = dict_faxDsets
+    self.delim = re.compile('_|-')
+
+  def matchName(self, prefix, inputList):
+    matched = []
+    prefix = "user.ivukotic.xrootd." + prefix
+    for item in inputList:
+      if item.startswith(prefix):
+        matched += [item]
+    return matched
+
+  def find_dset(self,sitename):
+    if sitename in self.dsets_dict:
+      return self.dsets_dict[sitename]
+    else:
+      site_lower = sitename.lower()
+      index_delim = [ m.start() for m in self.delim.finditer(site_lower) ]
+      index_delim += [ len(index_delim) ]
+      inputList = self.dsets
+      for index in index_delim:
+        inputList = self.matchName(site_lower[:index],inputList)
+        if len(inputList) <= 1:
+          break
+      if len(inputList) == 1:
+        return inputList[0]
+      else:
+        return None
+    return None
+
+  def find_filename(self, sitename):
+    dset_site = self.find_dset(sitename)
+    if len(dset_site) != None:
+      return self.dsetPath + ':' + dset_site + '-1M'
+    return None
+
+
+#-----------------
+def getFax_xrds():
+#-----------------
+  sites={}
+  try:
+     lines = urllib.urlopen("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None).read()
+     res = json.loads(lines)
+     for s in res:
+        sites[s["rc_site"].upper()] = {"xrdServer":s["endpoint"],
+                                       "redirector":s["redirector"]["endpoint"]}
+  except:
+     print "Unexpected error:", sys.exc_info()[0]    
+
+
+  FaxDDMs={}
+  try:
+     lines = urllib.urlopen("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None).read()
+     res = json.loads(lines)
+     for s in res:
+        mySite = s["rc_site"]
+        if mySite in sites:
+           FaxDDMs[s["name"]] = sites[mySite]["xrdServer"]
+  except:
+     print "Unexpected error:", sys.exc_info()[0]    
+
+  pickle.dump( FaxDDMs, open( pickleFile, "wb" ) )
+  return FaxDDMs
+
+#--------------------------------------
+def getFaxInfo(pickleFile,updatePickle):
+#--------------------------------------
+  if not updatePickle:
+     myFAXInfo = pickle.load( open( pickleFile, "rb" ) )
+     FaxDDMs = myFAXInfo["FaxDDMs"]
+     # myFaxDsets = FAX_dsets(myFAXInfo["dict_faxDsets"])
+  else:
+     FaxDDMs = getFax_xrds()
+     # myFaxDsets = FAX_dsets()
+     myFAXInfo={"FaxDDMs":FaxDDMs, "myVersion":myVersion}
+     # myFAXInfo={"FaxDDMs":FaxDDMs, "dict_faxDsets":myFaxDsets.dsets_dict, "myVersion":myVersion}
+     pickle.dump( myFAXInfo, open( pickleFile, "wb" ) )
+  # return (FaxDDMs,myFaxDsets)
+  return FaxDDMs
+
+#print 'Geting data from AGIS ...'
+
+try:
+  # from dq2.filecatalog.lfc.lfcconventions import to_native_ldn
+  from dq2.clientapi.cli.cliutil import getDQ2
+  dq2 = getDQ2("")
+except:
+  sys.exit("Warning!! Command \"DQ2Client\" not set, pls set it first")
+
+# check if a valid VO=atlas grid proxy is present
+if pfnGen:
+   status,output = commands.getstatusoutput("which voms-proxy-info")
+   if status != 0:
+      sys.exit("Warning!! Command \"voms-proxy-info\" not found, pls set DQ2Client *PROPERLY*")
+
+   status,output = commands.getstatusoutput("voms-proxy-info -vo -e")
+   if status != 0:
+      sys.exit("Warning!! No valid vo proxy found, \n\tplease run 'voms-proxy-init -voms atlas' first")
+   if output.find("atlas") < 0:
+      sys.exit("Warning!! No valid proxy for *atlas* voms found, \n\tplease run 'voms-proxy-init -voms atlas' first")
+
+# (FaxDDMs,myFaxDsets) = getFaxInfo(pickleFile,updateFAXInfo)
+FaxDDMs = getFaxInfo(pickleFile,updateFAXInfo)
+table_xrdServer = {}
+
+#----------------------------
+def matchFax(bothRep, FaxDDMs):
+#----------------------------
+   completeFax = []
+   completeRep = bothRep["COMPLETE"]
+   incompFax   = []
+   incompRep   = bothRep["INCOMPLETE"]
+
+   for rep in completeRep:
+      if rep in FaxDDMs:
+         completeFax += [rep]
+
+   for rep in incompRep:
+      if rep in FaxDDMs:
+         incompFax += [rep]
+
+   return {"COMPLETE":completeFax, "INCOMPLETE":incompFax}
+
+#--------------------------------
+def getFaxSpeed(xrdSite, oneFile):
+#--------------------------------
+   if options.verbose:
+      print "Come to getFaxSpeed=", xrdSite
+   xrdServer = xrdSite[1]
+   if xrdServer in table_xrdServer:
+      return table_xrdServer[xrdServer]
+   speed = timeout  # default period if no right response received from xrd server
+   if os.path.isfile("/usr/bin/timeout"):
+      timeout_cmd = "/usr/bin/timeout %ds" % timeout
+   else:
+      timeout_cmd = ""
+   # (myCMD)  & sleep 10; kill $! 2> /dev/null
+   # http://mediatribe.net/en/node/72
+   xrdCmd = "%s root -b -l <<< 'TFile::Open(\"%s\")' 2>/dev/null" % (timeout_cmd, xrdServer + oneFile)
+   # xrdCmd = "%s xrd %s <<< exit" % (timeout_cmd, xrdServer.lstrip("root://"))
+   # xrdCmd = "%s xrdcp -v %s - 2>&1 >/dev/null" % (timeout_cmd, xrdServer + myFaxDsets.find_filename(xrdSite[0]) )
+   if options.verbose:
+      print "xrdCmd=",xrdCmd
+   start = time.time()
+   output = os.popen(xrdCmd).read()
+   end = time.time()
+   if output.find("(class TFile*)") < 0:
+      return speed
+      if output.find("(class TFile*)0x0") >= 0:   # failure in root file opening
+         return speed
+   # if output.find("root://") < 0:  # for xrd connection reponse
+   #    return speed
+   # if output.find("100.00 %") < 0:  #xrdcp failed
+   #    return speed
+   speed = end - start
+   if options.verbose:
+      print "::getFaxSpeed::, site=",xrdSite[0], ", speed=",speed
+   table_xrdServer[xrdServer] = speed
+   return speed
+
+#--------------------------------
+def getFastestFax(sites, oneFile):
+#--------------------------------
+   if options.verbose:
+      print "Come to getFastestFax for sites=", sites
+   bestSpeed = timeout
+   if len(sites) == 0:
+      return []
+   bestSite = sites[0]
+   for site in sites:
+      siteSpeed = getFaxSpeed(site, oneFile)
+      if siteSpeed < bestSpeed:
+         bestSite = site
+         bestSpeed = siteSpeed
+      if options.verbose:
+         print "::getFastestFax:: site=",site, ";so far bestSite=",bestSite, ";siteSpeed=",siteSpeed, ";bestSpeed=",bestSpeed
+   return bestSite
+
+
+#------------------------------
+def matchFax(bothRep, FaxDDMs):
+#------------------------------
+   """
+Return a list of FAX sites together with xrd servers
+"""
+   if options.verbose:
+      print "Come to matchFax"
+   completeXrd = []
+   completeRep = bothRep["COMPLETE"]
+   incompXrd   = []
+   incompRep   = bothRep["INCOMPLETE"]
+
+   for rep in completeRep:
+      rep = rep.lstrip()
+      if options.verbose:
+         print "::matchFax::, Complete rep=",rep
+      if rep in FaxDDMs:
+         completeXrd += [ [rep,FaxDDMs[rep]] ]
+
+   for rep in incompRep:
+      if rep in FaxDDMs:
+         incompXrd += [ [rep,FaxDDMs[rep]] ]
+
+   return {"COMPLETE":completeXrd, "INCOMPLETE":incompXrd}
+
+
+dsetListName=args[0]
+try:
+  listFile = open(dsetListName)
+  dsetNames = listFile.readlines()
+  listFile.close()
+except:
+  sys.exc_clear()
+  # print "dsetListName=",dsetListName
+  dsetNames = dsetListName.split(',')
+  pass
+
+# print "dsetNames=",dsetNames
+
+old_argv = sys.argv
+sys.argv = []
+
+# from dq2.clientapi.cli.Ls import Ls
+# myLs = Ls()
+
+from cStringIO import StringIO
+mystdout = StringIO()
+old_stdout = sys.stdout
+# sys.stdout = mystdout
+
+dsetsInFax={}
+# parse dataset pattern(s) and/or dataset container(s)
+# into individual datasets
+dsetsFound=[]
+for dsPattern in dsetNames:
+  DS = dsPattern.strip()
+  IsContainer = False
+  if DS.endswith('/'):
+     IsContainer = True
+  if options.verbose:
+     print >> old_stdout, "Listing DS=",DS
+  searchmetadata = {'name' : DS}
+  ret_listDsets = dq2.listDatasets2(searchmetadata, False, False, None)
+  if len(ret_listDsets) <= 0:
+     print "Warning!!! no dataset found for DS=",DS
+     continue
+
+  for dsetItem in ret_listDsets.keys():
+    if options.verbose:
+       print "dsetItem=",dsetItem
+    if dsetItem.endswith('/'):
+       if not IsContainer:
+         continue
+       dsetsFound += dq2.listDatasetsInContainer(dsetItem)
+    else:
+       dsetsFound += [dsetItem]
+
+# remove duplicates
+  dsetsFound = list(set(dsetsFound))
+
+# get replicate for individual datasets
+for dsetName in dsetsFound:
+    if options.verbose:
+       print "Checking replicas for dset=",dsetName
+    ret_replicas = dq2.listDatasetReplicas(dsetName)
+    if len(ret_replicas) == 0:
+       continue
+    ret_bothList = ret_replicas.values()[0]
+    bothRepList = {"COMPLETE":ret_bothList[1], "INCOMPLETE":ret_bothList[0]}
+    bothFaxRep = matchFax(bothRepList,FaxDDMs)
+    if options.verbose:
+      print "\nFAX Replica list=",bothFaxRep
+    compList = bothFaxRep['COMPLETE']
+
+    if not pfnGen:
+       print "\ndsetName=",dsetName, "\n FAX Replica list="
+       print "\tCOMPLETE:",compList
+       print "\tINCOMPLETE:",bothFaxRep['INCOMPLETE']
+
+    if len(compList) > 0 and pfnGen:
+       ret_listFiles = dq2.listFilesInDataset(dsetName)
+       files_info = ret_listFiles[0].values()
+       filenames_scope=[]
+       for fileInfo in files_info:
+           filename = fileInfo['lfn']
+           scope    = fileInfo['scope'].replace('.','/')
+           filenames_scope += [ scope + ':' + filename ]
+       filenames_scope.sort()
+       # if options.verbose:
+       #    print "filenames_scope=",filenames_scope
+
+       oneFaxFile = PathPrefix + filenames_scope[0]
+       bestFaxXrd = getFastestFax(compList, oneFaxFile)[1]
+
+       stdout_pfn = old_stdout
+       filePerDset = None
+       if outPFN != None:
+            stdout_pfn = outPFN
+       elif outPFNDir != '':
+            if not os.path.exists(outPFNDir):
+               os.mkdir(outPFNDir)
+            filePerDset = open(outPFNDir+'/'+dsetName+".clist",'w')
+            stdout_pfn = filePerDset
+
+       print >>stdout_pfn, "#"+dsetName
+       for filename_scope in filenames_scope:
+            if filename_scope.find(".root") >= 0:
+               path_filename = bestFaxXrd + PathPrefix + filename_scope
+               print >>stdout_pfn, path_filename
+
+       mystdout.reset()
+       mystdout.truncate()
+       sys.stdout = old_stdout
+       if filePerDset:
+            filePerDset.close()
+
+       # print "dsetName=",dsetName, "\n Complete replicas=",bothRepList["Complete"], "\n InComplete replicas=",bothRepList["InComplete"]
+
+
+if outPFN != None:
+   outPFN.close()
+
+sys.stdout = old_stdout
+sys.argv = old_argv
+
+# for d  in dsets.keys():
+#    print d,'\tcomplete replicas:',dsets[d][1],'\tincomplete:',dsets[d][0]
