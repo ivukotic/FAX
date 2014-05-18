@@ -43,18 +43,6 @@ try:
 except:
     if debug: 
         print "# Can't determine client coordinates using geoip.mwt2.org ", sys.exc_info()[0]
-
-# if not worked:
-#     try:
-#         req = urllib2.Request("http://hereCERNserver/json/", None)
-#         opener = urllib2.build_opener()
-#         f = opener.open(req,timeout=5)
-#         res=json.load(f)
-#         lon=res['longitude']
-#         lat=res['latitude']
-#     except:
-#         if debug: 
-#             print "# Can't determine client coordinates using freegeoip.net ", sys.exc_info()[0]
         
 if not worked:
     try:
@@ -69,7 +57,10 @@ if not worked:
         sys.exit(1)
 
 
-if debug: print "# getting FAX endpoints information from SSB..."
+
+
+
+
 
 n = datetime.datetime.utcnow()
 one_day = datetime.timedelta(days=1)
@@ -89,13 +80,11 @@ class site:
         def prn(self):
                 print "#", self.name, "\tlong:",self.longitude,"\t lat:",self.latitude,"/",self.direct
 
-
 Sites=dict()
-
-#direct
-url="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/getplotdata?time=custom&dateFrom="+ str(today) +"&dateTo="+ str(tomorrow) +"&batch=1&columnid=10083"
-# print url
+worked=0
 try:
+    url="http://1-dot-waniotest.appspot.com/ssb"
+    if debug: print "# getting FAX endpoints status from SSBrepeater..."
     response=urllib2.Request(url,None)
     opener = urllib2.build_opener()
     f = opener.open(response, timeout=40)
@@ -107,33 +96,77 @@ try:
             s=site(n)
             Sites[n]=s
             Sites[n].direct=si['COLOR']
+    worked=1
 except urllib2.HTTPError:
-	print "# Can't connect to SSB."
-	sys.exit(2)
+	if debug: print "# Can't connect to SSBrepeater."
 except:
-    print "# Can't connect to SSB.", sys.exc_info()[0]
-    sys.exit(21)
+    if debug: print "# Can't connect to SSBrepeater.", sys.exc_info()[0]
+
+
+if not worked:
+    if debug: print "# getting FAX endpoints status from SSB..."
+    url="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/getplotdata?time=custom&dateFrom="+ str(today) +"&dateTo="+ str(tomorrow) +"&batch=1&columnid=10083"
+    # print url
+    try:
+        response=urllib2.Request(url,None)
+        opener = urllib2.build_opener()
+        f = opener.open(response, timeout=40)
+        data = json.load(f)
+        data=data["csvdata"]
+        for si in data:
+            n=si['VOName']
+            if n not in Sites:
+                s=site(n)
+                Sites[n]=s
+                Sites[n].direct=si['COLOR']
+    except urllib2.HTTPError:
+    	print "# Can't connect to SSB."
+    	sys.exit(2)
+    except:
+        print "# Can't connect to SSB.", sys.exc_info()[0]
+        sys.exit(21)
 
 
 
-if debug: print "# getting FAX endpoints coordinates from AGIS..."
 
+worked=0
 try:
-    req = urllib2.Request("http://atlas-agis-api.cern.ch/request/site/query/list/?json", None)
+    if debug: print "# getting FAX endpoints coordinates from AGISrepeater..."
+    req = urllib2.Request("http://1-dot-waniotest.appspot.com/agis", None)
     opener = urllib2.build_opener()
     f = opener.open(req, timeout=20)
     res=json.load(f)
     for s in res:
-	na=s["name"]
-	if na in Sites:
+	    na=s["name"]
+	    if na in Sites:
         	Sites[na].coo(s["longitude"],s["latitude"])
     if debug>2: print '#', s["name"],s["rc_site"], s["latitude"], s["longitude"]
+    worked=1
 except urllib2.HTTPError:
-        print "# Can't connect to AGIS to get coordinates of endpoints."
-        sys.exit(3)
+    if debug:
+        print "# Can't connect to AGISrepeater to get coordinates of endpoints."
 except:
-    print "# Can't connect to AGIS to get coordinates of endpoints:", sys.exc_info()[0]
-    sys.exit(31)
+    if debug:
+        print "# Can't connect to AGISrepeater to get coordinates of endpoints:", sys.exc_info()[0]
+
+if not worked:
+    try:
+        if debug: print "# getting FAX endpoints coordinates from AGIS..."
+        req = urllib2.Request("http://atlas-agis-api.cern.ch/request/site/query/list/?json", None)
+        opener = urllib2.build_opener()
+        f = opener.open(req, timeout=20)
+        res=json.load(f)
+        for s in res:
+    	    na=s["name"]
+    	    if na in Sites:
+            	Sites[na].coo(s["longitude"],s["latitude"])
+        if debug>2: print '#', s["name"],s["rc_site"], s["latitude"], s["longitude"]
+    except urllib2.HTTPError:
+            print "# Can't connect to AGIS to get coordinates of endpoints."
+            sys.exit(3)
+    except:
+        print "# Can't connect to AGIS to get coordinates of endpoints:", sys.exc_info()[0]
+        sys.exit(31)
 
 
 # calculating distances to "green" endpoints
@@ -154,20 +187,39 @@ for s in Sites:
 		mindist=d
 		minsite=Sites[s].name
 
+
 if debug: 
     print "#",minsite, mindist,"km"
-    print "# looking up endpoint address in AGIS..."
 
+worked=0
 try:
-    req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD&rc_site="+minsite, None)
+    print "# looking up endpoint address in AGISrepeater..."
+    req = urllib2.Request("http://1-dot-waniotest.appspot.com/agis?rc_site="+minsite, None)
     opener = urllib2.build_opener()
     f = opener.open(req, timeout=20)
     res=json.load(f)
     if debug: print "# found corresponding endpoint: ",res[0]["endpoint"]
     print 'export STORAGEPREFIX='+res[0]["endpoint"]
+    worked=1
 except urllib2.HTTPError:
     print "# Can't connect to AGIS to get endpoint address."
     sys.exit(4)
 except:
     print "# Can't connect to AGIS to get endpoint address.", sys.exc_info()[0]
     sys.exit(41)
+
+if not worked:
+    try:
+        print "# looking up endpoint address in AGIS..."
+        req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD&rc_site="+minsite, None)
+        opener = urllib2.build_opener()
+        f = opener.open(req, timeout=20)
+        res=json.load(f)
+        if debug: print "# found corresponding endpoint: ",res[0]["endpoint"]
+        print 'export STORAGEPREFIX='+res[0]["endpoint"]
+    except urllib2.HTTPError:
+        print "# Can't connect to AGIS to get endpoint address."
+        sys.exit(4)
+    except:
+        print "# Can't connect to AGIS to get endpoint address.", sys.exc_info()[0]
+        sys.exit(41)
