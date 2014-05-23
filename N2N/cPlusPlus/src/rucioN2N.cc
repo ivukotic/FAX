@@ -262,7 +262,7 @@ void *rucio_xrootd_storage_stat(void *pars) {  // xrootd-like storage
     pthread_exit(NULL);
 }
 
-#define MaxN2Nthreads 500 
+#define MaxN2Nthreads 1000 
 // export this function
 char* rucio_n2n_glfn(const char *lfn) {
     int i; 

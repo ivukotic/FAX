@@ -160,6 +160,11 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
     bool cache_hit;
     ostringstream tmp;
 
+    if (strncmp(lfn, "/atlas/rucio", 12)) { // not a rucio gLFN
+        strncpy(buff, lfn, blen);
+        return 0;
+    }
+
     *eDest << "XRD-N2N: lookup " << lfn << endl;
 
     // Clear expired cache entries
@@ -191,12 +196,9 @@ int XrdOucLFC::lfn2pfn(const char* lfn, char  *buff, int blen)
 	*eDest << "XRD-N2N: cache hit, return " << buff << endl;
 	return 0;
     } else {
-	if (! strncmp(lfn, "/atlas/rucio", 12)) { // rucio gLFN
-           char *sfn = rucio_n2n_glfn(lfn);
-           pfn = sfn;
-           free(sfn); 
-	} else // don't do N2N 
-            pfn = lfn;
+        char *sfn = rucio_n2n_glfn(lfn);
+        pfn = sfn;
+        free(sfn); 
     }
     if (!pfn) {
 	*eDest << "XRD-N2N: no valid replica for " << lfn << endl;
@@ -370,8 +372,14 @@ int XrdOucLFC::parse_parameters(String param_str)
 
 int XrdOucLFC::lfn2rfn(const char* lfn, char  *buff, int blen)
 {
-    *eDest << "XRD-N2N: lfn2rfn not implemented" << endl;
-    return -EOPNOTSUPP;
+    if (strncmp(lfn, "/atlas/rucio", 12)) { // not a rucio gLFN
+        strncpy(buff, lfn, blen);
+        return 0;
+    }
+    else {
+        *eDest << "XRD-N2N: lfn2rfn not implemented" << endl;
+        return -EOPNOTSUPP;
+    }
 }
 
 int XrdOucLFC::pfn2lfn(const char* pfn, char  *buff, int blen)
