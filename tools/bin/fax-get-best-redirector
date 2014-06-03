@@ -18,17 +18,6 @@ if len(sys.argv)>1:
 		print '# unknown argument. The only accepted argument is an integer number representing debug level.'
 		sys.exit(-1)
 
-if debug: print "# trying to resolve localredirector..."
-
-try:
-	socket.gethostbyname('localredirector')
-	if debug: print '# localredirector exists. using it...'
-	print 'export STORAGEPREFIX="localredirector"'
-	sys.exit(0)
-except (IOError, socket.gaierror, socket.error):
-	if debug: print '# localredirector does not resolve.'
-
-
 if debug: print "# getting client coordinates..." 
 
 worked=0
@@ -152,7 +141,7 @@ except:
 if not worked:
     try:
         if debug: print "# getting FAX endpoints coordinates from AGIS..."
-        req = urllib2.Request("http://atlas-agis-api.cern.ch/request/site/query/list/?json", None)
+        req = urllib2.Request("http://atlas-agis-api.cern.ch/request/site/query/list/?json&vo_name=atlas&state=ACTIVE", None)
         opener = urllib2.build_opener()
         f = opener.open(req, timeout=20)
         res=json.load(f)
