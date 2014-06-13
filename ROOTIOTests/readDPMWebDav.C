@@ -160,7 +160,7 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     //TSSLSocket::SetUpSSL(0, "/etc/grid-security/certificates/", proxyfn.c_str(), proxyfn.c_str());
 
     // Set up the Davix auth, for when Davix will be available
-    gEnv->SetValue("Davix.GSI.UserProxy", proxyfn.c_str());
+    //gEnv->SetValue("Davix.GSI.UserProxy", proxyfn.c_str());
     gEnv->SetValue("Davix.GSI.GridMode", "y");
     gEnv->SetValue("Davix.Debug", 0);
 
