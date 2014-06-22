@@ -8,7 +8,7 @@ How to use FAX - Tutorial
 
 
 
- This is a step-by-step guide on how to use FAX that you may simply follow and copy-paste commands. If desired you may download all of it from: https://twiki.cern.ch/twiki/pub/AtlasComputing/UsingFAXforEndUsersTutorial/Tutorial.tar. If something does not work or you have any questions please feel free to contact atlas-adc-fax-operations@cernNOSPAMSPAMNOT.ch
+ This is a step-by-step guide on how to use FAX that you may simply follow and copy-paste commands. If desired you may download all of it from: https://twiki.cern.ch/twiki/pub/AtlasComputing/UsingFAXforEndUsersTutorial/Tutorial.tar. If something does not work or you have any questions please feel free to contact atlas-adc-fax-operations@cern.ch
 
 
 
@@ -30,20 +30,20 @@ How to use FAX - Tutorial
     
 2. Check availability of your dataset/datacontainer in FAX
 
-    The tool to do that is called isDSinFAX.py and is available upon setting up localSetupFAX. Usage is trivial: just give it a dataset or datacontainer name. For each input dataset it will print number of FAX endpoints containing full and incomplete replicas. Example:
+    The tool to do that is called fax-is-dataset-covered and is available upon setting up localSetupFAX. Usage is trivial: just give it a dataset or datacontainer name. For each input dataset it will print number of FAX endpoints containing full and incomplete replicas. Example:
 
-    isDSinFAX.py user.ilijav.HCtest.1
+    fax-is-dataset-covered user.ilijav.HCtest.1
 
 
     There is one more tool doing the same task:
-    fax_ls.py user.ilijav.HCtest.1
+    fax_ls user.ilijav.HCtest.1
     
 
 3. Find gLFN's of your files 
 
-    Use tool fax-get-gLFNs.sh:
+    Use tool fax-get-gLFNs:
 
-    fax-get-gLFNs.sh user.ilijav.HCtest.1  > my_list_of_gLFNS.txt 
+    fax-get-gLFNs user.ilijav.HCtest.1  > my_list_of_gLFNS.txt 
 
     
 
@@ -67,7 +67,7 @@ How to use FAX - Tutorial
     listNumberOfEvents.C opens each of the files listed in a file and prints number of events in them
     
     create a file listing all files of a dataset:
-    fax-get-gLFNs.sh user.flegger.MWT2.data12_8TeV.00212172.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid01007411_00 > MWT2_files.txt
+    fax-get-gLFNs user.flegger.MWT2.data12_8TeV.00212172.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid01007411_00 > MWT2_files.txt
     
     execute it by doing:
     root -l -b -q listNumberOfEvents.C
