@@ -32,18 +32,8 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 
 		log.info("GOT to translate: " + path);
 
-		if (path.startsWith("pnfs/") || path.startsWith("/pnfs/")) {
-			return path;
-		}
-
-		String LFN = path;
-		if (!LFN.startsWith("/atlas/rucio")) {
-			log.error("*** Error: gLFN must start with /atlas/rucio. ");
-			throw new XrootdException(XrootdProtocol.kXR_NotFound, "*** Error: LFN must start with /atlas/. ");
-		}
-
-		if (LFN.startsWith("/atlas/rucio/")) {
-			String pfn = rucio.translate(LFN);
+		if (path.startsWith("/atlas/rucio/")) {
+			String pfn = rucio.translate(path);
 			if (pfn == null) {
 				log.info("rucio name not found.");
 				pfn = "";
@@ -53,7 +43,8 @@ public class AtlasAuthorizationHandler implements AuthorizationHandler {
 				return pfn;
 			}
 		}
-		throw new XrootdException(XrootdProtocol.kXR_NotFound, "*** Error: File not Found.");
+		
+		return path;
 	}
 
 }

@@ -2,7 +2,7 @@ Using the plugin with dCache
 ----------------------------
 
 This plugin is needed only on the dCache xrootd door node.
-The node needs to have /pnfs mounted.
+The node needs to have dCache PNFS mounted.
 
 The only change needed in the dCache configuration is to add the following lines:
 
