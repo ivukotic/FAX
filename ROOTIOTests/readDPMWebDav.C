@@ -160,6 +160,12 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     //TSSLSocket::SetUpSSL(0, "/etc/grid-security/certificates/", proxyfn.c_str(), proxyfn.c_str());
 
     // Set up the Davix auth, for when Davix will be available
+    gEnv->SetValue("Davix.GSI.CAdir", "/etc/grid-security/certificates/");
+    if (certdir.size() > 2) {
+        cout << "Setting Davix.GSI.CAdir to the content of certdir" << endl;
+        gEnv->SetValue("Davix.GSI.CAdir", certdir.c_str());
+    }
+
     if (proxyfn.size() > 2) gEnv->SetValue("Davix.GSI.UserProxy", proxyfn.c_str());
     gEnv->SetValue("Davix.GSI.GridMode", "y");
     gEnv->SetValue("Davix.Debug", 0);
