@@ -78,7 +78,12 @@ echo -n "-- which davix-get --->"
 echo `which davix-get`
 echo -n "-- davix-get --version --->"
 echo `davix-get --version`
-
+echo "Grid Environment: "
+echo "---> PROXY( $X509_USER_PROXY ) CADIR( $X509_CERT_DIR ) "
+echo "-------------------------------------"
+echo "-------------- List dir certificate: ----------"
+ls /etc/grid-security/certificates/
+echo "--------endd Listing CAs-----------------------"
 ulimit -c unlimited
 
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
