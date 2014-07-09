@@ -118,7 +118,6 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     TStopwatch timer;
     Double_t nb = 0;	
     bool checkHDD=true;
-    bool xrootdaccess=false;
     long long diskS1[11];
     long long diskS2[11];
     long long netSt1[2];
@@ -137,7 +136,6 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     if (found!=string::npos){
           cout << "xrootd - no disk accesses available." << endl;
           checkHDD=false;
-	  xrootdaccess=true;
           cout<<"FILESYSTEM='root'"<<endl;
     }
     
@@ -155,9 +153,6 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
  
     netSt(netSt1);
     TFile *f ;
-    //    if (xrootdaccess) {
-    //cout << "Invoking SetUpSSL( \"\", \"/etc/grid-security/certificates/\", " << proxyfn.c_str()  << ", " << proxyfn.c_str() << " )" << endl;
-    //TSSLSocket::SetUpSSL(0, "/etc/grid-security/certificates/", proxyfn.c_str(), proxyfn.c_str());
 
     // Set up the Davix auth, for when Davix will be available
     gEnv->SetValue("Davix.GSI.CACheck", "n");  

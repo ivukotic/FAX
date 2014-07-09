@@ -78,12 +78,19 @@ echo -n "-- which davix-get --->"
 echo `which davix-get`
 echo -n "-- davix-get --version --->"
 echo `davix-get --version`
+echo " Download proxy cert : fix for crappy CREAM support in COndor"
+davix-get "https://owncloud.adev.name/public.php?service=files&t=98a5093eae480ab643b293cba03e9759&download" $PWD/grid_proxy -k
+if [[ "$?" != "0" ]]; then
+	echo "Unable to download proxy certificate, fatal !!"
+	exit 1
+fi
+export X509_USER_PROXY=$PWD/grid_proxy
+echo "------------ voms proxy info : -----------"
+voms-proxy-info --all
+
 echo "Grid Environment: "
 echo "---> PROXY( $X509_USER_PROXY ) CADIR( $X509_CERT_DIR ) "
 echo "-------------------------------------"
-echo "-------------- List dir certificate: ----------"
-ls /etc/grid-security/certificates/
-echo "--------endd Listing CAs-----------------------"
 ulimit -c unlimited
 
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
