@@ -14,5 +14,5 @@ asetup 19.1.X.Y-VAL,rel_4,AtlasDerivation,here
 
 inpFile=$(head -n 1 inputDataList.txt)
 echo "Running the train..."
-Reco_tf.py --inputAODFile $inpFile --outputDAODFile output --reductionConf TEST1 TEST2 TEST3 TEST4 
+Reco_tf.py --inputAODFile $inpFile --outputDAODFile output --reductionConf SM3 TOP1 
 echo "Done"
