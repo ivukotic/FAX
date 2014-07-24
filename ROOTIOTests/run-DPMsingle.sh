@@ -12,7 +12,7 @@ treeToUse="physics"
 echo "resetting ROOT to default from cvmfs"
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh 
-source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 5.34.18-davix_p6-x86_64-slc6-gcc48-opt
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 5.34.18-davix_p7-x86_64-slc6-gcc48-opt
 
 export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 
@@ -72,6 +72,26 @@ export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 export COPY_TOOL=$desttag;
 #put python to 2.6 in case its set more recent by root (for use with oracle in athena 17.6.0 release
 source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-x86_64-slc5-gcc43
+
+echo "------------- Davix info --"
+echo -n "-- which davix-get --->"
+echo `which davix-get`
+echo -n "-- davix-get --version --->"
+echo `davix-get --version`
+echo " Download proxy cert : fix for crappy CREAM support in COndor"
+davix-get "https://owncloud.adev.name/public.php?service=files&t=98a5093eae480ab643b293cba03e9759&download" $PWD/grid_proxy -k
+if [[ "$?" != "0" ]]; then
+	echo "Unable to download proxy certificate, fatal !!"
+	exit 1
+fi
+export X509_USER_PROXY=$PWD/grid_proxy
+echo "------------ voms proxy info : -----------"
+voms-proxy-info --all
+
+echo "Grid Environment: "
+echo "---> PROXY( $X509_USER_PROXY ) CADIR( $X509_CERT_DIR ) "
+echo "-------------------------------------"
+ulimit -c unlimited
 
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
 #./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
