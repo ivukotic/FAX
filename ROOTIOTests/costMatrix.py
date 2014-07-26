@@ -214,10 +214,10 @@ def main():
 
         f.close()
         os.chmod('exec'+s.name+'.sh', 0755);
-
+        
     comms=[]
     for s in sites:
-        comm=Command("source exec"+s.name+".sh")
+        comm=Command("source ./exec"+s.name+".sh")
         comms.append(comm)
     
     for c in comms:	
