@@ -10,6 +10,8 @@ import stomp, logging, datetime, time, ConfigParser
 import urllib,urllib2
 import json as simplejson
 
+        
+
 
 def send (message):
     # all of the ActiveMQ configuration 
@@ -35,6 +37,17 @@ def send (message):
     
     except Exception:
         'Exception on disconnect'
+    
+
+def generateLoad(duration, active, passive):
+    stime=time.time()
+    while(time.time()-stime<duration):
+        sstime=time.time()
+        while(time.time()-sstime<active):
+            a=math.sin(100)+math.cos(100)
+        time.sleep(passive)
+
+# getting all sites details from AGIS
 
 
 class site:    
@@ -55,37 +68,31 @@ class site:
 
 
 class Command(object):
-    def __init__(self, cmd,sn):
+    def __init__(self, cmd):
         self.cmd = cmd
-        self.cn=sn
-        tv=random.randint(0,15*60)
-        print sn,"will wait", tv,"seconds to start"
-        self.next=time.time()+tv
         self.process = None
-        self.thread = None
-        self.counter=0
-        
+    
     def run(self, timeout, foreground=False):
         def target():
-            print 'command started', self.cn, self.counter
-            self.next=time.time()+3600
+            print 'command started: ', self.cmd
             self.process = subprocess.Popen(self.cmd, shell=True)
             if (foreground): self.process.communicate()
+            # print 'command finished'
         
-        self.thread = threading.Thread(target=target)
-        self.thread.start()
+        thread = threading.Thread(target=target)
+        thread.start()
         
-        self.thread.join(timeout)
-        if self.thread.is_alive():
+        thread.join(timeout)
+        if thread.is_alive():
             print 'Terminating process'
             try:
                 self.process.terminate()
-                print 'command killed', self.cn
             except OSError as e:
                 print >>sys.stderr, "Forced termination failed:", e
-            self.thread.join()
-        return #self.process.returncode
-        
+            thread.join()
+        return self.process.returncode
+    
+
     
 def upload(SITE_FROMLOG, SITE_TO):
     SITE_FROM = SITE_FROMLOG.replace('.log','')
@@ -162,6 +169,7 @@ def main():
     sites=[]; # each site contains [name, host, redirector]
     print 'Geting site list from AGIS...' 
 
+
     try:
         req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
         opener = urllib2.build_opener()
@@ -187,36 +195,79 @@ def main():
             fn=s.host+"//atlas/rucio/user/ivukotic:user.ivukotic.xrootd."+s.name.lower()+"-100M"    
             logfile = s.name + '.log'
         
+        
             f.write( """#!/bin/bash\n""")
+            #staggering start
+            f.write("sleep "+str(random.randint(0,900))+"\n")
+            f.write("""for st in {1..96}\n""")
+            f.write('do\n ')
             f.write('echo "--------------------------------------"\n ')
-            f.write('`which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
-            f.write('python costMatrix.py '+logfile+" "+SITE+"\n")
-            f.write('rm '+logfile+"\n")
+            f.write('   pro=$(ps -C xrdcp -o pid= | wc -l)\n ')
+            f.write('   if [ $pro -gt 6 ]; then\n' )
+            f.write('       ps -C xrdcp -o pid=,etime= --sort=start_time \n' )
+            f.write('       toKill=$(ps -C xrdcp -o pid= --sort=start_time | head -n 1) \n' )
+            f.write('       echo "killing the longest running process: $toKill" \n' )
+            f.write('       kill -9 $toKill \n' )
+            f.write('   fi\n' )
+            f.write('   `which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
+            f.write('   python costMatrix.py '+logfile+" "+SITE+"\n")
+            f.write('   rm '+logfile+"\n")
+            f.write('   for sl in {1..15}\n ')
+            f.write('   do\n')
+            f.write('      echo "'+s.name+' sleeping a minute $sl"\n')
+            f.write('      sleep 60\n')
+            f.write('   done\n')
+            f.write('done\n')
 
         f.close()
         os.chmod('exec'+s.name+'.sh', 0755);
         
     comms=[]
     for s in sites:
-        comm=Command("source ./exec"+s.name+".sh",s.name)
+        comm=Command("source ./exec"+s.name+".sh")
         comms.append(comm)
     
-    for w in range(86100):
-        time.sleep(1)
-        ct=time.time()
-        for c in comms:
-            if c.process is not None:
-                if c.process.poll() is not None: 
-                    c.process.wait()
-                    print 'command finished', c.cn, c.counter
-                    c.counter+=1
-                    c.process=None
-                    c.next=time.time()+15*60
-            if ct>c.next:
-                c.run(3600)
-        
+    for c in comms:	
+        c.run(24*3600)
+    print 'jobs started'
+    
+    generateLoad(86400,1,3); # total duration, load of 1 second, sleep of 3 
+    
+    # for wloop in range(0,1440):
+    #     print 'now wating'
+    #     comm4 = Command("sleep 59") 
+    #     comm4.run(60,True)
+    
     print 'stopping.'
     
     
 if __name__ == "__main__":
     main()
+
+# import  os, sys, random
+# s='MWT2'
+# h='root://fax.mwt2.org'
+# with open('exec'+s.name+'.sh', 'w') as f:
+# 
+#     fn=h+"//atlas/rucio/user/ivukotic:user.ivukotic.xrootd."+s.lower()+"-100M"    
+#     logfile = s + '.log'
+# 
+# 
+#     f.write( """#!/bin/bash\n""")
+#     #staggering start
+#     f.write("sleep "+str(random.randint(0,900))+"\n")
+#     f.write("""for st in {1..96}\n""")
+#     f.write('do\n ')
+#     f.write('echo "--------------------------------------"\n ')
+#     f.write('   `which time`  -f "COPYTIME=%e\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
+#     f.write('   python costMatrix.py '+logfile+" "+"SITE"+"\n")
+#     f.write('   rm '+logfile+"\n")
+#     f.write('   for sl in {1..15}\n ')
+#     f.write('   do\n')
+#     f.write('      echo "sleeping a minute $sl"\n')
+#     f.write('      sleep 60\n')
+#     f.write('   done\n')
+#     f.write('done\n')
+# 
+# f.close()
+# os.chmod('exec'+s+'.sh', 0755);
