@@ -10,6 +10,8 @@ import stomp, logging, datetime, time, ConfigParser
 import urllib,urllib2
 import json as simplejson
 
+maxParallel=6
+currParallel=0
 
 def send (message):
     # all of the ActiveMQ configuration 
@@ -68,6 +70,7 @@ class Command(object):
     def run(self, timeout, foreground=False):
         def target():
             print 'command started', self.cn, self.counter
+            currParallel+=1
             self.next=time.time()+3600
             self.process = subprocess.Popen(self.cmd, shell=True)
             if (foreground): self.process.communicate()
@@ -209,10 +212,14 @@ def main():
                 if c.process.poll() is not None: 
                     c.process.wait()
                     print 'command finished', c.cn, c.counter
+                    currParallel-=1
                     c.counter+=1
                     c.process=None
                     c.next=time.time()+15*60
             if ct>c.next:
+                if currParallel>maxParallel:
+                    print 'Having already ',currParallel, "streams. Delaying start of",self.cn
+                    continue
                 c.run(3600)
         
     print 'stopping.'
