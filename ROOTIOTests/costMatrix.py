@@ -10,9 +10,6 @@ import stomp, logging, datetime, time, ConfigParser
 import urllib,urllib2
 import json as simplejson
 
-maxParallel=6
-currParallel=0
-
 def send (message):
     # all of the ActiveMQ configuration 
     logging.basicConfig()
@@ -70,7 +67,6 @@ class Command(object):
     def run(self, timeout, foreground=False):
         def target():
             print 'command started', self.cn, self.counter
-            currParallel+=1
             self.next=time.time()+3600
             self.process = subprocess.Popen(self.cmd, shell=True)
             if (foreground): self.process.communicate()
@@ -127,6 +123,9 @@ def upload(SITE_FROMLOG, SITE_TO):
                     
 
 def main():
+
+    maxParallel=6
+    currParallel=0
             
     if len(sys.argv)>1:
         # print 'uploading results from file ', sys.argv[1]
@@ -218,9 +217,10 @@ def main():
                     c.next=time.time()+15*60
             if ct>c.next:
                 if currParallel>maxParallel:
-                    print 'Having already ',currParallel, "streams. Delaying start of",self.cn
+                    print 'Having already ',currParallel, "streams. Delaying start of",c.cn
                     continue
                 c.run(3600)
+                currParallel+=1
         
     print 'stopping.'
     
