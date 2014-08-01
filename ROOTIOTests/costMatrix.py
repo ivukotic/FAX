@@ -67,7 +67,7 @@ class Command(object):
     def run(self, timeout, foreground=False):
         def target():
             print 'command started', self.cn, self.counter
-            self.next=time.time()+3600
+            self.next=time.time()+24*3600 # this prevents it from restarting in case it's still running
             self.process = subprocess.Popen(self.cmd, shell=True)
             if (foreground): self.process.communicate()
         
@@ -89,7 +89,7 @@ class Command(object):
 def upload(SITE_FROMLOG, SITE_TO):
     SITE_FROM = SITE_FROMLOG.replace('.log','')
     
-    print SITE_FROM,' -> ',SITE_TO     
+    print 'Upload:',SITE_FROM,' -> ',SITE_TO     
     if not os.path.isfile(SITE_FROMLOG):
         print "log file for site",site,"missing"
         return 
@@ -106,18 +106,18 @@ def upload(SITE_FROMLOG, SITE_TO):
             if l.count('EXITSTATUS')>0:
                 res=l.replace('EXITSTATUS=','')
                 if res=='0':
-                    print '--------------------------------- Uploading result ---------------------------------'
-                    print rate    
+                    #print '--------------------------------- Uploading result ---------------------------------'
+                    #print rate    
                     ts=datetime.datetime.utcnow()
                     ts=ts.replace(microsecond=0)
                     toSend='site_from: '+ SITE_FROM + '\nsite_to: '+SITE_TO+'\nmetricName: FAXprobe4\nrate: '+str(rate)+'\ntimestamp: '+ts.isoformat(' ')+'\n'
-                    print toSend
+                    #print toSend
                     send (toSend)
 
                     print '-------------------------------- Writing to GAE -------------------------------------------'
                     data = dict(source=SITE_FROM, destination=SITE_TO, rate=rate)
                     u = urllib2.urlopen('http://1-dot-waniotest.appspot.com/wancost', urllib.urlencode(data))
-                    print u.read()
+                    #print u.read()
                 else:
                     print 'non 0 exit code. will not upload result. ' 
                     
@@ -217,7 +217,7 @@ def main():
                     c.next=time.time()+15*60
             if ct>c.next:
                 if currParallel>maxParallel:
-                    print 'Having already ',currParallel, "streams. Delaying start of",c.cn
+                    print 'Already having',currParallel, "streams. Delaying start of",c.cn
                     continue
                 c.run(3600)
                 currParallel+=1
