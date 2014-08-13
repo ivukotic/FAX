@@ -1,0 +1,952 @@
+{                                                                             
+  "aglt2.org": {                                                                  
+    "host_dict": {},                                                          
+    "SiteName": "AGLT2",                                               
+    "VOname": "AGLT2"                                                 
+  }, 
+  "se.yerphi-cluster.grid.am": {
+    "host_dict": {},
+    "SiteName": "AM-04-YERPHI",       
+    "VOname": "AM-04-YERPHI"        
+  },
+  "hep.anl.gov": {
+    "host_dict": {},
+    "SiteName": "ANLASC",
+    "VOname": "ANLASC"
+  },  
+  "anl.gov": {
+    "host_dict": {},
+    "SiteName": "ANLASC",
+    "VOname": "ANLASC"
+  },  
+  "atlas.unimelb.edu.au": {
+    "host_dict": {},
+    "SiteName": "Australia-ATLAS",
+    "VOname": "Australia-ATLAS"
+  },
+  "ccsrm.ihep.ac.cn": {
+    "host_dict": {},
+    "SiteName": "BEIJING-LCG2",
+    "VOname": "BEIJING-LCG2"
+  },
+  "ihep.ac.cn": {
+    "host_dict": {},
+    "SiteName": "BEIJING-LCG2",
+    "VOname": "BEIJING-LCG2"
+  },
+  "bnl.gov": {
+    "host_dict": {},
+    "SiteName": "BNL-ATLAS",
+    "VOname": "BNL-ATLAS"
+  },
+  "usatlas.bnl.gov": {
+    "host_dict": {},
+    "SiteName": "BNL-ATLAS",
+    "VOname": "BNL-ATLAS"
+  },
+  "storm02.clumeq.mcgill.ca": {
+    "host_dict": {},
+    "SiteName": "CA-MCGILL-CLUMEQ-T2",
+    "VOname": "CA-MCGILL-CLUMEQ-T2"
+  },
+  "scinet.utoronto.ca": {
+    "host_dict": {},
+    "SiteName": "CA-SCINET-T2",
+    "VOname": "CA-SCINET-T2"
+  },
+  "charon01.westgrid.ca": {
+    "host_dict": {},
+    "SiteName": "CA-VICTORIA-WESTGRID-T2",
+    "VOname": "CA-VICTORIA-WESTGRID-T2"
+  },
+  "cern.ch": {
+    "host_dict": {},
+    "SiteName": "CERN-PROD",
+    "VOname": "CERN-PROD"
+  },
+  "cyf-kr.edu.pl": {
+    "host_dict": {},
+    "SiteName": "CYFRONET-LCG2",
+    "VOname": "CYFRONET-LCG2"
+  },
+  "desy.de": {
+    "host_dict": {},
+    "SiteName": "DESY-HH",
+    "VOname": "DESY-HH"
+  },
+  "ifh.de": {
+    "host_dict": {},
+    "SiteName": "DESY-ZN",
+    "VOname": "DESY-ZN"
+  },
+  "duke.edu": {
+    "host_dict": {},
+    "SiteName": "DukeT3",
+    "VOname": "DukeT3"
+  },
+  "hpc.utfsm.cl": {
+    "host_dict": {},
+    "SiteName": "EELA-UTFSM",
+    "VOname": "EELA-UTFSM"
+  },
+  "dnp.fmph.uniba.sk": {
+    "host_dict": {},
+    "SiteName": "FMPhI-UNIBA",
+    "VOname": "FMPhI-UNIBA"
+  },
+  "gridka.de": {
+    "host_dict": {},
+    "SiteName": "FZK-LCG2",
+    "VOname": "FZK-LCG2"
+  },
+  "dpmhead.ipv6.farm.particle.cz": {
+    "host_dict": {},
+    "SiteName": "FZU-IPV6",
+    "VOname": "FZU-IPV6"
+  },
+  "se-goegrid.gwdg.de": {
+    "host_dict": {},
+    "SiteName": "GoeGrid",
+    "VOname": "GoeGrid"
+  },
+  "grid.auth.gr": {
+    "host_dict": {},
+    "SiteName": "GR-01-AUTH",
+    "VOname": "GR-01-AUTH"
+  },
+  "datagrid.cea.fr": {
+    "host_dict": {},
+    "SiteName": "GRIF",
+    "VOname": "GRIF-IRFU"
+  },
+  "uibk.ac.at": {
+    "host_dict": {},
+    "SiteName": "HEPHY-UIBK",
+    "VOname": "HEPHY-UIBK"
+  },
+  "saske.sk": {
+    "host_dict": {},
+    "SiteName": "IEPSAS-Kosice",
+    "VOname": "IEPSAS-Kosice"
+  },
+  "srmifae.pic.es": {
+    "host_dict": {},
+    "SiteName": "ifae",
+    "VOname": "ifae"
+  },
+  "in2p3.fr": {                                                               
+    "host_dict": {                                                            
+      "lpn": {                                                                
+        "VOname": "GRIF-LPNHE",                                          
+        "SiteName": "GRIF"                                              
+      },                                                                      
+      "lal": {                                                                
+        "VOname": "GRIF-LAL",
+        "SiteName": "GRIF"                                                
+      },
+      "ccsrm": {
+        "VOname": "IN2P3-CC",
+        "SiteName": "IN2P3-CC"
+      },
+      "mar": {
+        "VOname": "IN2P3-CPPM",
+        "SiteName": "IN2P3-CPPM"
+      },
+      "lapp": {
+        "VOname": "IN2P3-LAPP",
+        "SiteName": "IN2P3-LAPP"
+      },
+      "clrlcg": {
+        "VOname": "IN2P3-LPC",
+        "SiteName": "IN2P3-LPC"
+      },
+      "lpsc": {
+        "VOname": "IN2P3-LPSC",
+        "SiteName": "IN2P3-LPSC"
+      }
+    },
+    "SiteName": "IN2P3",
+    "VOname": "IN2P3failover"
+  },
+  "lal.in2p3.fr": {
+    "host_dict": {},
+    "SiteName": "GRIF",
+    "VOname": "GRIF-LAL"
+  },
+  "ific.uv.es": {
+    "host_dict": {},
+    "SiteName": "IFIC-LCG2",
+    "VOname": "IFIC-LCG2"
+  },
+  "tau-se.hep.tau.ac.il": {
+    "host_dict": {},
+    "SiteName": "IL-TAU-HEP",
+    "VOname": "IL-TAU-HEP"
+  },  
+  "hep.uiuc.edu": {
+    "host_dict": {},
+    "SiteName": "IllinoisHEP",
+    "VOname": "IllinoisHEP"
+  },  
+  "indiana.edu": {
+    "host_dict": {},
+    "SiteName": "Indiana_ATLAS_Tier3",
+    "VOname": "Indiana"
+  },
+  "physics.indiana.edu": {
+    "host_dict": {},
+    "SiteName": "Indiana_ATLAS_Tier3",
+    "VOname": "Indiana"
+  },
+  "colorado.edu": {
+    "host_dict": {},
+    "SiteName": "UColorado_HEP",
+    "VOname": "T3_US_Colorado"
+  },
+  "indiacms.res.in": {
+    "host_dict": {},
+    "SiteName": "INDIACMS-TIFR",
+    "VOname": "T2_IN_TIFR"
+  },
+  "linucs-se-01.cs.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-COSENZA",
+    "VOname": "INFN-COSENZA"
+  }, 
+  "lnl.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-LNL-2",
+    "VOname": "INFN-LNL-2"
+  }, 
+  "ba.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-Bari",
+    "VOname": "INFN-Bari"
+  },
+  "phy.ncu.edu.tw": {
+    "host_dict": {},
+    "SiteName": "TW-NCUHEP",
+    "VOname": "T3_TW_NCU"
+  },
+  "grid.helsinki.fi": {
+    "host_dict": {},
+    "SiteName": "FI_HIP_T2",
+    "VOname": "T2_FI_HIP"
+  },
+  "pi.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-PISA",
+    "VOname": "T2_IT_Pisa"
+  },
+  "ultralight.org": {
+    "host_dict": {},
+    "SiteName": "CIT_CMS_T2",
+    "VOname": "T2_US_Caltech"
+  },
+  "ncp.edu.pk": {
+    "host_dict": {},
+    "SiteName": "NCP-LCG2",
+    "VOname": "NCP-LCG2"
+  },
+  "hep.uprm.edu": {
+    "host_dict": {},
+    "SiteName": "uprm-cms",
+    "VOname": "T3_US_PuertoRico"
+  },
+  "hep.wisc.edu": {
+    "host_dict": {},
+    "SiteName": "WISC-ATLAS",
+    "VOname": "WISC-ATLAS"
+  },
+  "lnf.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-FRASCATI",
+    "VOname": "INFN-FRASCATI"
+  }, 
+  "grid03.ge.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-GENOVA",
+    "VOname": "INFN-GENOVA"
+  },
+  "se.le.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-LECCE",
+    "VOname": "INFN-LECCE"
+  },
+  "t2cmcondor.mi.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-MILANO-ATLASC",
+    "VOname": "INFN-MILANO-ATLASC"
+  },
+  "mi.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-MILANO-ATLASC",
+    "VOname": "INFN-MILANO-ATLASC"
+  },
+  "na.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-NAPOLI-ATLAS",
+    "VOname": "INFN-NAPOLI-ATLAS"
+  },
+  "grid-se.pv.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-PAVIA",
+    "VOname": "INFN-PAVIA"
+  },
+  "roma1.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-ROMA1",
+    "VOname": "INFN-ROMA1"
+  },  
+  "gridvm01.roma2.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-ROMA2",
+    "VOname": "INFN-ROMA2"
+  },
+  "storm-01.roma3.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-ROMA3",
+    "VOname": "INFN-ROMA3"
+  },
+  "cr.cnaf.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-T1",
+    "VOname": "INFN-T1"
+  },
+  "cnaf.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-T1",
+    "VOname": "INFN-T1"
+  },
+  "itep.ru": {
+    "host_dict": {},
+    "SiteName": "ITEP",
+    "VOname": "ITEP"
+  },
+  "lcgsedc01.jinr.ru": {
+    "host_dict": {},
+    "SiteName": "JINR-LCG2",
+    "VOname": "JINR-LCG2"
+  },
+  "jinr-t1.ru": {
+    "host_dict": {},
+    "SiteName": "JINR-LCG2",
+    "VOname": "JINR-LCG2"
+  },
+  "jinr.ru": {
+    "host_dict": {},
+    "SiteName": "JINR-LCG2",
+    "VOname": "JINR-LCG2"
+  },
+  "t2.ucsd.edu": {
+    "host_dict": {},
+    "SiteName": "UCSDT2",
+    "VOname": "T2_US_UCSD"
+  },
+  "cmsaf.mit.edu": {
+    "host_dict": {},
+    "SiteName": "MIT_CMS",
+    "VOname": "T2_US_MIT"
+  },
+  "grid.metu.edu.tr": {
+    "host_dict": {},
+    "SiteName": "TR-03-METU",
+    "VOname": "T2_TR_METU"
+  },
+  "ucr.edu": {
+    "host_dict": {},
+    "SiteName": "UCR-HEP",
+    "VOname": "T3_US_UCR"
+  },
+  "sprace.org.br": {
+    "host_dict": {},
+    "SiteName": "SPRACE",
+    "VOname": "T2_BR_SPRACE"
+  },
+  "accre.vanderbilt.edu": {
+    "host_dict": {},
+    "SiteName": "Vanderbilt",
+    "VOname": "T2_US_Vanderbilt"
+  },
+  "iihe.ac.be": {
+    "host_dict": {},
+    "SiteName": "BEgrid-ULB-VUB",
+    "VOname": "T2_BE_IIHE"
+  },
+  "cac.cornell.edu": {
+    "host_dict": {},
+    "SiteName": "NYSGRID_CORNELL_NYS1",
+    "VOname": "T3_US_Cornell"
+  },
+  "gridc.lip.pt": {
+    "host_dict": {},
+    "SiteName": "LIP-Coimbra",
+    "VOname": "LIP-Coimbra"
+  },
+  "srm01.lip.pt": {
+    "host_dict": {},
+    "SiteName": "LIP-Lisbon",
+    "VOname": "LIP-Lisbon"
+  },
+  "grid.lrz.de": {
+    "host_dict": {},
+    "SiteName": "LRZ-LMU",
+    "VOname": "LRZ-LMU"
+  },
+  "cos.lrz.de": {
+    "host_dict": {},
+    "SiteName": "LRZ-LMU",
+    "VOname": "LRZ-LMU"
+  },
+  "lutse1.lunet.edu": { 
+    "host_dict": {},
+    "SiteName": "LUCILLE",
+    "VOname": "LUCILLE"
+  },
+  "mgse1.physik.uni-mainz.de": { 
+    "host_dict": {},
+    "SiteName": "mainzgrid",
+    "VOname": "mainzgrid"
+  },
+  "rzg.mpg.de": { 
+    "host_dict": {},
+    "SiteName": "MPPMU",
+    "VOname": "MPPMU"
+  },
+  "t2.rzg.mpg.de": {
+    "host_dict": {},
+    "SiteName": "MPPMU",
+    "VOname": "MPPMU"
+  },
+  "uct2-dc1.uchicago.edu": { 
+    "host_dict": {},
+    "SiteName": "MWT2",
+    "VOname": "MWT2"
+  },
+  "mwt2.org": {
+    "host_dict": {},
+    "SiteName": "MWT2",
+    "VOname": "MWT2"
+  },
+  "iu.edu": {
+    "host_dict": {},
+    "SiteName": "MWT2",
+    "VOname": "MWT2"
+  },
+  "campuscluster.illinois.edu": {
+    "host_dict": {},
+    "SiteName": "MWT2",
+    "VOname": "MWT2"
+  },
+  "rcac.purdue.edu": {
+    "host_dict": {},
+    "SiteName": "Purdue-RCAC",
+    "VOname": "T2_US_Purdue"
+  },
+  "xlate.ufl.edu": {
+    "host_dict": {},
+    "SiteName": "UFlorida-HPC",
+    "VOname": "T2_US_Florida"
+  },
+  "srm01.ncg.ingrid.pt": { 
+    "host_dict": {},
+    "SiteName": "NCG-INGRID-PT",
+    "VOname": "NCG-INGRID-PT"
+  },
+  "ncg.ingrid.pt": {
+    "host_dict": {},
+    "SiteName": "NCG-INGRID-PT",
+    "VOname": "NCG-INGRID-PT"
+  },
+  "ndgf.org": { 
+    "host_dict": {},
+    "SiteName": "NDGF-T1",
+    "VOname": "NDGF-T1"
+  },
+  "nersc.gov": { 
+    "host_dict": {},
+    "SiteName": "NERSC-PDSF",
+    "VOname": "NERSC-PDSF"
+  },
+  "bu.edu": { 
+    "host_dict": {},
+    "SiteName": "BU_ATLAS_Tier2",
+    "VOname": "BU_ATLAS_Tier2"
+  },
+  "tbn18.nikhef.nl": { 
+    "host_dict": {},
+    "SiteName": "NIKHEF-ELPROD",
+    "VOname": "NIKHEF-ELPROD"
+  },
+  "farm.nikhef.nl": {
+    "host_dict": {},
+    "SiteName": "NIKHEF-ELPROD",
+    "VOname": "NIKHEF-ELPROD"
+  },
+  "nevis.columbia.edu": { 
+    "host_dict": {},
+    "SiteName": "Nevis",
+    "VOname": "Nevis"
+  },
+  "physics.nyu.edu": { 
+    "host_dict": {},
+    "SiteName": "NYU-ATLAS",
+    "VOname": "NYU-ATLAS"
+  },
+  "nhn.ou.edu": { 
+    "host_dict": {},
+    "SiteName": "OUHEP_OSG",
+    "VOname": "OUHEP_OSG"
+  },
+  "ochep.ou.edu": { 
+    "host_dict": {},
+    "SiteName": "OU_OCHEP_SWT2",
+    "VOname": "OU_OCHEP_SWT2"
+  },
+  "farm.particle.cz": { 
+    "host_dict": {},
+    "SiteName": "praguelcg2",
+    "VOname": "praguelcg2"
+  },
+  "srmatlas.pic.es": {
+    "host_dict": {},
+    "SiteName": "pic",
+    "VOname": "pic"
+  },
+  "pic.es": {
+    "host_dict": {},
+    "SiteName": "pic",
+    "VOname": "pic"
+  },
+  "unl.edu": {
+    "host_dict": {},
+    "SiteName": "Nebraska",
+    "VOname": "T2_US_Nebraska"
+  },
+  "hep.kbfi.ee": {
+    "host_dict": {},
+    "SiteName": "T2_Estonia",
+    "VOname": "T2_EE_Estonia"
+  },
+  "kfki.hu": {
+    "host_dict": {},
+    "SiteName": "BUDAPEST",
+    "VOname": "T2_HU_Budapest"
+  },
+  "ts.infn.it": {
+    "host_dict": {},
+    "SiteName": "INFN-TRIESTE",
+    "VOname": "INFN-TRIESTE"
+  },
+  "hip.fi": {
+    "host_dict": {},
+    "SiteName": "FI_HIP_T2",
+    "VOname": "T2_FI_HIP"
+  },
+  "reef.man.poznan.pl": {
+    "host_dict": {},
+    "SiteName": "PSNC",
+    "VOname": "PSNC"
+  },
+  "nipne.ro": {
+    "host_dict": {
+      "baaf": {
+        "VOname": "RO-02-NIPNE",
+        "SiteName": "RO-02-NIPNE"
+      },
+      "baaf02": {
+        "VOname": "RO-02-NIPNE",
+        "SiteName": "RO-02-NIPNE"
+      },
+      "tbit": {
+        "VOname": "RO-07-NIPNE",
+        "SiteName": "RO-07-NIPNE"
+      }
+    },
+    "SiteName": "NIPNE",
+    "VOname": "NIPNEfailover"
+  },
+  "srm-atlas.gridpp.rl.ac.uk": {
+    "host_dict": {},
+    "SiteName": "RAL-LCG2",
+    "VOname": "RAL-LCG2"
+  },
+  "gridpp.rl.ac.uk": {
+    "host_dict": {},
+    "SiteName": "RAL-LCG2",
+    "VOname": "RAL-LCG2"
+  },
+  "itim-cj.ro": {
+    "host_dict": {},
+    "SiteName": "RO-14-ITIM",
+    "VOname": "RO-14-ITIM"
+  },
+  "uaic.ro": {
+    "host_dict": {},
+    "SiteName": "RO-16-UAIC",
+    "VOname": "RO-16-UAIC"
+  },
+  "grid.kiae.ru": {
+    "host_dict": {
+      "sdrm": {
+        "VOname": "RRC-KI-T1",
+        "SiteName": "RRC-KI-T1"
+      }
+    },
+    "SiteName": "RRC-KI",
+    "VOname": "RRC-KI"
+  },
+  "grid.lebedev.ru": {
+    "host_dict": {},
+    "SiteName": "ru-Moscow-FIAN-LCG2",
+    "VOname": "ru-Moscow-FIAN-LCG2"
+  },
+  "pnpi.nw.ru": {
+    "host_dict": {},
+    "SiteName": "ru-PNPI",
+    "VOname": "ru-PNPI"
+  },
+  "m45.ihep.su": {
+    "host_dict": {},
+    "SiteName": "RU-Protvino-IHEP",
+    "VOname": "RU-Protvino-IHEP"
+  },
+  "srm.grid.sara.nl": {
+    "host_dict": {},
+    "SiteName": "SARA-MATRIX",
+    "VOname": "SARA-MATRIX"
+  },
+  "gina.sara.nl": {
+    "host_dict": {},
+    "SiteName": "SARA-MATRIX",
+    "VOname": "SARA-MATRIX"
+  },
+  "natpool.mwn.de": {
+    "host_dict": {},
+    "SiteName": "Roaming",
+    "VOname": "Roaming"
+  },
+  "atlas.ci-connect.net": {
+    "host_dict": {},
+    "SiteName": "Roaming",
+    "VOname": "Roaming"
+  },
+  "physics.sunysb.edu": {
+    "host_dict": {},
+    "SiteName": "SBU_Tier3",
+    "VOname": "SBU_Tier3"
+  },
+  "srm.swegrid.se": {
+    "host_dict": {},
+    "SiteName": "SE-SNIC-T2",
+    "VOname": "SE-SNIC-T2"
+  },
+  "wormhole.westgrid.ca": {
+    "host_dict": {},
+    "SiteName": "SFU-LCG2",
+    "VOname": "SFU-LCG2"
+  },
+  "slac.stanford.edu": {
+    "host_dict": {},
+    "SiteName": "WT2",
+    "VOname": "WT2"
+  },
+  "atlas-swt2.org": {
+    "host_dict": {},
+    "SiteName": "SWT2_CPB",
+    "VOname": "SWT2_CPB"
+  },
+  "grid.sinica.edu.tw": {
+    "host_dict": {},
+    "SiteName": "Taiwan-LCG2",
+    "VOname": "Taiwan-LCG2"
+  },
+  "tech-se.hep.technion.ac.il": {
+    "host_dict": {},
+    "SiteName": "TECHNION-HEP",
+    "VOname": "TECHNION-HEP"
+  },
+  "icepp.jp": {
+    "host_dict": {},
+    "SiteName": "TOKYO-LCG2",
+    "VOname": "TOKYO-LCG2"
+  },
+  "ulakbim.gov.tr": {
+    "host_dict": {},
+    "SiteName": "TR-10-ULAKBIM",
+    "VOname": "TR-10-ULAKBIM"
+  },
+  "triumf.ca": {
+    "host_dict": {},
+    "SiteName": "TRIUMF-LCG2",
+    "VOname": "TRIUMF-LCG2"
+  },
+  "ophelia.zih.tu-dresden.de": {
+    "host_dict": {},
+    "SiteName": "TUDresden-ZIH",
+    "VOname": "TUDresden-ZIH"
+  },
+  "uam.es": {
+    "host_dict": {},
+    "SiteName": "UAM-LCG2",
+    "VOname": "UAM-LCG2"
+  },
+  "ifca.es": {
+    "host_dict": {},
+    "SiteName": "IFCA-LCG2",
+    "VOname": "IFCA-LCG2"
+  },
+  "polgrid.pl": {
+    "host_dict": {},
+    "SiteName": "ICM",
+    "VOname": "ICM"
+  },
+  "ucsc.edu": {
+    "host_dict": {},
+    "SiteName": "UCSCT3",
+    "VOname": "UCSCT3"
+  },
+  "ph.qmul.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-QMUL",
+    "VOname": "UKI-LT2-QMUL"
+  },
+  "esc.qmul.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-QMUL",
+    "VOname": "UKI-LT2-QMUL"
+  },
+  "brunel.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-Brunel",
+    "VOname": "UKI-LT2-Brunel"
+  },
+  "hep.ph.ic.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-IC-HEP",
+    "VOname": "UKI-LT2-IC-HEP"
+  },
+  "grid.hep.ph.ic.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-IC-HEP",
+    "VOname": "UKI-LT2-IC-HEP"
+  },
+  "rhul.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-RHUL",
+    "VOname": "UKI-LT2-RHUL"
+  },
+  "ppgrid1.rhul.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-RHUL",
+    "VOname": "UKI-LT2-RHUL"
+  },
+  "pp.rhul.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-RHUL",
+    "VOname": "UKI-LT2-RHUL"
+  },
+  "hep.ucl.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-UCL-HEP",
+    "VOname": "UKI-LT2-UCL-HEP"
+  },
+  "lancs.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-NORTHGRID-LANCS-HEP",
+    "VOname": "UKI-NORTHGRID-LANCS-HEP"
+  },
+  "liv.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-NORTHGRID-LIV-HEP",
+    "VOname": "UKI-NORTHGRID-LIV-HEP"
+  },
+  "ph.liv.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-NORTHGRID-LIV-HEP",
+    "VOname": "UKI-NORTHGRID-LIV-HEP"
+  },
+  "manchester.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-NORTHGRID-MAN-HEP",
+    "VOname": "UKI-NORTHGRID-MAN-HEP"
+  },
+  "tier2.hep.manchester.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-NORTHGRID-MAN-HEP",
+    "VOname": "UKI-NORTHGRID-MAN-HEP"
+  },
+
+  "shef.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-NORTHGRID-SHEF-HEP",
+    "VOname": "UKI-NORTHGRID-SHEF-HEP"
+  },
+  "dur.scotgrid.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SCOTGRID-DURHAM",
+    "VOname": "UKI-SCOTGRID-DURHAM"
+  },
+  "ecdf.ed.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SCOTGRID-ECDF",
+    "VOname": "UKI-SCOTGRID-ECDF"
+  },
+  "glite.ecdf.ed.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SCOTGRID-ECDF",
+    "VOname": "UKI-SCOTGRID-ECDF"
+  },
+
+  "gla.scotgrid.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SCOTGRID-GLASGOW",
+    "VOname": "UKI-SCOTGRID-GLASGOW"
+  },
+  "bham.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SOUTHGRID-BHAM-HEP",
+    "VOname": "UKI-SOUTHGRID-BHAM-HEP"
+  },
+  "hep.phy.cam.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SOUTHGRID-CAM-HEP",
+    "VOname": "UKI-SOUTHGRID-CAM-HEP"
+  },
+  "ox.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SOUTHGRID-OX-HEP",
+    "VOname": "UKI-SOUTHGRID-OX-HEP"
+  },
+  "physics.ox.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SOUTHGRID-OX-HEP",
+    "VOname": "UKI-SOUTHGRID-OX-HEP"
+  },
+  "lcg.cscs.ch": {
+    "host_dict": {},
+    "SiteName": "CSCS-LCG2",
+    "VOname": "CSCS-LCG2"
+  },
+  "pp.rl.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SOUTHGRID-RALPP",
+    "VOname": "UKI-SOUTHGRID-RALPP"
+  },
+  "hpc.susx.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SOUTHGRID-SUSX",
+    "VOname": "UKI-SOUTHGRID-SUSX"
+  },
+  "storm.physik.uni-bonn.de": {
+    "host_dict": {},
+    "SiteName": "UNI-BONN",
+    "VOname": "UNI-BONN"
+  },
+  "uni-freiburg.de": {
+    "host_dict": {},
+    "SiteName": "UNI-FREIBURG",
+    "VOname": "UNI-FREIBURG"
+  },
+  "bfg.uni-freiburg.de": {
+    "host_dict": {},
+    "SiteName": "UNI-FREIBURG",
+    "VOname": "UNI-FREIBURG"
+  },
+  "vse001.hep.physik.uni-siegen.de": {
+    "host_dict": {},
+    "SiteName": "UNI-SIEGEN-HEP",
+    "VOname": "UNI-SIEGEN-HEP"
+  },
+  "unibe.ch": {
+    "host_dict": {},
+    "SiteName": "UNIBE-LHEP",
+    "VOname": "UNIBE-LHEP"
+  },
+  "unige.ch": {
+    "host_dict": {},
+    "SiteName": "UNIGE-DPNC",
+    "VOname": "UNIGE-DPNC"
+  },
+  "hep.upenn.edu": {
+    "host_dict": {},
+    "SiteName": "PennT3",
+    "VOname": "PennT3"
+  },
+  "uta.edu": {
+    "host_dict": {},
+    "SiteName": "UTA_SWT2",
+    "VOname": "UTA_SWT2"
+  },
+  "utdallas.edu": {
+    "host_dict": {},
+    "SiteName": "UTD-HEP",
+    "VOname": "UTD-HEP"
+  },
+  "weizmann.ac.il": {
+    "host_dict": {},
+    "SiteName": "WEIZMANN-LCG2",
+    "VOname": "WEIZMANN-LCG2"
+  },
+  "wisc.edu": {
+    "host_dict": {},
+    "SiteName": "WISC-ATLAS",
+    "VOname": "WISC-ATLAS"
+  },
+  "nat.nd.edu": {
+    "host_dict": {},
+    "SiteName": "NWICG_NDCMS",
+    "VOname": "T3_US_NotreDame"
+  },
+  "lsr.nectec.or.th": {
+    "host_dict": {},
+    "SiteName": "T2-TH-CUNSTDA",
+    "VOname": "T2_TH_CUNSTDA"
+  },
+  "uni-wuppertal.de": {
+    "host_dict": {},
+    "SiteName": "wuppertalprod",
+    "VOname": "wuppertalprod"
+  },
+  "pleiades.uni-wuppertal.de": {
+    "host_dict": {},
+    "SiteName": "wuppertalprod",
+    "VOname": "wuppertalprod"
+  },
+  "grid.uj.ac.za": {
+    "host_dict": {},
+    "SiteName": "ZA-UJ",
+    "VOname": "ZA-UJ"
+  },
+  "core.wits.ac.za": {
+    "host_dict": {},
+    "SiteName": "ZA-WITS-CORE",
+    "VOname": "ZA-WITS-CORE"
+  },
+
+  "goegrid.gwdg.de": {
+    "host_dict": {},
+    "SiteName": "GoeGrid",
+    "VOname": "GoeGrid"
+  },
+  "htc.esc.qmul": {
+    "host_dict": {},
+    "SiteName": "UKI-LT2-QMUL",
+    "VOname": "UKI-LT2-QMUL"
+  },
+  "phy.bris.ac.uk": {
+    "host_dict": {},
+    "SiteName": "UKI-SOUTHGRID-BRIS-HEP",
+    "VOname": "UKI-SOUTHGRID-BRIS-HEP"
+  },
+  "cism.ucl.ac.be": {
+    "host_dict": {},
+    "SiteName": "BelGrid-UCL",
+    "VOname": "BelGrid-UCL"
+  },
+  "physik.rwth-aachen.de": {
+    "host_dict": {},
+    "SiteName": "RWTH-Aachen",
+    "VOname": "RWTH-Aachen"
+  }
+}
