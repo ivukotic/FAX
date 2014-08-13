@@ -1,0 +1,96 @@
+$main::G_Host2Site =
+{
+  'aglt2.org'      => 'AGLT2',
+  'atlas-swt2.org' => 'SWT2_CPB',
+  'bu.edu'         => 'BU',
+  'bnl.gov'        => 'BNL',
+  'cern.ch'        => 'CERN',
+  'cea.fr'         => 'GRIF-IRFU',
+  'ifh.de'         => 'DESY_ZN',
+  'iu.edu'         => 'MWT2_IU',
+  'gridka.de'      => 'FZK-LCG2',
+  'uiuc.edu'       => 'MWT2',
+  'illinois.edu'   => 'MWT2',
+  'uchicago.edu'   => 'MWT2',
+  'mwt2.org'       => 'MWT2',
+  'stanford.edu'   => 'SLAC',
+  'uni-wuppertal.de'   => 'WUPPERTAL',
+  'uni-freiburg.de' => 'UNI-FREIBURG',
+  'lrz.de'         => 'LRZ',
+  'particle.cz'    => 'PRAGUE',
+  'pic.es'         => 'pic',
+  'jinr.ru'	       => 'JINR',
+  'jinr-t1.ru'	   => 'JINR',
+  'ihep.su'        => 'IHEP',
+  'ac.cn'          => 'BEIJING-LCG2',
+  'cscs.ch'         => 'CSCS-LCG2',
+  'unige.ch'         => 'UNIGE-DPNC',
+  'unibe.ch'         => 'UNIBE-LHEP',
+  'sara.nl'        => 'SARA-MATRIX', 
+  'nikhef.nl'      => 'NIKHEF-ELPROD', 
+  'utoronto.ca'    => 'CA-SCINET-T2',
+  'v.westgrid.ca'    => 'CA-VICTORIA-WESTGRID-T2',
+  'westgrid.ca'    => 'SFU-LCG2',
+  'mcgill.ca'      => 'CA-MCGILL-CLUMEQ-T2',
+  'triumf.ca'      => 'TRIUMF-LCG2',
+  'lcgtriumf.ca'   => 'TRIUMF-LCG2', 
+  'edu.au'      => 'Australia-ATLAS',
+  'ndgf.org'      => 'NDGF-T1',
+  'ou.edu'         =>  sub {
+	my $h = shift;
+	return 'SWT2_OU_T3' if $h =~ m/\.nhn\.ou\.edu/;
+	return 'SWT2_OU';
+    },
+  'esc.qmul'    => 'UKI-LT2-QMUL',
+  'ac.uk'	   =>  sub {
+    my $h = shift;
+    return 'UKI-SCOTGRID-ECDF' if $h =~ m/\.ecdf\.ed\.ac\.uk/;
+    return 'UKI-SCOTGRID-GLASGOW'    if $h =~ m/\.gla\.scotgrid\.ac\.uk/;
+    return 'RAL-LCG2'                if $h =~ m/\.rl\.ac\.uk/;
+    return 'UKI-SOUTHGRID-RALPP'     if $h =~ m/\.pp\.rl\.ac\.uk/;
+    return 'UKI-NORTHGRID-LANCS-HEP' if $h =~ m/\.lancs\.ac\.uk/;
+    return 'UKI-NORTHGRID-LIV-HEP'   if $h =~ m/\.liv\.ac\.uk/;
+    return 'UKI-NORTHGRID-SHEF-HEP'  if $h =~ m/\.shef\.ac\.uk/;
+    return 'UKI-NORTHGRID-MAN-HEP'   if $h =~ m/\.manchester\.ac\.uk/;
+    return 'UKI-SOUTHGRID-BHAM-HEP'  if $h =~ m/\.bham\.ac\.uk/;
+    return 'UKI-SOUTHGRID-CAM-HEP'   if $h =~ m/\.cam\.ac\.uk/;
+    return 'UKI-SOUTHGRID-OX-HEP'    if $h =~ m/\.ox\.ac\.uk/;
+    return 'UKI-LT2-QMUL'            if $h =~ m/\.qmul\.ac\.uk/;
+    return 'UKI-LT2-RHUL'            if $h =~ m/\.rhul\.ac\.uk/;
+    return 'UKI-LT2-UCL-HEP'         if $h =~ m/\.ucl\.ac\.uk/;
+    return 'UK';
+  },
+  'desy.de'	   =>  sub {
+    my $h = shift;
+    return 'GRID-LAB' 				 if $h =~ m/grid-lab105\.desy\.de/;
+    return 'DESY-HH'                 if $h =~ m/\.desy\.de/;
+    return 'DE';
+  },
+  'edu.pl'       =>  sub {
+    my $h = shift;
+    return 'CYFRONET-LCG2'           if $h =~ m/\.cyf-kr\.edu\.pl/;
+    return 'PSNC'                    if $h =~ m/\.poznan\.pl/;
+    return 'PL';
+  },
+  'infn.it'        =>  sub {
+    my $h = shift;
+    return 'INFN_Roma1' if $h =~ m/\.roma1\.infn\.it/;
+    return 'INFN_Frascati' if $h =~ m/\.lnf\.infn\.it/;
+    return 'INFN_Napoli' if $h =~ m/\.na\.infn\.it/;
+    return 'INFN_MILANO_ATLASC' if $h =~ m/\.mi\.infn\.it/;
+    return 'INFN-T1' if $h =~ m/\.cnaf\.infn\.it/; 
+    return 'IT';
+  },
+  'in2p3.fr'        =>  sub {
+    my $h = shift;
+    return 'GRIF-LAL' if $h =~ m/\.lal\.in2p3\.fr/;
+    return 'GRIF-LPNHE' if $h =~ m/lpn[a-z0-9-]+\.in2p3\.fr/;
+    return 'IN2P3-LAPP' if $h =~ m/lapp[a-z0-9-]+\.in2p3\.fr/;
+    return 'IN2P3-LPSC' if $h =~ m/lpsc[a-z0-9-]+\.in2p3\.fr/;
+    return 'IN2P3-LPC' if $h =~ m/clrdata-dpm[a-z0-9-]+\.in2p3\.fr/;
+    return 'CPPM' if $h =~ m/mar[a-z0-9-]+\.in2p3\.fr/;
+    return 'IN2P3-CC' if $h =~ m/ccxrdpli[a-z0-9-]+\.in2p3\.fr/;
+    return 'FR';
+  },
+
+};
