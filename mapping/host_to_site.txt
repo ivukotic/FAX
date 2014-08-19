@@ -10,6 +10,7 @@ $main::G_Host2Site =
   'iu.edu'         => 'MWT2_IU',
   'gridka.de'      => 'FZK-LCG2',
   'uiuc.edu'       => 'MWT2',
+  'iu.edu'         => 'MWT2',
   'illinois.edu'   => 'MWT2',
   'uchicago.edu'   => 'MWT2',
   'mwt2.org'       => 'MWT2',
