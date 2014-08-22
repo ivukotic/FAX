@@ -90,7 +90,7 @@ if [ $do = "y" ]
 then
     countall=$((countall+1))
 	source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
-	source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --quiet
+	source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --xrdVer=$ATLAS_LOCAL_XROOTD_VERSION --quiet
     SCRIPT=$(readlink -f "$0")
     SCRIPTPATH=$(dirname "$SCRIPT")
     kom=" root -l -b -q \"$SCRIPTPATH/FAX-listFileContent.C(\\\"$STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root\\\")\" "
@@ -139,4 +139,12 @@ fi
 echo "From $countall tests $countsucc were successfull."
 echo "Uploading test results..."
 java -jar $SCRIPTPATH/FAX2Google-0.0.2-jar-with-dependencies.jar $res > /dev/null
+
 echo "Done."
+
+if [ $countall = $countsucc ]
+then
+    exit 0 
+else
+    exit 1
+fi
