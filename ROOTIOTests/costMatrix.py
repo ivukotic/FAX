@@ -172,10 +172,11 @@ def uploadTrace(log):
                 print 'unexpected line in the traceroute log.', l
                 return   
     print '-------------------------------- Writing to MongoDB -------------------------------------------'
-    data = simplejson.dumps(hops)
+    
+    data = simplejson.dumps({"hops":hops})
     print data
     r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
-    f = urllib2.urlopen(r, timeout=10)
+    f = urllib2.urlopen(r)
     response = f.read()
     f.close()
     print response
