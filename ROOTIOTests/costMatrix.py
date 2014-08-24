@@ -175,12 +175,15 @@ def uploadTrace(log):
     
     data = simplejson.dumps({"hops":hops})
     print data
-    r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
-    f = urllib2.urlopen(r)
-    response = f.read()
-    f.close()
-    print response
-    
+    try:
+        r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
+        f = urllib2.urlopen(r)
+        response = f.read()
+        f.close()
+        print response
+    except:
+        print "Unexpected error:", sys.exc_info()[0]
+        
 def main():
 
     maxParallel=6
