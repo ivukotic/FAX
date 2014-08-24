@@ -197,6 +197,7 @@ def main():
     if len(sys.argv)==2:
         #print 'uploading traceroute from file ', sys.argv[1]
         uploadTrace(sys.argv[1])
+        return
 
     QUEUE = ''    
     SITE = ''
