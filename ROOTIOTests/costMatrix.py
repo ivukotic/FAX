@@ -138,7 +138,7 @@ def uploadTrace(log):
         for l in lines:
             hcount+=1
             w=l.split()
-            if len(w)==4 or len(w)==2:
+            if len(w)==5 or len(w)==4 or len(w)==2:
                 hn=0
                 try:
                     hn=int(w[0])
@@ -171,11 +171,15 @@ def uploadTrace(log):
             else:
                 print 'unexpected line in the traceroute log.', l
                 return   
-    print '-------------------------------- Writing to GAE -------------------------------------------'
+    print '-------------------------------- Writing to MongoDB -------------------------------------------'
     data = simplejson.dumps(hops)
     print data
-    u = urllib2.urlopen('http://db.mwt2.org:8080/trace', data, timeout=10)
-
+    r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
+    f = urllib2.urlopen(r, timeout=10)
+    response = f.read()
+    f.close()
+    print response
+    
 def main():
 
     maxParallel=6
