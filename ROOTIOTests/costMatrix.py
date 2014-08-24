@@ -249,9 +249,9 @@ def main():
             f.write('echo "--------------------------------------"\n ')
             f.write('`which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
             f.write('python costMatrix.py '+logfile+" "+SITE+"\n")
-            servname=s.name.replace('root://','')
+            servname=s.host.replace('root://','')
             servname=servname.split(':')[0]
-            f.write('traceroute -I '+servname+' > '+logfile+".tp \n")
+            f.write('traceroute -w 3 -q 1 -n '+servname+' > '+logfile+".tp \n")
             f.write('python costMatrix.py '+logfile+".tp \n")
             f.write('rm '+logfile+"\n")
 
