@@ -120,19 +120,75 @@ def upload(SITE_FROMLOG, SITE_TO):
                     #print u.read()
                 else:
                     print 'non 0 exit code. will not upload result. ' 
-                    
+
+def uploadTrace(log):
+    print 'Upload:',log
+    if not os.path.isfile(log):
+        print "log file ",log,"missing"
+        return
+    with open(log, 'r') as f:
+        lines=f.readlines()     
+        if len(lines)<2:
+            print 'some problem encountered - less than 2 lines returned from the traceroute'
+            return
+        # removing a header line
+        lines.pop(0)
+        hcount=0            
+        hops=[]
+        for l in lines:
+            hcount+=1
+            w=l.split()
+            if len(w)==4 or len(w)==2:
+                hn=0
+                try:
+                    hn=int(w[0])
+                except:
+                    print "Unexpected error in parsing hop number:", sys.exc_info()[0]
+                if hn!=hcount:
+                    print 'missing hop in a traceroute'
+                    return
+                sip=w[1].split('.')
+                if w[1]=="*":
+                    ip=0
+                    delay=0
+                elif len(sip)!=4:
+                    print 'could not parse IP address: ', w[1]
+                    return
+                else:
+                    try:
+                        ip=int(sip[0]) * 16777216 + int(sip[1]) * 65536 + int(sip[2]) * 256 + int(sip[3])
+                    except ValueError:
+                        print "Unexpected error in parsing ip: ", w[1], sys.exc_info()[0]
+                        return
+                if len(w)>2:
+                    try:
+                        delay=float(w[2])
+                    except ValueError:
+                        print "Unexpected error in parsing delay:",w[2], sys.exc_info()[0]
+                        return
+                hops.append([hn,ip,delay])
+                #print hops
+            else:
+                print 'unexpected line in the traceroute log.', l
+                return   
+    print '-------------------------------- Writing to GAE -------------------------------------------'
+    data = simplejson.dumps(hops)
+    print data
+    u = urllib2.urlopen('http://waniotest.appspot.com/trace', data, timeout=10)
 
 def main():
 
     maxParallel=6
     currParallel=0
             
-    if len(sys.argv)>1:
+    if len(sys.argv)=3:
         # print 'uploading results from file ', sys.argv[1]
         # print 'I was told the site name is ', sys.argv[2]
         upload(sys.argv[1],sys.argv[2])
         return
-
+    if len(sys.argv)=2:
+        #print 'uploading traceroute from file ', sys.argv[1]
+        uploadTrace(sys.argv[1])
 
     QUEUE = ''    
     SITE = ''
@@ -193,6 +249,10 @@ def main():
             f.write('echo "--------------------------------------"\n ')
             f.write('`which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
             f.write('python costMatrix.py '+logfile+" "+SITE+"\n")
+            servname=s.name.replace('root://','')
+            servname=servname.split(':')[0]
+            f.write('traceroute -I '+servname+' > '+logfile+".tp \n")
+            f.write('python costMatrix.py '+logfile+".tp \n")
             f.write('rm '+logfile+"\n")
 
         f.close()
