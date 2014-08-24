@@ -174,19 +174,19 @@ def uploadTrace(log):
     print '-------------------------------- Writing to GAE -------------------------------------------'
     data = simplejson.dumps(hops)
     print data
-    u = urllib2.urlopen('http://waniotest.appspot.com/trace', data, timeout=10)
+    u = urllib2.urlopen('http://db.mwt2.org:8080/trace', data, timeout=10)
 
 def main():
 
     maxParallel=6
     currParallel=0
             
-    if len(sys.argv)=3:
+    if len(sys.argv)==3:
         # print 'uploading results from file ', sys.argv[1]
         # print 'I was told the site name is ', sys.argv[2]
         upload(sys.argv[1],sys.argv[2])
         return
-    if len(sys.argv)=2:
+    if len(sys.argv)==2:
         #print 'uploading traceroute from file ', sys.argv[1]
         uploadTrace(sys.argv[1])
 
