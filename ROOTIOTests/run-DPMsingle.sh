@@ -73,6 +73,19 @@ export COPY_TOOL=$desttag;
 #put python to 2.6 in case its set more recent by root (for use with oracle in athena 17.6.0 release
 source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalPythonSetup.sh --pythonVersion=2.6.5p1-x86_64-slc5-gcc43
 
+
+
+echo "------------- Original proxy info --"
+echo " voms-proxy-info --all"
+voms-proxy-info --all
+echo "-----------------------------------"
+echo "-- Trying to fetch sakamurro ------"
+fn=`davix-ls -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro | sort -V | tail -n 1`
+echo "-- sakamurro now is: $fn"
+davix-get --debug -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro/$fn $PWD/sakamurro
+echo "-----------------------------------"
+
+
 echo "------------- Davix info --"
 echo -n "-- which davix-get --->"
 echo `which davix-get`
