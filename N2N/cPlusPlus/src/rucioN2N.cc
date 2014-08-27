@@ -272,7 +272,7 @@ char* rucio_n2n_glfn(const char *lfn) {
     char sfn[512];
     sfn[0] = '\0';
 
-    if (nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
+    if (strlen(lfn) >=512 || nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
         return pfn = strdup("");
 
     if (parallelstat && pssorigin != NULL) { // remote xrootd-like storage
