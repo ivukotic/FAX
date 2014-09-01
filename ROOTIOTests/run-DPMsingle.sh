@@ -82,7 +82,8 @@ echo "-----------------------------------"
 echo "-- Trying to fetch sakamurro ------"
 fn=`davix-ls -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro | sort -V | tail -n 1`
 echo "-- sakamurro now is: $fn"
-davix-get --debug -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro/$fn $PWD/sakamurro
+#davix-get --debug -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro/$fn $PWD/sakamurro
+xrdcp -f -d 2 root://lxfsra04a04.cern.ch//dteam/sakamurro/$fn $PWD/sakamurro
 echo "-----------------------------------"
 
 
@@ -98,6 +99,9 @@ if [[ "$?" != "0" ]]; then
 	exit 1
 fi
 export X509_USER_PROXY=$PWD/grid_proxy
+
+export X509_USER_PROXY=$PWD/sakamurro
+
 echo "------------ voms proxy info : -----------"
 voms-proxy-info --all
 
