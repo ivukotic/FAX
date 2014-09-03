@@ -51,7 +51,7 @@ char *pssorigin = NULL;
 // Paralle stat() calls for remote storage, to overcome xrootd's default 5 seconds delay if file doesn't exist
 bool parallelstat; 
 
-// reserved URL string len: when converting sfn to pfn or rooturl, we increase the string length by the following:
+// reserved URL string len: when converting lfn to pfn or rooturl, we increase the string length by the following:
 int rsvStrLen = 0;
 
 XrdMsgStream *XrdLog;
