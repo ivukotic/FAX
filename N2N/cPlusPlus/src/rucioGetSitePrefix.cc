@@ -178,8 +178,6 @@ char *rucio_get_siteprefix(XrdMsgStream *eDest, const char* AGISurl, const char*
             prefix = json_object_array_get_idx(json_object_array_get_idx(readonly, j), 2);
             tmp = str_replace(json_object_to_json_string_ext(prefix, JSON_C_TO_STRING_PLAIN), "\\/", "/");
             spprefix = str_replace(tmp, "\"", "");
-            if (j == 0) 
-                siteprefix = strdup(spprefix);    
             if (j == 0) {
                 siteprefix = strdup(spprefix);    
                 if (!siteprefix) {
