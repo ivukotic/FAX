@@ -353,7 +353,7 @@ int XrdOucLFC::parse_parameters(String param_str)
         *eDest << "XRD-N2N: Customer RUCIO prefix list " << siteprefixstr << endl;
     } else if (sitename != "") { // use sitename to get site prefix from AGIS
         *eDest << "XRD-N2N: Getting site " << sitename << " prefix list from AGIS ... " << endl;
-        siteprefixstr = rucio_get_siteprefix(AGISurl, sitename.c_str());
+        siteprefixstr = rucio_get_siteprefix(eDest, AGISurl, sitename.c_str());
         if (siteprefixstr == NULL)
             *eDest << "XRD-N2N: RUCIO prefix = none, RUCIO N2N is disabled" << endl;
         else {

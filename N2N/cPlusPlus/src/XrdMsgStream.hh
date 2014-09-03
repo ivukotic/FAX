@@ -45,27 +45,28 @@ public:
 	} else {
 	    struct tm loc;
 	    time_t now;
-	    const char *c_str;
 	    char *tmp;
 	    pthread_t id;
 
 	    id = pthread_self();
 	    
-	    c_str = strdup(get_s()->str().c_str());
-
 	    now = time(NULL);
 	    localtime_r(&now, &loc);
 
-	    tmp = (char*) malloc(strlen(c_str) + 128);
+	    tmp = (char*) malloc(strlen(get_s()->str().c_str()) + 128);
+            if (!tmp) {
+                eDest->Say("XRD-N2N: String opr can not allocate memory");
+                exit(1);
+            }
 	    strftime(tmp, 64, "%y%m%d %H:%M:%S", &loc);
-	    sprintf(tmp+strlen(tmp), " 0x%x %s", id, c_str);
+	    sprintf(tmp+strlen(tmp), " 0x%x %s", id, get_s()->str().c_str());
+            eDest->Say(tmp);
 
-	    if ((void*)eDest) 
-		eDest->Say(tmp);
-	    else
-		cout << tmp << std::endl;
+//	    if ((void*)eDest) 
+//		eDest->Say(tmp);
+//	    else 
+//		cout << tmp << std::endl;
 	    free(tmp);
-            free((void*)c_str);
 	    get_s()->str(""); // Reset string to empty
 	}
 	unlock();

@@ -15,4 +15,4 @@ void rucio_n2n_init(XrdMsgStream*, List, bool);
 char* rucio_n2n_glfn(const char *lfn);
 
 // rucio_get_siteprefix returns a comma seperated list of rucio site prefixes for "mysite"
-char *rucio_get_siteprefix(const char* AGISurl, const char* mysite);
+char *rucio_get_siteprefix(XrdMsgStream *eDest, const char* AGISurl, const char* mysite);
