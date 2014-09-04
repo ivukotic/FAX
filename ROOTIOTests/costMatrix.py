@@ -93,9 +93,14 @@ def upload(SITE_FROMLOG, SITE_TO):
     if not os.path.isfile(SITE_FROMLOG):
         print "log file for site",site,"missing"
         return 
+        
+    res=rate=0
+    traceIsOn=False
+    hcount=0            
+    hops=[]
     with open(SITE_FROMLOG, 'r') as f:
         lines=f.readlines()
-        rate=0
+        
         for l in lines:
             l=l.strip()
             
@@ -105,84 +110,76 @@ def upload(SITE_FROMLOG, SITE_TO):
             
             if l.count('EXITSTATUS')>0:
                 res=l.replace('EXITSTATUS=','')
-                if res=='0':
-                    #print '--------------------------------- Uploading result ---------------------------------'
-                    #print rate    
-                    ts=datetime.datetime.utcnow()
-                    ts=ts.replace(microsecond=0)
-                    toSend='site_from: '+ SITE_FROM + '\nsite_to: '+SITE_TO+'\nmetricName: FAXprobe4\nrate: '+str(rate)+'\ntimestamp: '+ts.isoformat(' ')+'\n'
-                    #print toSend
-                    send (toSend)
-
-                    print '-------------------------------- Writing to GAE -------------------------------------------'
-                    data = dict(source=SITE_FROM, destination=SITE_TO, rate=rate)
-                    u = urllib2.urlopen('http://1-dot-waniotest.appspot.com/wancost', urllib.urlencode(data))
-                    #print u.read()
-                else:
-                    print 'non 0 exit code. will not upload result. ' 
-
-def uploadTrace(log):
-    print 'Upload:',log
-    if not os.path.isfile(log):
-        print "log file ",log,"missing"
-        return
-    with open(log, 'r') as f:
-        lines=f.readlines()     
-        if len(lines)<2:
-            print 'some problem encountered - less than 2 lines returned from the traceroute'
-            return
-        # removing a header line
-        lines.pop(0)
-        hcount=0            
-        hops=[]
-        for l in lines:
-            hcount+=1
-            w=l.split()
-            if len(w)==5 or len(w)==4 or len(w)==2:
-                hn=0
-                try:
-                    hn=int(w[0])
-                except:
-                    print "Unexpected error in parsing hop number:", sys.exc_info()[0]
-                if hn!=hcount:
-                    print 'missing hop in a traceroute'
-                    return
-                sip=w[1].split('.')
-                if w[1]=="*":
-                    ip=0
-                    delay=0
-                elif len(sip)!=4:
-                    print 'could not parse IP address: ', w[1]
-                    return
-                else:
+                
+            if l.startswith('traceroute'): 
+                traceIsOn=True
+                continue
+            if traceIsOn:
+                hcount+=1
+                w=l.split()
+                if len(w)==5 or len(w)==4 or len(w)==2:
+                    hn=0
                     try:
-                        ip=int(sip[0]) * 16777216 + int(sip[1]) * 65536 + int(sip[2]) * 256 + int(sip[3])
-                    except ValueError:
-                        print "Unexpected error in parsing ip: ", w[1], sys.exc_info()[0]
-                        return
-                if len(w)>2:
-                    try:
-                        delay=float(w[2])
-                    except ValueError:
-                        print "Unexpected error in parsing delay:",w[2], sys.exc_info()[0]
-                        return
-                hops.append([ip,delay])
-                #print hops
-            else:
-                print 'unexpected line in the traceroute log.', l
-                return   
-    print '-------------------------------- Writing to MongoDB -------------------------------------------'
+                        hn=int(w[0])
+                    except:
+                        print "Unexpected error in parsing hop number:", sys.exc_info()[0]
+                    if hn!=hcount:
+                        print 'missing hop in a traceroute'
+                        continue
+                    sip=w[1].split('.')
+                    ip=delay=0
+                    if w[1]=="*":
+                        pass
+                    elif len(sip)!=4:
+                        print 'could not parse IP address: ', w[1]
+                        continue
+                    else:
+                        try:
+                            ip=int(sip[0]) * 16777216 + int(sip[1]) * 65536 + int(sip[2]) * 256 + int(sip[3])
+                        except ValueError:
+                            print "Unexpected error in parsing ip: ", w[1], sys.exc_info()[0]
+                            continue
+                    if len(w)>2:
+                        try:
+                            delay=float(w[2])
+                        except ValueError:
+                            print "Unexpected error in parsing delay:",w[2], sys.exc_info()[0]
+                            continue
+                    hops.append([ip,delay])
+                else:
+                    print 'unexpected line in the traceroute log.', l
+                    continue
+                    
+            
+        if res=='0':
+            #print '--------------------------------- Uploading result ---------------------------------'
+            #print rate    
+            ts=datetime.datetime.utcnow()
+            ts=ts.replace(microsecond=0)
+            toSend='site_from: '+ SITE_FROM + '\nsite_to: '+SITE_TO+'\nmetricName: FAXprobe4\nrate: '+str(rate)+'\ntimestamp: '+ts.isoformat(' ')+'\n'
+            #print toSend
+            send (toSend)
+
+            print '-------------------------------- Writing to GAE -------------------------------------------'
+            data = dict(source=SITE_FROM, destination=SITE_TO, rate=rate)
+            u = urllib2.urlopen('http://1-dot-waniotest.appspot.com/wancost', urllib.urlencode(data))
+            #print u.read()
+        else:
+            print 'non 0 exit code. will not upload result. ' 
+
+        if len(hops)>1:
+            print '-------------------------------- Writing to MongoDB -------------------------------------------'
     
-    data = simplejson.dumps({"hops":hops})
-    print data
-    try:
-        r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
-        f = urllib2.urlopen(r)
-        response = f.read()
-        f.close()
-        print response
-    except:
-        print "Unexpected error:", sys.exc_info()[0]
+            data = simplejson.dumps({"hops":hops,"rate":rate,"from":SITE_FROM,"to":SITE_TO})
+            print data
+            try:
+                r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
+                f = urllib2.urlopen(r)
+                response = f.read()
+                f.close()
+                print response
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
         
 def main():
 
@@ -257,11 +254,10 @@ def main():
             f.write( """#!/bin/bash\n""")
             f.write('echo "--------------------------------------"\n ')
             f.write('`which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
-            f.write('python costMatrix.py '+logfile+" "+SITE+"\n")
             servname=s.host.replace('root://','')
             servname=servname.split(':')[0]
-            f.write('traceroute -w 3 -q 1 -n '+servname+' > '+logfile+".tp \n")
-            f.write('python costMatrix.py '+logfile+".tp \n")
+            f.write('traceroute -w 3 -q 1 -n '+servname+' >> '+logfile+" \n")
+            f.write('python costMatrix.py '+logfile+" "+SITE+"\n")
             f.write('rm '+logfile+"\n")
 
         f.close()
