@@ -19,6 +19,9 @@
 //#include <curl/curl.h>
 #include <json/json.h>
 
+#include "String.hh"
+#include "XrdMsgStream.hh"
+
 // mimic the curl example at http://curl.haxx.se/libcurl/c/getinmemory.html
 
 struct JsonData {
@@ -42,13 +45,17 @@ static size_t JsonDataCallback(void *contents, size_t size, size_t nmemb, void *
 */
 
 #define BUFSZ 4096
-int GetJsonData(const char* AGISurl, struct JsonData *chunk) 
+int GetJsonData(XrdMsgStream *eDest, const char* AGISurl, struct JsonData *chunk) 
 {  // caller is responsible to free(chuck->data) 
     char *buf, *cmd;
 
     buf = (char*)malloc(BUFSZ);
     cmd = (char*)malloc(16 + strlen(AGISurl));
     chunk->data = (char*)malloc(1);  // will be grown as needed by the realloc above
+    if (! buf || ! cmd || ! chunk->data) {
+        *eDest << "XRD-N2N: Can not allocate memory to fetch site prefix from AGIS" << endl;
+        return 0;
+    }
     chunk->size = 0;    // no data at this point 
    
     memset(chunk->data, 0, 1);
@@ -56,10 +63,18 @@ int GetJsonData(const char* AGISurl, struct JsonData *chunk)
     strcat(cmd, AGISurl);
     strcat(cmd, "'");
     FILE *fp = popen(cmd, "r");
+    if (!fp) {
+        *eDest << "XRD-N2N: Fail to open connetion to AGIS" << endl;
+        return 0;
+    }
     do {
         memset(buf, 0, BUFSZ);
         fread(buf, BUFSZ -1, 1, fp);
         chunk->data = (char*)realloc(chunk->data, strlen(chunk->data) + strlen(buf) +1);
+        if (! chunk->data) {
+            *eDest << "XRD-N2N: Can not allocate memory to fetch site prefix from AGIS" << endl;
+            return 0;
+        }
         strcat(chunk->data, buf);
     } while (! feof(fp));
     pclose(fp);
@@ -136,7 +151,7 @@ char *str_replace(const char *original, const char *pattern, const char *replace
 }
 
 
-char *rucio_get_siteprefix(const char* AGISurl, const char* mysite) 
+char *rucio_get_siteprefix(XrdMsgStream *eDest, const char* AGISurl, const char* mysite) 
 {
     json_object *root, *site, *readonly, *prefix; 
     const char *sitename, *spprefix, *tmp;
@@ -144,7 +159,7 @@ char *rucio_get_siteprefix(const char* AGISurl, const char* mysite)
     int i, j;
 
     struct JsonData jsondata;
-    if (!GetJsonData(AGISurl, &jsondata)) return NULL;
+    if (!GetJsonData(eDest, AGISurl, &jsondata)) return NULL;
 
     root = json_tokener_parse(jsondata.data);
     for (i = 0; i < json_object_array_length(root); i++) {
@@ -163,11 +178,20 @@ char *rucio_get_siteprefix(const char* AGISurl, const char* mysite)
             prefix = json_object_array_get_idx(json_object_array_get_idx(readonly, j), 2);
             tmp = str_replace(json_object_to_json_string_ext(prefix, JSON_C_TO_STRING_PLAIN), "\\/", "/");
             spprefix = str_replace(tmp, "\"", "");
-            if (j == 0)
+            if (j == 0) {
                 siteprefix = strdup(spprefix);    
+                if (!siteprefix) {
+                    *eDest << "XRD-N2N: Can not allocate memory to parse site prefix from AGIS" << endl;
+                    return 0;
+                }
+            }
             else {
                 int k = strlen(siteprefix);
                 siteprefix = (char*)realloc(siteprefix, k + strlen(spprefix) + 2); 
+                if (!siteprefix) {
+                    *eDest << "XRD-N2N: Can not allocate memory to parse site prefix from AGIS" << endl;
+                    return 0;
+                }
                 memcpy(&siteprefix[k], ",", 1);
                 memcpy(&siteprefix[k +1], spprefix, strlen(spprefix)); 
                 siteprefix[k + 1 + strlen(spprefix)] = 0;

@@ -51,6 +51,9 @@ char *pssorigin = NULL;
 // Paralle stat() calls for remote storage, to overcome xrootd's default 5 seconds delay if file doesn't exist
 bool parallelstat; 
 
+// reserved URL string len: when converting lfn to pfn or rooturl, we increase the string length by the following:
+int rsvStrLen = 0;
+
 XrdMsgStream *XrdLog;
 
 class RucioStorageStatPars {
@@ -71,7 +74,7 @@ public:
         c = xc;
         id = xid;
         icount = xicount;
-        input = strdup(xinput);
+        input = (xinput == NULL? NULL: strdup(xinput));
         output = xoutput; 
     }
     void FreeIt() { // this frees the memory
@@ -182,7 +185,17 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     if (nPrefix == 0) return;
 
     sitePrefix = (char**)malloc(sizeof(char*) * rucioPrefix.size());
-    for (i = 0; i < nPrefix; i++) sitePrefix[i] = strdup(rucioPrefix[i].c_str());
+    if (!sitePrefix) {
+        *XrdLog << "XRD-N2N: can not allocate memory to hold site prefix" << endl;
+        exit(1);
+    }
+    for (i = 0; i < nPrefix; i++) {
+        if (!(sitePrefix[i] = strdup(rucioPrefix[i].c_str()))) {
+            *XrdLog << "XRD-N2N: can not allocate memory to hold site prefix" << endl;
+            exit(1);
+        }
+        rsvStrLen = (rsvStrLen > strlen(sitePrefix[i])? rsvStrLen : strlen(sitePrefix[i]));
+    }
 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -194,7 +207,13 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     pthread_create(&cleaner, NULL, garbageCleaner, NULL);
 
     if (XrdOucEnv::Import("XRDXROOTD_PROXY", pssorigin)) {
+        rsvStrLen += strlen("root://") + strlen(pssorigin) + strlen("/");
+
         char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio") +1);
+        if (!tmp) {
+            *XrdLog << "XRD-N2N: Fail to initialize rucio N2N" << endl;
+            exit(1);
+        } 
         strcpy(tmp, sitePrefix[0]);
         strcat(tmp, "/rucio");
         struct stat stbuf;
@@ -203,6 +222,7 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
         for (i = 0; i<nXrdConn4n2n; i++) x_stat(tmp, &stbuf);
         free(tmp);
     }
+    rsvStrLen += strlen("/XX/XX/") - strlen(":") - strlen("/atlas"); // add /XX/XX/, remove : and /atlas
     *XrdLog << "XRD-N2N: rucio_n2n_init completed" << endl;
 } 
 
@@ -212,6 +232,7 @@ bool rucioMd5(const char *lfn, char *sfn) {
 
 // if scope is in form /a/b:file, change it to /a.b:file and then calculate md5sum
     char *tmp = strdup(lfn+13);
+    if (!tmp) return false;
     for (int i = 0; i<strlen(tmp); i++)
         if (tmp[i] == '/') tmp[i] = '.';
         else if (tmp[i] == ':') break;
@@ -230,6 +251,7 @@ bool rucioMd5(const char *lfn, char *sfn) {
 
     strcpy(sfn, "/rucio/"); 
     tmp = strndup(p1, strlen(p1) - strlen(p2));
+    if (!tmp) return false;
     for (int i = 0; i<strlen(tmp); i++)  // to support both a/b and a.b as scope.
         if (tmp[i] == '.') tmp[i] = '/';
         else if (tmp[i] == ':') break;
@@ -272,7 +294,8 @@ char* rucio_n2n_glfn(const char *lfn) {
     char sfn[512];
     sfn[0] = '\0';
 
-    if (strlen(lfn) >=512 || nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
+// check the length of lfn so that future string manipulation will stay within the 512 bytes buffer size.
+    if (strlen(lfn) >= (512 - rsvStrLen -1) || nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
         return pfn = strdup("");
 
     if (parallelstat && pssorigin != NULL) { // remote xrootd-like storage
@@ -280,6 +303,11 @@ char* rucio_n2n_glfn(const char *lfn) {
         pthread_cond_t *c = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));;
         short *icount = (short*)malloc(sizeof(short));
         char *output = (char*)malloc(512);
+
+        if (! (m && c && icount && output)) {
+            *XrdLog << "XRD-N2N: Failed to allocate memory for glfn " << lfn << endl;
+            return pfn = strdup("");
+        }
     
 //        *icount = nPrefix;
         *icount = 0;
@@ -289,6 +317,14 @@ char* rucio_n2n_glfn(const char *lfn) {
         pthread_cond_init(c, NULL);
     
         pthread_t **ids = (pthread_t**)malloc(sizeof(pthread_t*) * nPrefix);
+        if (! ids) {
+            *XrdLog << "XRD-N2N: Failed to allocate memory for glfn " << lfn << endl;
+            free(m);
+            free(c);
+            free(icount);
+            free(output);
+            return pfn = strdup("");
+        }
         RucioStorageStatPars *p;
 
         for (i=0; i<10; i++) {
@@ -302,16 +338,25 @@ char* rucio_n2n_glfn(const char *lfn) {
             if (totN2Nthreads > MaxN2Nthreads) {
                 pthread_mutex_unlock(&create_thread_lock);
                 *XrdLog << "XRD-N2N: too many N2N threads, look up aborted" << endl;
+                free(m);
+                free(c);
+                free(icount);
+                free(output);
+                free(ids);
                 return pfn = strdup("");
             }
         }
         *XrdLog << "XRD-N2N: currently there are " << totN2Nthreads << " threads!" << endl;
         int itry, ntry;
         for (i=0; i<nPrefix; i++) {
-            ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
             p = new RucioStorageStatPars(m, c, i, icount, input, output);
+            ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
+            if (! p->input || ! ids[i]) {
+                *XrdLog << "XRD-N2N: can not allocate memory for thread to stat() " << input << " is aborted" << endl;
+                continue;
+            }
             itry = 0;
             ntry = 2;
             while (itry < ntry && pthread_create(ids[i], &attr, rucio_xrootd_storage_stat, p)) {
@@ -326,7 +371,7 @@ char* rucio_n2n_glfn(const char *lfn) {
             }
             else {
                 *XrdLog << "XRD-N2N: can not create thread, stat() " << input << " is aborted" << endl;
-                ids[i] = NULL;    
+                free(ids[i]);    
             }
         }
         pthread_mutex_unlock(&create_thread_lock);
@@ -344,7 +389,7 @@ char* rucio_n2n_glfn(const char *lfn) {
         pthread_mutex_unlock(m);
     
     // if we get the result (exit or not exist), dump the thread cleaning to garbage cleaner and return.
-        p = new RucioStorageStatPars(m, c, i, icount, lfn, output);
+        p = new RucioStorageStatPars(m, c, i, icount, NULL, output);
         Garbage *g = new Garbage(ids, nPrefix, p);
         dump2GarbageCan(g);
         delete g;
