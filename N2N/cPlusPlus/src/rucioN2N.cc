@@ -160,7 +160,7 @@ int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like stor
     pthread_mutex_unlock(&cm);
 
     XrdOucString path2;
-    sprintf(rooturl, "root://rn2n%d@%s//dummy", i, pssorigin);
+    snprintf(rooturl, sizeof(rooturl), "root://rn2n%d@%s//dummy", i, pssorigin);
     path2 = path;
     path2 += "?oss.lcl=1";  // for DPM. harmless for regular xrootd 
     XrdClientAdmin adm(rooturl);      
