@@ -10,7 +10,7 @@ HEADERS=XrdMsgStream.hh String.hh rucioN2N.hh
 DEBUG=-g
 
 XrdOucName2NameLFC.so: $(OBJECTS) Makefile
-	g++ ${DEBUG} -shared -fPIC -o $@ $(OBJECTS) -ldl -ljson -lssl -lXrdClient
+	g++ ${DEBUG} -shared -fPIC -o $@ $(OBJECTS) -ldl -ljson -lssl -lXrdPosix
 
 XrdOucName2NameLFC.o: XrdOucName2NameLFC.cc ${HEADERS} Makefile
 	g++ ${DEBUG} ${FLAGS} -fPIC -I ${XRD_INCLUDE} -c -o $@ $<
@@ -22,7 +22,7 @@ rucioGetSitePrefix.o: rucioGetSitePrefix.cc ${HEADERS} Makefile
 	g++ ${DEBUG} ${FLAGS} -fPIC -I ${XRD_INCLUDE} -c -o $@ $<
 
 xrd-lfc-test: xrd-lfc-test.o Makefile
-	g++ ${DEBUG} ${FLAGS} -fPIC -Wl -o $@ rucioN2N.o rucioGetSitePrefix.o $< -ldl -ljson -lcurl -lXrdClient
+	g++ ${DEBUG} ${FLAGS} -fPIC -Wl -o $@ rucioN2N.o rucioGetSitePrefix.o $< -ldl -ljson -lcurl -lXrdPosix
 
 xrd-lfc-test.o: XrdOucName2NameLFC.cc ${HEADERS} Makefile
 	g++ ${DEBUG} -DSTANDALONE ${FLAGS} -fPIC -I ${XRD_INCLUDE} -c -o $@ $< 
