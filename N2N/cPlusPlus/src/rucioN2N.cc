@@ -22,9 +22,10 @@
 
 #include "String.hh"
 #include "XrdOuc/XrdOucEnv.hh"
+#include "XrdOuc/XrdOucString.hh"
 #include "XrdPosix/XrdPosixXrootd.hh"
-#include "XrdClient/XrdClientEnv.hh"
-#include "XrdClient/XrdClientAdmin.hh"
+//#include "XrdClient/XrdClientEnv.hh"
+//#include "XrdClient/XrdClientAdmin.hh"
 
 #include "XrdMsgStream.hh"
 
@@ -152,6 +153,7 @@ void dump2GarbageCan(Garbage *g) {
 
 int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like storage
     char rooturl[512];
+    struct stat stbuf;
 
     int i;
     pthread_mutex_lock(&cm);
@@ -160,16 +162,20 @@ int x_stat(const char *path, struct stat *buf) {  // stat again xrootd-like stor
     pthread_mutex_unlock(&cm);
 
     XrdOucString path2;
-    sprintf(rooturl, "root://rn2n%d@%s//dummy", i, pssorigin);
     path2 = path;
     path2 += "?oss.lcl=1";  // for DPM. harmless for regular xrootd 
-    XrdClientAdmin adm(rooturl);      
-    adm.Connect();
-    long id, flags, modtime;      
-    long long size;
-    if (adm.Stat(path2.c_str(), id, size, flags, modtime)) { // adm.Stat() works wth both regular and DPM xrootd.
-        return ((id == -1 || size == -1 || modtime == -1)? -1 : 0); // wordaround dCache xrootd door issue
-    }
+    snprintf(rooturl, sizeof(rooturl), "root://rn2n%d@%s/%s", i, pssorigin, path2.c_str());
+//    XrdClientAdmin adm(rooturl);      
+//    adm.Connect();
+//    long id, flags, modtime;      
+//    long long size;
+//    if (adm.Stat(path2.c_str(), id, size, flags, modtime)) { // adm.Stat() works wth both regular and DPM xrootd.
+//        return ((id == -1 || size == -1 || modtime == -1)? -1 : 0); // wordaround dCache xrootd door issue
+    if (XrdPosixXrootd::Stat(rooturl, &stbuf) == 0 && 
+        stbuf.st_ino != -1 &&
+        stbuf.st_size != -1 &&
+        stbuf.st_mtime != -1)
+        return 0;
     else
         return -1;
 
@@ -207,7 +213,7 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     pthread_create(&cleaner, NULL, garbageCleaner, NULL);
 
     if (XrdOucEnv::Import("XRDXROOTD_PROXY", pssorigin)) {
-        rsvStrLen += strlen("root://") + strlen(pssorigin) + strlen("/");
+        rsvStrLen += strlen("root://rn2nDD@") + strlen(pssorigin) + strlen("/");
 
         char *tmp = (char*)malloc(strlen(sitePrefix[0]) + strlen("/rucio") +1);
         if (!tmp) {
@@ -219,6 +225,7 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
         struct stat stbuf;
     
 // initialize xrd connections
+        XrdPosixXrootd *n2nabc = new XrdPosixXrootd(-2048);
         for (i = 0; i<nXrdConn4n2n; i++) x_stat(tmp, &stbuf);
         free(tmp);
     }
