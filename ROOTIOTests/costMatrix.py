@@ -106,8 +106,11 @@ def upload(SITE_FROMLOG, SITE_TO):
             
             if l.count('COPYTIME=')>0:
                 res=l.replace('COPYTIME=','')
-                rate=100/float(res)
-            
+                if res>0:
+                    rate=100/float(res)
+                else:
+                    rate=0
+                    
             if l.count('EXITSTATUS')>0:
                 res=l.replace('EXITSTATUS=','')
                 

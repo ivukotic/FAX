@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # g++ releaseFileCache.cxx -o releaseFileCache
-make --debug=b
-ls
+# make --debug=b
 #echo "TFile.AsyncPrefetching:   1" >> .rootrc
+ls
 
-echo "version 2.30 -> full cost_matrix version"
+echo "version 2.40 -> full cost_matrix version Sep 17 2014"
 #cp $X509_USER_PROXY mproxy.txt
 echo -n "time> begin "; date 
 #python WANtests.py
-echo "starting info\n" > info.txt
+echo "starting info" > info.txt
 python costMatrix.py >> info.txt 
 echo -n "time> end "; date
 
