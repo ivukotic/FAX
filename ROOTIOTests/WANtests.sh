@@ -4,6 +4,7 @@
 # make --debug=b
 #echo "TFile.AsyncPrefetching:   1" >> .rootrc
 ls
+voms-proxy-info -all
 
 echo "version 2.40 -> full cost_matrix version Sep 17 2014"
 #cp $X509_USER_PROXY mproxy.txt
