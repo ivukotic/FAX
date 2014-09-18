@@ -31,7 +31,42 @@
 
 using namespace std;
 
-pthread_mutex_t create_thread_lock;
+pthread_mutex_t create_thread_lock_l;
+pthread_mutex_t create_thread_lock_m;
+pthread_mutex_t create_thread_lock_n;
+
+void lowpriolock(){
+    pthread_mutex_lock(&create_thread_lock_l);
+    pthread_mutex_lock(&create_thread_lock_n);
+    pthread_mutex_lock(&create_thread_lock_m);
+    pthread_mutex_unlock(&create_thread_lock_n);
+}
+
+int lowpriotrylock(){
+    int rc;
+    rc = pthread_mutex_trylock(&create_thread_lock_l);
+    if (rc != 0) return rc;
+    pthread_mutex_lock(&create_thread_lock_n);
+    pthread_mutex_lock(&create_thread_lock_m);
+    pthread_mutex_unlock(&create_thread_lock_n);
+    return 0;
+}
+
+void lowpriounlock(){
+    pthread_mutex_unlock(&create_thread_lock_m);
+    pthread_mutex_unlock(&create_thread_lock_l);
+}
+
+void highpriolock(){
+    pthread_mutex_lock(&create_thread_lock_n);
+    pthread_mutex_lock(&create_thread_lock_m);
+    pthread_mutex_unlock(&create_thread_lock_n);
+}
+
+void highpriounlock(){
+    pthread_mutex_unlock(&create_thread_lock_m);
+}
+
 int totN2Nthreads = 0;
 
 pthread_t cleaner;
@@ -116,11 +151,11 @@ public:
             if (tid[i] != NULL) {
                 pthread_join(*tid[i], NULL);
                 free(tid[i]);
-                pthread_mutex_lock(&create_thread_lock);
-                totN2Nthreads--;
-                pthread_mutex_unlock(&create_thread_lock);
             }
         }
+        highpriolock();
+        totN2Nthreads -= nthreads;
+        highpriounlock();
         free(tid);
         p->FreeIt();
         delete p;
@@ -206,7 +241,9 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-    pthread_mutex_init(&create_thread_lock, NULL);
+    pthread_mutex_init(&create_thread_lock_l, NULL);
+    pthread_mutex_init(&create_thread_lock_m, NULL);
+    pthread_mutex_init(&create_thread_lock_n, NULL);
 
     pthread_mutex_init(&cm, NULL);
     pthread_cond_init(&cc, NULL);
@@ -291,7 +328,7 @@ void *rucio_xrootd_storage_stat(void *pars) {  // xrootd-like storage
     pthread_exit(NULL);
 }
 
-#define MaxN2Nthreads 1000 
+#define MaxN2Nthreads 4000 
 // export this function
 char* rucio_n2n_glfn(const char *lfn) {
     int i; 
@@ -334,16 +371,16 @@ char* rucio_n2n_glfn(const char *lfn) {
         }
         RucioStorageStatPars *p;
 
-        for (i=0; i<10; i++) {
-            if (pthread_mutex_trylock(&create_thread_lock) == 0) // serialize this part to deal with thread creation failure
+        for (i=0; i<30; i++) {
+            if (lowpriotrylock() == 0) // serialize this part to deal with thread creation failure
                 if (totN2Nthreads < MaxN2Nthreads) break;
-                else pthread_mutex_unlock(&create_thread_lock);
+                else lowpriounlock();
             sleep(5);
         }
-        if (i == 10) { // my last chance to create threads
-            pthread_mutex_lock(&create_thread_lock);
+        if (i == 30) { // my last chance to create threads
+            lowpriolock();
             if (totN2Nthreads > MaxN2Nthreads) {
-                pthread_mutex_unlock(&create_thread_lock);
+                lowpriounlock();
                 *XrdLog << "XRD-N2N: too many N2N threads, look up aborted" << endl;
                 free(m);
                 free(c);
@@ -381,7 +418,7 @@ char* rucio_n2n_glfn(const char *lfn) {
                 free(ids[i]);    
             }
         }
-        pthread_mutex_unlock(&create_thread_lock);
+        lowpriounlock();
     
         struct timespec now;
         pthread_mutex_lock(m);
