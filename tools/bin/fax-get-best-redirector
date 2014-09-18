@@ -72,7 +72,7 @@ class site:
 Sites=dict()
 worked=0
 try:
-    url="http://1-dot-waniotest.appspot.com/ssb"
+    url="http://waniotest.appspot.com/ssb"
     if debug: print "# getting FAX endpoints status from SSBrepeater..."
     response=urllib2.Request(url,None)
     opener = urllib2.build_opener()
@@ -121,7 +121,7 @@ if not worked:
 worked=0
 try:
     if debug: print "# getting FAX endpoints coordinates from AGISrepeater..."
-    req = urllib2.Request("http://1-dot-waniotest.appspot.com/agis", None)
+    req = urllib2.Request("http://waniotest.appspot.com/agis", None)
     opener = urllib2.build_opener()
     f = opener.open(req, timeout=20)
     res=json.load(f)
@@ -183,7 +183,7 @@ if debug:
 worked=0
 try:
     print "# looking up endpoint address in AGISrepeater..."
-    req = urllib2.Request("http://1-dot-waniotest.appspot.com/agis?rc_site="+minsite, None)
+    req = urllib2.Request("http://waniotest.appspot.com/agis?rc_site="+minsite, None)
     opener = urllib2.build_opener()
     f = opener.open(req, timeout=20)
     res=json.load(f)
