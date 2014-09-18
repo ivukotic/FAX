@@ -106,7 +106,7 @@ def upload(SITE_FROMLOG, SITE_TO):
             
             if l.count('COPYTIME=')>0:
                 res=l.replace('COPYTIME=','')
-                if res>0:
+                if res!='' and res>0:
                     rate=100/float(res)
                 else:
                     rate=0
@@ -169,6 +169,7 @@ def upload(SITE_FROMLOG, SITE_TO):
             #print u.read()
         else:
             print 'non 0 exit code. will not upload result. ' 
+            print lines
 
         if len(hops)>1:
             print '-------------------------------- Writing to MongoDB -------------------------------------------'

@@ -6,7 +6,7 @@
 ls
 voms-proxy-info -all
 
-echo "version 2.40 -> full cost_matrix version Sep 17 2014"
+echo "version 2.50 -> full cost_matrix version Sep 18 2014"
 #cp $X509_USER_PROXY mproxy.txt
 echo -n "time> begin "; date 
 #python WANtests.py
