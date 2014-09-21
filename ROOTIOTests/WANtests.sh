@@ -6,11 +6,11 @@
 ls
 
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-localSetupFAX
-voms-proxy-info -all
+#source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+#localSetupFAX
+#voms-proxy-info -all
 
-echo "version 2.80 -> full cost_matrix version Sep 20 2014"
+echo "version 2.90 -> back to no localSetupFAX. Sep 21 2014"
 
 echo -n "time> begin "; date 
 echo "starting info" > info.txt
