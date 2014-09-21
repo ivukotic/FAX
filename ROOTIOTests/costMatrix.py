@@ -171,7 +171,8 @@ def upload(SITE_FROMLOG, SITE_TO):
             #print u.read()
         else:
             print 'non 0 exit code. will not upload result. ' 
-            print lines
+            if SITE_TO=='CERN-PROD':
+                print "full log:", lines
             
         if len(hops)>1:
             print '-------------------------------- Writing to MongoDB -------------------------------------------'
@@ -259,7 +260,10 @@ def main():
         
             f.write( """#!/bin/bash\n""")
             f.write('echo "--------------------------------------"\n ')
-            f.write('`which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
+            if SITE.count("CERN")>0:
+                f.write('xrdcp -np -d 2 -f ' + fn + ' tmp.root  &>'+logfile+' \n')
+            else:
+                f.write('`which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
             servname=s.host.replace('root://','')
             servname=servname.split(':')[0]
             f.write('traceroute -w 3 -q 1 -n '+servname+' >> '+logfile+" \n")

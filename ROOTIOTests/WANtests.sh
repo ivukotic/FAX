@@ -10,10 +10,9 @@ source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 localSetupFAX
 voms-proxy-info -all
 
-echo "version 2.70 -> full cost_matrix version Sep 20 2014"
-#cp $X509_USER_PROXY mproxy.txt
+echo "version 2.80 -> full cost_matrix version Sep 20 2014"
+
 echo -n "time> begin "; date 
-#python WANtests.py
 echo "starting info" > info.txt
 python costMatrix.py >> info.txt 
 echo -n "time> end "; date
