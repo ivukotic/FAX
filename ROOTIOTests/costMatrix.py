@@ -167,7 +167,7 @@ def upload(SITE_FROMLOG, SITE_TO):
 
             print '-------------------------------- Writing to GAE -------------------------------------------'
             data = dict(source=SITE_FROM, destination=SITE_TO, rate=rate)
-            u = urllib2.urlopen('http://1-dot-waniotest.appspot.com/wancost', urllib.urlencode(data))
+            u = urllib2.urlopen('http://waniotest.appspot.com/wancost', urllib.urlencode(data))
             #print u.read()
         else:
             print 'non 0 exit code. will not upload result. ' 

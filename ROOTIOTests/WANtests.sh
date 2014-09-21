@@ -4,10 +4,13 @@
 # make --debug=b
 #echo "TFile.AsyncPrefetching:   1" >> .rootrc
 ls
-voms-proxy-info -all
-localSetupFAX
 
-echo "version 2.60 -> full cost_matrix version Sep 19 2014"
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+localSetupFAX
+voms-proxy-info -all
+
+echo "version 2.70 -> full cost_matrix version Sep 20 2014"
 #cp $X509_USER_PROXY mproxy.txt
 echo -n "time> begin "; date 
 #python WANtests.py
