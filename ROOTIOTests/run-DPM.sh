@@ -14,15 +14,18 @@ urls=("https://lxfsra04a04.cern.ch/dpm/cern.ch/home/atlas/group.test.hc.NTUP_SMW
 "root://littlexrdhttp.cern.ch:1094/grid/dteam/group.test.hc.NTUP_SMWZ.root" \
 "https://dc2-grid-23.brunel.ac.uk/dpm/brunel.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root" \
 "root://dc2-grid-23.brunel.ac.uk//atlas/group.test.hc.NTUP_SMWZ.root"
+"https://lapp-se99.in2p3.fr/dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root" \
+"root://lapp-se99.in2p3.fr:1094//atlas/group.test.hc.NTUP_SMWZ.root"
 )
 
+
 # These are the more friendly dest names
-destnames=("CERN_DPM_TRUNK" "CERN_DPM_TRUNK" "DESY_DCACHETEST" "GRIDPP_DPM_EPELTEST" "GRIDPP_DPM_EPELTEST" "LNF_DPM_EPELTEST" "CERN_EOS" "CERN_EOS" "ZCU_DPM_RC" "CERN_LITTLEXRDHTTP" "CERN_LITTLEXRDHTTP" "BRUNEL_EPELTEST" "BRUNEL_EPELTEST")
+destnames=("CERN_DPM_TRUNK" "CERN_DPM_TRUNK" "DESY_DCACHETEST" "GRIDPP_DPM_EPELTEST" "GRIDPP_DPM_EPELTEST" "LNF_DPM_EPELTEST" "CERN_EOS" "CERN_EOS" "ZCU_DPM_RC" "CERN_LITTLEXRDHTTP" "CERN_LITTLEXRDHTTP" "BRUNEL_EPELTEST" "BRUNEL_EPELTEST" "LAPP_EPELTEST" "LAPP_EPELTEST")
 
 # And this is a human readable word that tells us what we tested
-desttag=("DPMhttps" "DPMxrootd" "DCACHEhttp" "DPMhttps" "DPMxrootd" "DPMhttps" "EOSxrootd" "EOShttps" "DPMhttps" "LittleHTTPS" "Littlexrootd" "DPMhttps" "DPMxrootd")
+desttag=("DPMhttps" "DPMxrootd" "DCACHEhttp" "DPMhttps" "DPMxrootd" "DPMhttps" "EOSxrootd" "EOShttps" "DPMhttps" "LittleHTTPS" "Littlexrootd" "DPMhttps" "DPMxrootd" "DPMhttps" "DPMxrootd")
 
-for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 ; do
+for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14; do
  dest=${urls[$i]}
  dtag=${desttag[$i]}
  dsite=${destnames[$i]}
