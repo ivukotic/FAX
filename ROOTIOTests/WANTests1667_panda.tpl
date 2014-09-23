@@ -10,7 +10,7 @@ Job (
     collect_stats = True ,
     atlas_environment = [] ,
     atlas_release = '17.6.0' ,
-    #atlas_release = '17.7.3' ,
+    #atlas_release = '17.2.7' ,
     atlas_project = '' ,
     exclude_package = [] ,
     atlas_production = '' ,
