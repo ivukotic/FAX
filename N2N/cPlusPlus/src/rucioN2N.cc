@@ -18,7 +18,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <signal.h>
 #include <vector>
+#include <list>
 
 #include "String.hh"
 #include "XrdOuc/XrdOucEnv.hh"
@@ -67,6 +69,17 @@ void highpriounlock(){
     pthread_mutex_unlock(&create_thread_lock_m);
 }
 
+// signal handler for debugging
+bool rucioN2Ndbg = false;
+void rucio_n2n_sigusr1_handler(int sig) { // toggle rucioN2Ndbg
+    if (rucioN2Ndbg) rucioN2Ndbg = false;
+    else rucioN2Ndbg = true;
+}
+void* rucio_n2n_signal_handler(void* x) {
+    signal(SIGUSR1,rucio_n2n_sigusr1_handler);
+    while (1) sleep(3600);
+}
+
 int totN2Nthreads = 0;
 
 pthread_t cleaner;
@@ -92,6 +105,75 @@ int rsvStrLen = 0;
 
 XrdMsgStream *XrdLog;
 
+class prefixTimestamp { // record the timestamp and prefix id of a success N2N 
+public:
+    short id;
+    time_t t;
+    prefixTimestamp() {}
+    prefixTimestamp(short xid, time_t xt) {
+        id = xid;
+        t = xt;
+    } 
+    ~prefixTimestamp() {}
+};
+
+int *prefixFreq;  // this is the access frequence of the prefix list
+short* orderedPrefixMap; // this is an ordered prefix index based on access frequence 
+std::list<prefixTimestamp> prefixHist;
+pthread_t prefixOptimizer;
+short nOptimalStats;
+
+void *sortPrefixHist(void *x) {
+    short i, j, l;
+    int k;
+    time_t tcut;
+    while (true) {
+        tcut = time(NULL) - 300;
+        lowpriolock();
+        for (i = 0; i < nPrefix; i++) prefixFreq[i] = 1; // we can't set it to zero: later we have prefixFreq *= -1
+        for (std::list<prefixTimestamp>::iterator it = prefixHist.begin(); it != prefixHist.end(); ++it)
+            if (it->t < tcut) it = prefixHist.erase(it);
+            else prefixFreq[it->id]++;
+    
+        for (i = 0; i < nPrefix; i++) { // loop over oderedPrefixMap
+            k = -1;
+            for (j = 0; j < nPrefix; j++) // loop over prefix itself
+                if (prefixFreq[j] > k) {
+                    k = prefixFreq[j]; 
+                    l = j;
+                } 
+            orderedPrefixMap[i] = l;
+            prefixFreq[l] *= -1;
+        }
+        k = 0;
+        float Phit = 0; // chance of hit 
+        for (i = 0; i < nPrefix; i++) {
+            prefixFreq[i] = -1 * prefixFreq[i] -1; // why? because we initially set prefixFreq to 1, not zero
+            k += prefixFreq[i];
+        }
+        if (k == 0) nOptimalStats = nPrefix;
+        else {
+            for (i = 0; i < nPrefix; i++) {
+                Phit += (float)prefixFreq[orderedPrefixMap[i]] / k;
+                if (Phit > 0.9) break;
+            }
+            nOptimalStats = i+1;
+        }
+        lowpriounlock();
+        if (rucioN2Ndbg) {
+            *XrdLog << "XRD-N2N dbg: reordered site prefix list:"  << endl;
+            for (i = 0; i < nPrefix; i++) {
+                if (i == nOptimalStats) *XrdLog << "XRD-N2N dbg: ===================== " << endl;
+                *XrdLog << "XRD-N2N dbg: " << sitePrefix[orderedPrefixMap[i]] 
+                                   << " (" << prefixFreq[orderedPrefixMap[i]] 
+                                    << ")" << endl;
+            }
+        }
+        sleep(60);
+    }
+}
+   
+
 class RucioStorageStatPars {
 public:
     pthread_mutex_t *m;
@@ -100,18 +182,24 @@ public:
     short *icount;
     char *input;
     char *output;
+    short *oid;
+    bool delay;
     RucioStorageStatPars(pthread_mutex_t *xm, 
                          pthread_cond_t *xc, 
                          short xid, 
                          short *xicount, 
                          const char *xinput,
-                         char *xoutput) {
+                         char *xoutput,
+                         short *xoid,
+                         bool xdelay) {
         m = xm;
         c = xc;
         id = xid;
         icount = xicount;
         input = (xinput == NULL? NULL: strdup(xinput));
         output = xoutput; 
+        oid = xoid;
+        delay = xdelay;
     }
     void FreeIt() { // this frees the memory
         if (m != NULL) free(m);
@@ -120,6 +208,7 @@ public:
         if (input != NULL)  free(input);
         input = NULL;
         if (output != NULL) free(output);
+        if (oid != NULL) free(oid);
     }
     ~RucioStorageStatPars() { // this does not free the memory
         m = NULL;
@@ -127,6 +216,7 @@ public:
         icount = NULL;
         if (input != NULL) free(input);
         output = NULL;
+        oid = NULL;
     }
 };
 
@@ -155,6 +245,11 @@ public:
         }
         highpriolock();
         totN2Nthreads -= nthreads;
+        if (p->oid >=0) {
+            prefixTimestamp *ptx = new prefixTimestamp(*(p->oid), time(NULL));
+            prefixHist.push_back(*ptx);
+            delete ptx;
+        }
         highpriounlock();
         free(tid);
         p->FreeIt();
@@ -225,8 +320,10 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     parallelstat = prllstat;
     if (nPrefix == 0) return;
 
-    sitePrefix = (char**)malloc(sizeof(char*) * rucioPrefix.size());
-    if (!sitePrefix) {
+    sitePrefix = (char**)malloc(sizeof(char*) * nPrefix);
+    prefixFreq = (int*)malloc(sizeof(int) * nPrefix);
+    orderedPrefixMap = (short*)malloc(sizeof(short) * nPrefix);
+    if (!sitePrefix || !prefixFreq || !orderedPrefixMap) {
         *XrdLog << "XRD-N2N: can not allocate memory to hold site prefix" << endl;
         exit(1);
     }
@@ -248,6 +345,12 @@ void rucio_n2n_init(XrdMsgStream *eDest, List rucioPrefix, bool prllstat) {
     pthread_mutex_init(&cm, NULL);
     pthread_cond_init(&cc, NULL);
     pthread_create(&cleaner, NULL, garbageCleaner, NULL);
+    pthread_create(&prefixOptimizer, NULL, sortPrefixHist, NULL);
+
+    pthread_t *thread = (pthread_t*) malloc(sizeof(pthread_t));
+    pthread_create(thread, &attr, (void* (*)(void*))rucio_n2n_signal_handler, NULL);
+    pthread_detach(*thread);
+    free(thread);
 
     if (XrdOucEnv::Import("XRDXROOTD_PROXY", pssorigin)) {
         rsvStrLen += strlen("root://rn2nDD@") + strlen(pssorigin) + strlen("/");
@@ -316,11 +419,21 @@ void *rucio_xrootd_storage_stat(void *pars) {  // xrootd-like storage
     p = (RucioStorageStatPars*)pars;
  
     int rc;
-    rc = x_stat(p->input, &buf);
+    if (p->delay) sleep(2);
+    if (*(p->oid) == -1) { // this is just an advise.
+//        if (p->delay) *XrdLog << "XRD-N2N Dbg: delay = true, path " << p->input << endl;
+//        else *XrdLog << "XRD-N2N Dbg: delay = false, path " << p->input << endl;
+        rc = x_stat(p->input, &buf);
+    }
+    else
+        rc = 1;
 
     pthread_mutex_lock(p->m);
     *(p->icount) -= 1;
-    if (p->output[0] == '\0' && rc == 0) strcat(p->output, p->input);
+    if (p->output[0] == '\0' && rc == 0) {
+        strcat(p->output, p->input);
+        *(p->oid) = p->id;
+    }
     pthread_cond_signal(p->c);
     pthread_mutex_unlock(p->m);
 
@@ -328,10 +441,10 @@ void *rucio_xrootd_storage_stat(void *pars) {  // xrootd-like storage
     pthread_exit(NULL);
 }
 
-#define MaxN2Nthreads 4000 
+#define MaxN2Nthreads 2000 
 // export this function
 char* rucio_n2n_glfn(const char *lfn) {
-    int i; 
+    int i, j; 
     char *pfn;
 
     char input[512];
@@ -342,13 +455,15 @@ char* rucio_n2n_glfn(const char *lfn) {
     if (strlen(lfn) >= (512 - rsvStrLen -1) || nPrefix == 0 || ! rucioMd5(lfn, sfn)) 
         return pfn = strdup("");
 
-    if (parallelstat && pssorigin != NULL) { // remote xrootd-like storage
+    if (parallelstat && pssorigin != NULL &&// remote xrootd-like storage
+        totN2Nthreads < MaxN2Nthreads) {
         pthread_mutex_t *m = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
         pthread_cond_t *c = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));;
         short *icount = (short*)malloc(sizeof(short));
         char *output = (char*)malloc(512);
+        short *oid = (short*)malloc(sizeof(short));
 
-        if (! (m && c && icount && output)) {
+        if (! (m && c && icount && output && oid)) {
             *XrdLog << "XRD-N2N: Failed to allocate memory for glfn " << lfn << endl;
             return pfn = strdup("");
         }
@@ -356,6 +471,7 @@ char* rucio_n2n_glfn(const char *lfn) {
 //        *icount = nPrefix;
         *icount = 0;
         output[0] = '\0';
+        *oid = -1;
     
         pthread_mutex_init(m, NULL);
         pthread_cond_init(c, NULL);
@@ -367,6 +483,7 @@ char* rucio_n2n_glfn(const char *lfn) {
             free(c);
             free(icount);
             free(output);
+            free(oid);
             return pfn = strdup("");
         }
         RucioStorageStatPars *p;
@@ -386,16 +503,21 @@ char* rucio_n2n_glfn(const char *lfn) {
                 free(c);
                 free(icount);
                 free(output);
+                free(oid);
                 free(ids);
                 return pfn = strdup("");
             }
         }
-        *XrdLog << "XRD-N2N: currently there are " << totN2Nthreads << " threads!" << endl;
+        if (rucioN2Ndbg) *XrdLog << "XRD-N2N dbg: currently there are " << totN2Nthreads << " threads!" << endl;
         int itry, ntry;
-        for (i=0; i<nPrefix; i++) {
+        for (j=0; j<nPrefix; j++) {
+            i = orderedPrefixMap[j];
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
-            p = new RucioStorageStatPars(m, c, i, icount, input, output);
+            if (j < nOptimalStats )
+                p = new RucioStorageStatPars(m, c, i, icount, input, output, oid, false);
+            else
+                p = new RucioStorageStatPars(m, c, i, icount, input, output, oid, true);
             ids[i] = (pthread_t*)malloc(sizeof(pthread_t));
             if (! p->input || ! ids[i]) {
                 *XrdLog << "XRD-N2N: can not allocate memory for thread to stat() " << input << " is aborted" << endl;
@@ -433,7 +555,7 @@ char* rucio_n2n_glfn(const char *lfn) {
         pthread_mutex_unlock(m);
     
     // if we get the result (exit or not exist), dump the thread cleaning to garbage cleaner and return.
-        p = new RucioStorageStatPars(m, c, i, icount, NULL, output);
+        p = new RucioStorageStatPars(m, c, i, icount, NULL, output, oid, true);
         Garbage *g = new Garbage(ids, nPrefix, p);
         dump2GarbageCan(g);
         delete g;
@@ -441,17 +563,40 @@ char* rucio_n2n_glfn(const char *lfn) {
     } 
     else {  // Local file system or storage that doesn't require parallel stat() calls
         struct stat buf;
-        for (i=0; i<nPrefix; i++) {
+        pfn = strdup("");
+        short *myOrderedPrefixMap = (short*)malloc(sizeof(short) * nPrefix);
+        lowpriolock();
+        for (j=0; j<nPrefix; j++) 
+            myOrderedPrefixMap[j] = orderedPrefixMap[j];
+        lowpriounlock();
+        for (j=0; j<nPrefix; j++) {
+            i = myOrderedPrefixMap[j];
             strcpy(input, sitePrefix[i]);
             strcat(input, sfn);
             if (pssorigin != NULL) { // don't remove this bracket:-)
-                if (x_stat(input, &buf) == 0) return pfn = strdup(input);
+                if (x_stat(input, &buf) == 0) {
+                    free(pfn);
+                    pfn = strdup(input);
+                    break;
+                }
             }
             else {
-                if (stat(input, &buf) == 0) return pfn = strdup(input);
+                if (stat(input, &buf) == 0) {
+                    free(pfn);
+                    pfn = strdup(input);
+                    break;
+                }
             }
         }
-        return pfn = strdup("");
+        if (j < nPrefix) { // we found the file
+            lowpriolock();
+            prefixTimestamp *ptx = new prefixTimestamp((short)i, time(NULL));
+            prefixHist.push_back(*ptx);
+            delete ptx;
+            lowpriounlock();
+        }
+        free(myOrderedPrefixMap);
+        return pfn;
     }
 }
 
