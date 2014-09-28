@@ -18,6 +18,9 @@ countsucc=0
 
 dontask=n
 res="{"
+res=$res\"username\":\"$USER\",
+res=$res\"shell\":\"$SHELL\",
+res=$res\"version\":\"$ATLAS_LOCAL_FAXTOOLS_VERSION\",
 
 if [ "$1" = "-a" -o "$1" = "--runAll" ]; then
     dontask=y
@@ -57,7 +60,7 @@ then
 else
     echo "Skipping this test."
     res=x$res
-    res=$res\"get_gLFNs\":x,
+    res=$res\"get_gLFNs\":-1,
 fi
 
 
@@ -76,12 +79,12 @@ then
         countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
-        res=$res\"xrdcp\":0,
+        res=$res\"xrdcp\":1,
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
-    res=$res\"xrdcp\":x,
+    res=$res\"xrdcp\":-1,
 fi
 
 
@@ -100,16 +103,16 @@ then
     if [ "$?" -eq 0 ]
     then
         echo "TEST RESULT - OK"
-        res=$res\"list_file_content\":0,
+        res=$res\"list_file_content\":0
         countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
-        res=$res\"list_file_content\":0,
+        res=$res\"list_file_content\":1
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
-    res=$res\"list_file_content\":x,
+    res=$res\"list_file_content\":-1
 fi
 
 
