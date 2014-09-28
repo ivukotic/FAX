@@ -17,7 +17,7 @@ countall=0
 countsucc=0
 
 dontask=n
-res=""
+res="{"
 
 if [ "$1" = "-a" -o "$1" = "--runAll" ]; then
     dontask=y
@@ -47,16 +47,17 @@ then
     if [ "$?" -eq 0 ]
     then
         echo "TEST RESULT - OK"
-        res=0$res
+        res=$res\"get_gLFNs\":0,
         countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
-        res=1$res
+        res=$res\"get_gLFNs\":1,
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
     res=x$res
+    res=$res\"get_gLFNs\":x,
 fi
 
 
@@ -71,16 +72,16 @@ then
     if [ "$?" -eq 0 ]
     then
         echo "TEST RESULT - OK"
-        res=0$res
+        res=$res\"xrdcp\":0,
         countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
-        res=1$res
+        res=$res\"xrdcp\":0,
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
-    res=x$res
+    res=$res\"xrdcp\":x,
 fi
 
 
@@ -99,16 +100,16 @@ then
     if [ "$?" -eq 0 ]
     then
         echo "TEST RESULT - OK"
-        res=0$res
+        res=$res\"list_file_content\":0,
         countsucc=$((countsucc+1))
     else
         echo "TEST RESULT - FAIL"
-        res=1$res
+        res=$res\"list_file_content\":0,
     fi
     echo "========================================================================================================"
 else
     echo "Skipping this test."
-    res=x$res
+    res=$res\"list_file_content\":x,
 fi
 
 
@@ -135,10 +136,12 @@ fi
 #     echo "Skipping this test."
 #     res=x$res
 # fi
-
+res=$res"}"
 echo "From $countall tests $countsucc were successfull."
 echo "Uploading test results..."
-java -jar $SCRIPTPATH/FAX2Google-0.0.2-jar-with-dependencies.jar $res > /dev/null
+#java -jar $SCRIPTPATH/FAX2Google-0.0.2-jar-with-dependencies.jar $res > /dev/null
+
+curl -H "Content-Type: application/json" -d "$res"  "http://waniotest.appspot.com/localsetupfax"
 
 echo "Done."
 
