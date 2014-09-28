@@ -136,10 +136,10 @@ fi
 #     echo "Skipping this test."
 #     res=x$res
 # fi
+
 res=$res"}"
 echo "From $countall tests $countsucc were successfull."
 echo "Uploading test results..."
-#java -jar $SCRIPTPATH/FAX2Google-0.0.2-jar-with-dependencies.jar $res > /dev/null
 
 curl -H "Content-Type: application/json" -d "$res"  "http://waniotest.appspot.com/localsetupfax"
 
