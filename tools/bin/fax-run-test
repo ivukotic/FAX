@@ -21,6 +21,8 @@ res="{"
 res=$res\"username\":\"$USER\",
 res=$res\"shell\":\"$SHELL\",
 res=$res\"version\":\"$ATLAS_LOCAL_FAXTOOLS_VERSION\",
+res=$res\"hostname\":\"$HOSTNAME\",
+res=$res\"endpoint\":\"$STORAGEPREFIX\",
 
 if [ "$1" = "-a" -o "$1" = "--runAll" ]; then
     dontask=y
