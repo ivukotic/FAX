@@ -91,7 +91,7 @@ pthread_attr_t attr;
 // this is required by the current (old) xrootd client because calls via the same xrootd 
 // login name is sequentialized by the client
 
-#define nXrdConn4n2n 20
+#define nXrdConn4n2n 80 
 short iXrdConn4n2n = 0;
 
 char **sitePrefix;
@@ -441,7 +441,7 @@ void *rucio_xrootd_storage_stat(void *pars) {  // xrootd-like storage
     pthread_exit(NULL);
 }
 
-#define MaxN2Nthreads 2000 
+#define MaxN2Nthreads 1000 
 // export this function
 char* rucio_n2n_glfn(const char *lfn) {
     int i, j; 
