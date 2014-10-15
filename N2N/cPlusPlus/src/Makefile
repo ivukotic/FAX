@@ -20,7 +20,7 @@ XrdOucName2NameLFC.so: $(OBJECTS) Makefile
 	g++ ${DEBUG} -shared -fPIC -o $@ $(OBJECTS) -ldl -ljson -lssl -L $(XRD_LIB) -lXrdPosix
 
 XrdOucName2NameLFC.o: XrdOucName2NameLFC.cc ${HEADERS} Makefile
-	g++ ${DEBUG} ${FLAGS} -fPIC -I ${XRD_INC} -c -o $@ $<
+	g++ ${DEBUG} ${FLAGS} -fPIC -I ${XRD_INC} -I ${XRD_LIB} -c -o $@ $<
 
 rucioN2N.o: rucioN2N.cc ${HEADERS} Makefile
 	g++ ${DEBUG} ${FLAGS} -fPIC -I ${XRD_INC} -c -o $@ $<
