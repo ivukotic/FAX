@@ -2,14 +2,14 @@
 
 get_response()
 {
-echo "$1 (y|n|a): " 
+echo "$1 [y]es, [n]o, [a]ll: " 
 if [ $dontask = "y" ]
 then
         do=y
 else
-        read inputline
-		if [ $inputline = "y" ]; then do=y; else do=n; fi
-        if [ $inputline = "a" ]; then do=y; dontask=y; fi
+        read -n 1 inputline
+        if [[ $inputline = "" ]] || [[ $inputline = "y" ]]; then do=y; else do=n; fi
+        if [[ $inputline = "a" ]]; then do=y; dontask=y; fi
 fi
 }
 
@@ -41,7 +41,7 @@ then
     exit 0
 fi
 
-get_response "This test will try to get gLFNs for all the files of one dataset, would you like to proceed?";
+get_response "This test will try to get gLFNs for all the files of one dataset. Would you like to proceed?";
 
 if [ $do = "y" ]
 then
@@ -66,12 +66,12 @@ else
 fi
 
 
-get_response "This test will try to copy (using xrdcp) a small file to /dev/null of your computer, would you like to proceed?";
+get_response "This test will try to copy (using xrdcp) a small file to /dev/null of your computer. Would you like to proceed?";
 
 if [ $do = "y" ]
 then
     countall=$((countall+1))
-    kom="xrdcp -d 1 $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root -> /dev/null "
+    kom="xrdcp $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SUSY.root -> /dev/null "
     printf "Executing command:\n%s\n---------------------------------------------------------------------------------------------------------\n" "$kom"
     eval $kom
     if [ "$?" -eq 0 ]
@@ -90,7 +90,7 @@ else
 fi
 
 
-get_response  "This test will set-up ROOT and list content of a file, would you like to proceed?";
+get_response  "This test will setup ROOT and list the contents of a file. Would you like to proceed?";
 
 if [ $do = "y" ]
 then
@@ -143,7 +143,7 @@ fi
 # fi
 
 res=$res"}"
-echo "From $countall tests $countsucc were successfull."
+echo "From $countall tests $countsucc were successful."
 echo "Uploading test results..."
 
 curl -H "Content-Type: application/json" -d "$res"  "http://waniotest.appspot.com/localsetupfax"
