@@ -38,7 +38,7 @@ public class RucioN2N {
 
 		log.info("Setting up RUCIO access...");
 
-		String overwriteSE = properties.getProperty("overwriteSE");
+		String overwriteSE = properties.getProperty("xrootd.n2n.overwriteSE");
 		if (overwriteSE == null) {
 			log.info("Does not overwrite StorageTokens.");
 		} else {
@@ -55,7 +55,7 @@ public class RucioN2N {
 				return;
 		}
 
-		String SITE = properties.getProperty("site");
+		String SITE = properties.getProperty("xrootd.n2n.site");
 		if (SITE == null) {
 			log.error("*** Error: SITE parameter not defined. Please set it (in etc/dcache.conf) and restart the server. Format is e.g. site=MWT2");
 			throw new IllegalArgumentException(

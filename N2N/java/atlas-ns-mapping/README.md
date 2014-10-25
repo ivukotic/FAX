@@ -27,9 +27,9 @@ To enable the plugin, define the following property in dcache.conf:
     pool/xrootdPlugins=
 
 this is needed so plugin can determine space tokens available:
-    site=rc_site
+    xrootd.n2n.site=rc_site
 proper value for "rc_site" you may find here: http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&flavour=XROOTD
     
 probably never needed still if someone wants to hide a SpaceToken from FAX, just add this variable listing all of the space tokens you want exposed.
-    overwriteSE=/pnfs/uchicago.edu/atlasgroupdisk,/pnfs/uchicago.edu/atlasproddisk
+    xrootd.n2n.overwriteSE=/pnfs/uchicago.edu/atlasgroupdisk,/pnfs/uchicago.edu/atlasproddisk
     
