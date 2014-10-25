@@ -204,7 +204,7 @@ int main(int argc, char **argv){
     TTree *cTree = (TTree*)tree->CloneTree(0);
 
     for (int i=0;i<nentries;i++) {
-        if (gRandom->Rndm(1)<( percentage/100)) {
+        if (gRandom->Rndm(1)<( percentage/100.)) {
             randoms[i]=1;
         } else randoms[i]=0;
     }
