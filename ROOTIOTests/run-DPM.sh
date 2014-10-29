@@ -16,7 +16,7 @@ urls=("https://lxfsra04a04.cern.ch/dpm/cern.ch/home/atlas/group.test.hc.NTUP_SMW
 "https://dc2-grid-23.brunel.ac.uk/dpm/brunel.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root" \
 "root://dc2-grid-23.brunel.ac.uk//atlas/group.test.hc.NTUP_SMWZ.root"
 "https://lapp-se99.in2p3.fr/dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root" \
-"root://lapp-se99.in2p3.fr:1094//atlas/group.test.hc.NTUP_SMWZ.root"
+"root://lapp-se99.in2p3.fr:11000//atlas/group.test.hc.NTUP_SMWZ.root"
 )
 
 
