@@ -20,7 +20,7 @@ Using the plugin with dCache
 ----------------------------
 
 To use this plugin with dCache, place the directory containing this
-file in /usr/local/share/dcache/plugins/
+file in /usr/share/dcache/plugins/
 
 To enable the plugin, define the following property in dcache.conf:
     xrootd/xrootdPlugins=authn:none,authz:atlas-name-to-name-plugin

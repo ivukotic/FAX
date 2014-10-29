@@ -19,7 +19,7 @@ public class TranslateRucioNames {
 		log.info("test both initialization and translation.");
 
 		Properties p=new Properties();
-		p.setProperty("site","MWT2");
+		p.setProperty("xrootd.n2n.site","MWT2");
 		
 		RucioN2N rucio=new RucioN2N(p);
 		

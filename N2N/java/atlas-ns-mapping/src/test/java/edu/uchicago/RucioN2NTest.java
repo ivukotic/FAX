@@ -1,6 +1,5 @@
 package edu.uchicago;
 
-import static org.junit.Assert.assertTrue;
 import junit.framework.TestCase;
 import edu.uchicago.xrootd4j.RucioN2N;
 import java.util.Properties;
@@ -16,7 +15,7 @@ public class RucioN2NTest extends TestCase {
 	
 	public void testRucioInitialization() {
 		log.info("test initialization...");
-		p.setProperty("site","MWT2");
+		p.setProperty("xrootd.n2n.site","MWT2");
 		RucioN2N rucio=new RucioN2N(p);
 		assert(rucio!=null);
 		String gLFN3="/atlas/rucio/user/ivukotic:user.ivukotic.xrootd.mwt2-1M";
