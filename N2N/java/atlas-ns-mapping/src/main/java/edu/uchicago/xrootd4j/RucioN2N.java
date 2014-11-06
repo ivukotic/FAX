@@ -149,15 +149,21 @@ public class RucioN2N {
 
 		filesLookedFor.incrementAndGet();
 		log.debug("got to translate: {}", gLFN);
-		String name = gLFN.substring(6);
-		log.debug("removed /atlas: {}", name);
-		String fileName, scope, scope_fileName;
-		if (name.contains(":")) {
-			fileName = name.substring(name.lastIndexOf(":") + 1);
-			scope = name.substring(7, name.lastIndexOf(":"));
-		} else {
-			fileName = name.substring(name.lastIndexOf("/") + 1);
-			scope = name.substring(7, name.lastIndexOf("/"));
+
+		String name, fileName, scope, scope_fileName;
+		try {
+			name = gLFN.substring(6);
+			log.debug("removed /atlas: {}", name);
+			if (name.contains(":")) {
+				fileName = name.substring(name.lastIndexOf(":") + 1);
+				scope = name.substring(7, name.lastIndexOf(":"));
+			} else {
+				fileName = name.substring(name.lastIndexOf("/") + 1);
+				scope = name.substring(7, name.lastIndexOf("/"));
+			}
+		} catch (IndexOutOfBoundsException e) {
+			log.error("something wrong in the filename: {}", gLFN);
+			return null;
 		}
 
 		if (fileName == null || scope == null) {
@@ -169,7 +175,7 @@ public class RucioN2N {
 
 		scope_fileName = scope + ":" + fileName;
 		log.debug("scope+filename: " + scope_fileName);
-		
+
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance("MD5");
@@ -178,7 +184,7 @@ public class RucioN2N {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 		String hashtext = "";
 		try {
 			scope_fileName = scope_fileName.replaceAll("/", ".");
@@ -196,7 +202,7 @@ public class RucioN2N {
 		}
 
 		log.debug(hashtext);
-		name = "/rucio/" + scope + "/" + hashtext.substring(0, 2) + "/" + hashtext.substring(2, 4) + "/" + fileName;
+		name = "/rucio/" + scope.replace(".","/") + "/" + hashtext.substring(0, 2) + "/" + hashtext.substring(2, 4) + "/" + fileName;
 
 		log.info("expanded filename: " + name);
 
