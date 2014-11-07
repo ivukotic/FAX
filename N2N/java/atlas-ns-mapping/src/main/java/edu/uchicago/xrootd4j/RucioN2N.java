@@ -119,7 +119,10 @@ public class RucioN2N {
 			}
 
 		}
-
+		if (cmap.size() == 0) {
+			log.error(">>>>>>>> No space tokens have been loaded. <<<<<<<<<<<<\n Please check the site name in your configuration.");
+		}
+		
 		printCounts();
 
 		// this won't be changed
