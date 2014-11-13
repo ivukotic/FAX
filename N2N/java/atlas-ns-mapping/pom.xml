@@ -5,7 +5,7 @@
 
 	<groupId>edu.uchicago.xrootd4j</groupId>
 	<artifactId>atlas-ns-mapping</artifactId>
-	<version>6.0.4</version>
+	<version>6.0.5</version>
 	<packaging>jar</packaging>
 
 	<name>ATLAS xrootd4j authorization and mapping plugin</name>
