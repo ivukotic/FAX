@@ -37,6 +37,7 @@ $main::G_Host2Site =
   'lcgtriumf.ca'   => 'TRIUMF-LCG2', 
   'edu.au'      => 'Australia-ATLAS',
   'ndgf.org'      => 'NDGF-T1',
+  'icepp.jp'      => 'TOKYO-LCG2',
   'ou.edu'         =>  sub {
 	my $h = shift;
 	return 'SWT2_OU_T3' if $h =~ m/\.nhn\.ou\.edu/;
@@ -89,9 +90,16 @@ $main::G_Host2Site =
     return 'IN2P3-LAPP' if $h =~ m/lapp[a-z0-9-]+\.in2p3\.fr/;
     return 'IN2P3-LPSC' if $h =~ m/lpsc[a-z0-9-]+\.in2p3\.fr/;
     return 'IN2P3-LPC' if $h =~ m/clrdata-dpm[a-z0-9-]+\.in2p3\.fr/;
+    return 'IN2P3-LPC' if $h =~ m/clrlcgse[a-z0-9-]+\.in2p3\.fr/;
     return 'CPPM' if $h =~ m/mar[a-z0-9-]+\.in2p3\.fr/;
     return 'IN2P3-CC' if $h =~ m/ccxrdpli[a-z0-9-]+\.in2p3\.fr/;
     return 'FR';
   },
-
+  '.ro'       =>  sub {
+    my $h = shift;
+    return 'RO-07-NIPNE'             if $h =~ m/\.nipne\.ro/;
+    return 'RO';
+  },
+  'cm.cluster'	   => 'KnownUnknown',
+  'mgt.cluster'	   => 'KnownUnknown'
 };
