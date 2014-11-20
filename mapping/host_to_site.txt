@@ -38,6 +38,7 @@ $main::G_Host2Site =
   'edu.au'      => 'Australia-ATLAS',
   'ndgf.org'      => 'NDGF-T1',
   'icepp.jp'      => 'TOKYO-LCG2',
+  'nipne.ro'             => 'RO-07-NIPNE';
   'ou.edu'         =>  sub {
 	my $h = shift;
 	return 'SWT2_OU_T3' if $h =~ m/\.nhn\.ou\.edu/;
@@ -94,11 +95,6 @@ $main::G_Host2Site =
     return 'CPPM' if $h =~ m/mar[a-z0-9-]+\.in2p3\.fr/;
     return 'IN2P3-CC' if $h =~ m/ccxrdpli[a-z0-9-]+\.in2p3\.fr/;
     return 'FR';
-  },
-  '.ro'       =>  sub {
-    my $h = shift;
-    return 'RO-07-NIPNE'             if $h =~ m/\.nipne\.ro/;
-    return 'RO';
   },
   'cm.cluster'	   => 'KnownUnknown',
   'mgt.cluster'	   => 'KnownUnknown'
