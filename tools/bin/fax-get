@@ -222,13 +222,14 @@ if c.getinfo(c.RESPONSE_CODE)!=200:
     print 'could not get Rucio authentication. Exiting'
     sys.exit(1)
 
-auth_token="";
+auth_token=None
 for he in h.getvalue():
+    if (opts.verbose): print he
     if he.count('X-Rucio-Auth-Token')>0: auth_token=he
 
-if auth_token=="":
-   print 'could not get Rucio authentication token. Exiting'
-   sys.exit(1) 
+if auth_token is None:
+    print 'could not get Rucio authentication token. Exiting.'
+    sys.exit(1) 
    
 c.close()
 
