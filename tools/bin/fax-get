@@ -8,6 +8,14 @@ import subprocess, threading, os, sys,time
 import urllib2
 import optparse
 
+import pycurl
+try:
+    from io import BytesIO
+except ImportError:
+    from StringIO import StringIO as BytesIO
+
+import ConfigParser
+
 try: import simplejson as json
 except ImportError: import json
 
@@ -15,7 +23,7 @@ except ImportError: import json
 parser = optparse.OptionParser(description="Getting a DS through FAX.", version="%prog version 2.0", usage="Usage: %prog [options] dataset")
 
 parser.add_option('-r', '--retries', help='a number of retries. Defaults to 3.', default=3, dest='Retries')
-parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 10.', default=10, dest='Streams')
+parser.add_option('-s', '--streams', help='a number of parallel xrdcp streams to use. Defaults to 4.', default=4, dest='Streams')
 parser.add_option('-t', '--timeout', help='seconds to wait before timing out an individual xrdcp. Default is 3600.', default=3600, dest='Timeout')
 parser.add_option('-f', '--files',   help='a number of files to copy', default=0, dest='FilesToCopy', metavar="N FILES")
 parser.add_option('-x', '--extreme', help='use extreme copy', dest='Extreme', action='store_true', default=False)
@@ -60,6 +68,8 @@ class dsfile:
         self.filename=na
         self.size=si
         self.attempts=0
+    def prnt(self):
+        print 'file:',self.scope+':'+self.filename,"\tsize:",str(self.size),"\tattempts:",str(self.attempts)
     
 class dataset:
     def __init__(self):
@@ -95,11 +105,11 @@ def LFNs(idsn):
     for guid in entry:
         scope, lfn, fs = entry[guid]['scope'], entry[guid]['lfn'], entry[guid]['filesize']
         if lfn.count('.root')==0 and opts.NonRoot : continue
-        correctedscope = "/".join(scope.split('.'))
         # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
-        roots.append(dsfile(correctedscope, lfn, fs))
+        roots.append(dsfile(scope, lfn, fs))
         
-    if (opts.verbose): print idsn, len(roots), "files"
+    if (opts.verbose): 
+        print idsn, len(roots), "root files."
     
     return roots
     
@@ -119,26 +129,48 @@ if os.environ.get("STORAGEPREFIX") != None:
 else:
     print "no FAX redirector given. Please set up FAX (localSetupFAX) or run fax-setRedirector.(c)sh, first. "
     sys.exit(1)
-            
-            
+
+if os.environ.get("RUCIO_ACCOUNT") != None:
+    rucio_account=os.environ.get("RUCIO_ACCOUNT")
+else:
+    print "no RUCIO_ACCOUNT environment found. Please set it before using this program. "
+    sys.exit(1) 
+
+if os.environ.get("RUCIO_HOME") != None:
+    rucio_home=os.environ.get("RUCIO_HOME")
+else:
+    print "no RUCIO_ACCOUNT environment found. Please set it before using this program. "
+    sys.exit(1) 
+
+if (opts.verbose): print '#reading rucio configuration file...'
+
+Config = ConfigParser.ConfigParser()
+Config.read(rucio_home + "/etc/rucio.cfg")
+rucio_host= Config.get("client","rucio_host")
+auth_host= Config.get("client","auth_host")
+ca_cert= Config.get("client","ca_cert")
+client_cert= Config.get("client","client_cert")
+client_key= Config.get("client","client_key")
+client_x509_proxy= Config.get("client","client_x509_proxy")
+request_retries= Config.get("client","request_retries")
+
 sites={};
 
-
-
-if (opts.verbose):  print '--------------- Geting FAX endpoints from AGIS ---------------'
-
 try:
-    req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
+    if (opts.verbose): print "# getting FAX endpoints from AGISrepeater..."
+    req = urllib2.Request("http://waniotest.appspot.com/agis", None)
     opener = urllib2.build_opener()
     f = opener.open(req)
     res=json.load(f)
     for s in res:
-#        print s["name"], s["rc_site"], s["endpoint"]
+        if (opts.verbose): print s["name"], s["rc_site"], s["endpoint"]
         sites[s["rc_site"]]=site(s["endpoint"])
 #    print res
 except:
+    print "Could not get FAX endpoints from AGIS. Exiting..."
     print "Unexpected error:", sys.exc_info()[0]
-
+    sys.exit(1)
+    
 #for s in sites:  print s, sites[s].prnt()
     
     
@@ -158,12 +190,63 @@ try:
 #    print ' got related ddmendpoints from agis.'
 
 except:
+    print "Could not get DDM endpoint names from AGIS. Exiting..."
     print "Unexpected error:", sys.exc_info()[0]
+    sys.exit(1)
 
 #for s in sites: print s, sites[s].prnt()
 
 
+if (opts.verbose):  print '--------------- Getting rucio auth token ------------------'
+
+#b = BytesIO()
+h = BytesIO()
+c = pycurl.Curl()
+c.setopt(pycurl.URL, auth_host+"/auth/x509_proxy")
+c.setopt(pycurl.CAINFO, rucio_home+"/etc/ca.crt")
+c.setopt(pycurl.SSLKEY, '/tmp/x509up_u20074')
+c.setopt(pycurl.SSLCERT, '/tmp/x509up_u20074') 
+c.setopt(pycurl.HTTPHEADER, ['X-Rucio-Account: ivukotic'])
+c.setopt(pycurl.HEADERFUNCTION, h.write)
+#c.setopt(pycurl.WRITEFUNCTION, b.write)
+c.setopt(pycurl.SSL_VERIFYPEER, 1)
+c.setopt(pycurl.SSL_VERIFYHOST, 2)
+c.perform()
+
+if (opts.verbose):
+    print('Status: %d' % c.getinfo(c.RESPONSE_CODE))
+    print('Time: %f' % c.getinfo(c.TOTAL_TIME))
+    print h.getvalue()
+    
+if c.getinfo(c.RESPONSE_CODE)!=200:
+    print 'could not get Rucio authentication. Exiting'
+    sys.exit(1)
+
+auth_token=null
+for h in h.getvalue():
+    if h.count('X-Rucio-Auth-Token')>0: auth_token=h
+
+if auth_token==null:
+   print 'could not get Rucio authentication token. Exiting'
+   sys.exit(1) 
+   
+c.close()
+
+#curl -s -i --cacert /opt/rucio/etc/web/ca.crt -H "X-Rucio-Account: vgaronne" --cert $X509_USER_PROXY --key $X509_USER_PROXY -X GET https://localhost/auth/x509_proxy
+#HTTP/1.1 200 OK
+#Date: Mon, 15 Oct 2012 10:58:37 GMT
+#Server: Apache/2.2.22 (Unix) mod_ssl/2.2.22 OpenSSL/0.9.8r DAV/2 mod_wsgi/3.3 Python/2.7.3 PHP/5.3.15 mod_fastcgi/2.4.2
+#X-X-X-Rucio-Auth-Token: 10520defe5314ef68677be7a479152ae
+
+#curl -s -i --cacert $RUCIO_HOME/etc/ca.crt -H "X-Rucio-Account: $RUCIO_ACCOUNT" --cert $X509_USER_PROXY --key $X509_USER_PROXY -X GET https://voatlasrucio-auth-prod.cern.ch/auth/x509_proxy
+
+#-H "X-Rucio-Auth-Token: $TOKEN"
+#GET datasets/{scopeName}/{datasetName}/  List dataset content.
+#GET /files/{scopeName}/locations/ list file replicas
+
+
 if (opts.verbose):  print '--------------- Getting all of the DDM endpoints having a replica. ------------------'
+
 com=Command('dq2-ls -r '+ DS + ' > fax.tmp' )
 com.run(300)
 dsets={}
