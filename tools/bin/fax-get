@@ -217,15 +217,18 @@ if (opts.verbose):
     print('Status: %d' % c.getinfo(c.RESPONSE_CODE))
     print('Time: %f' % c.getinfo(c.TOTAL_TIME))
     print h.getvalue()
-    
+
 if c.getinfo(c.RESPONSE_CODE)!=200:
     print 'could not get Rucio authentication. Exiting'
     sys.exit(1)
 
 auth_token=None
-for he in h.getvalue():
-    if (opts.verbose): print he
-    if he.count('X-Rucio-Auth-Token')>0: auth_token=he
+
+headers=h.getvalue()
+lines=headers.split('\n')
+for l in lines:
+    if (opts.verbose): print l
+    if l.count('X-Rucio-Auth-Token')>0: auth_token=l.strip('\r');
 
 if auth_token is None:
     print 'could not get Rucio authentication token. Exiting.'
