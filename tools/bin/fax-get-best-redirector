@@ -62,9 +62,11 @@ class site:
     def __init__(self,na):
         self.name=na
         self.direct=0
-	def coo(self, lo, la):
-		self.longitude=lo
-		self.latitude=la
+        self.longitude=0
+        self.latitude=0
+    def coo(self, lo, la):
+	self.longitude=lo
+	self.latitude=la
     def prn(self):
         print "#", self.name, "\tlong:",self.longitude,"\t lat:",self.latitude,"/",self.direct
 
@@ -88,6 +90,9 @@ except urllib2.HTTPError:
 except:
     if debug: print "# Can't connect to SSBrepeater.", sys.exc_info()[0]
 
+if debug>2: 
+    for s in Sites: 
+        Sites[s].prn()
 
 if not worked:
     if debug: print "# getting FAX endpoints status from SSB..."
@@ -123,9 +128,9 @@ try:
     f = opener.open(req, timeout=20)
     res=json.load(f)
     for s in res:
-	    na=s["name"]
-	    if na in Sites:
-        	Sites[na].coo(s["longitude"],s["latitude"])
+       	na=s["name"]
+        if na in Sites:
+            Sites[na].coo(s["longitude"],s["latitude"])
     if debug>2: print '#', s["name"],s["rc_site"], s["latitude"], s["longitude"]
     worked=1
 except urllib2.HTTPError:
