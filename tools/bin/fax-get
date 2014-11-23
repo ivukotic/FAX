@@ -8,13 +8,16 @@ import subprocess, threading, os, sys,time
 import urllib2
 import optparse
 
-import pycurl
-try:
-    from io import BytesIO
-except ImportError:
-    from StringIO import StringIO as BytesIO
+# import rucio
+# import rucio.client
+# import rucio.common.config as conf
 
-import ConfigParser
+try:
+    from dq2.clientapi.DQ2 import DQ2
+except ImportError:
+    print "Environment not set [error importing DQ2 dependencies]!"
+    sys.exit(1)
+
 
 try: import simplejson as json
 except ImportError: import json
@@ -32,12 +35,6 @@ parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='NonRo
 parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False)
 parser.add_option('-q', '--quiet',   action="store_false", dest="verbose")
 
-
-try:
-    from dq2.clientapi.DQ2 import DQ2
-except ImportError:
-    print "Environment not set [error importing DQ2 dependencies]!"
-    sys.exit(1)
 
 
 class Command(object):
@@ -136,23 +133,6 @@ else:
     print "no RUCIO_ACCOUNT environment found. Please set it before using this program. "
     sys.exit(1) 
 
-if os.environ.get("RUCIO_HOME") != None:
-    rucio_home=os.environ.get("RUCIO_HOME")
-else:
-    print "no RUCIO_ACCOUNT environment found. Please set it before using this program. "
-    sys.exit(1) 
-
-if (opts.verbose): print '#reading rucio configuration file...'
-
-Config = ConfigParser.ConfigParser()
-Config.read(rucio_home + "/etc/rucio.cfg")
-rucio_host= Config.get("client","rucio_host")
-auth_host= Config.get("client","auth_host")
-ca_cert= Config.get("client","ca_cert")
-client_cert= Config.get("client","client_cert")
-client_key= Config.get("client","client_key")
-client_x509_proxy= Config.get("client","client_x509_proxy")
-request_retries= Config.get("client","request_retries")
 
 sites={}
 
@@ -197,56 +177,27 @@ except:
 #for s in sites: print s, sites[s].prnt()
 
 
-if (opts.verbose):  print '--------------- Getting rucio auth token ------------------'
-
-#b = BytesIO()
-h = BytesIO()
-c = pycurl.Curl()
-c.setopt(pycurl.URL, auth_host+"/auth/x509_proxy")
-c.setopt(pycurl.CAINFO, rucio_home+"/etc/ca.crt")
-c.setopt(pycurl.SSLKEY, '/tmp/x509up_u20074')
-c.setopt(pycurl.SSLCERT, '/tmp/x509up_u20074') 
-c.setopt(pycurl.HTTPHEADER, ['X-Rucio-Account: ivukotic'])
-c.setopt(pycurl.HEADERFUNCTION, h.write)
-#c.setopt(pycurl.WRITEFUNCTION, b.write)
-c.setopt(pycurl.SSL_VERIFYPEER, 1)
-c.setopt(pycurl.SSL_VERIFYHOST, 2)
-c.perform()
-
-if (opts.verbose):
-    print('Status: %d' % c.getinfo(c.RESPONSE_CODE))
-    print('Time: %f' % c.getinfo(c.TOTAL_TIME))
-    print h.getvalue()
-
-if c.getinfo(c.RESPONSE_CODE)!=200:
-    print 'could not get Rucio authentication. Exiting'
-    sys.exit(1)
-
-auth_token=None
-
-headers=h.getvalue()
-lines=headers.split('\n')
-for l in lines:
-    if (opts.verbose): print l
-    if l.count('X-Rucio-Auth-Token')>0: auth_token=l.strip('\r');
-
-if auth_token is None:
-    print 'could not get Rucio authentication token. Exiting.'
-    sys.exit(1) 
    
-c.close()
-
-#curl -s -i --cacert /opt/rucio/etc/web/ca.crt -H "X-Rucio-Account: vgaronne" --cert $X509_USER_PROXY --key $X509_USER_PROXY -X GET https://localhost/auth/x509_proxy
-#HTTP/1.1 200 OK
-#Date: Mon, 15 Oct 2012 10:58:37 GMT
-#Server: Apache/2.2.22 (Unix) mod_ssl/2.2.22 OpenSSL/0.9.8r DAV/2 mod_wsgi/3.3 Python/2.7.3 PHP/5.3.15 mod_fastcgi/2.4.2
-#X-X-X-Rucio-Auth-Token: 10520defe5314ef68677be7a479152ae
-
-#curl -s -i --cacert $RUCIO_HOME/etc/ca.crt -H "X-Rucio-Account: $RUCIO_ACCOUNT" --cert $X509_USER_PROXY --key $X509_USER_PROXY -X GET https://voatlasrucio-auth-prod.cern.ch/auth/x509_proxy
-
-#-H "X-Rucio-Auth-Token: $TOKEN"
-#GET datasets/{scopeName}/{datasetName}/  List dataset content.
-#GET /files/{scopeName}/locations/ list file replicas
+#
+# rcl=rucio.client.Client()
+#
+# sl=rucio.client.didclient.DIDClient().scope_list("user.ivukotic")
+# print sl.next()
+#
+# rrc=rucio.client.replicaclient.ReplicaClient()
+# reps=rrc.list_replicas([{'scope': 'user.ivukotic', 'name': 'group.test.hc.NTUP_SUSY-c6-AF3-Root530.root'}])
+# print reps.next()
+#
+# sc=rucio.client.scopeclient.ScopeClient()
+# print sc.list_scopes_for_account('ivukotic')
+#
+# ld=rucio.client.didclient.DIDClient().list_dids('user.ivukotic','user.ivukotic.overflow.real-5.S-MWT2.D-ANALY_AGLT2_SL6_info.txt' )
+#
+# lc=rucio.client.didclient.DIDClient().list_content('user.btannenw', 'user.btannenw.data12_8TeV.periodJ.physics_Muons.PhysCont.NTUP_COMMON.grp14_v01_p1675.skim1')
+# while(1):    print lc.next()
+#
+# ld=rucio.client.didclient.DIDClient().list_dids('user.ivukotic',{'name':'*1M'}, 'file' )
+# while(1):    print ld.next()
 
 
 if (opts.verbose):  print '--------------- Getting all of the DDM endpoints having a replica. ------------------'

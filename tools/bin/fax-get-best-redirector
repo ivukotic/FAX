@@ -59,32 +59,29 @@ today = datetime.datetime.date(n)
 tomorrow = datetime.datetime.date(t)
 
 class site:
-        name=''
-        direct=0
-        def __init__(self,na):
-                self.name=na
+    def __init__(self,na):
+        self.name=na
+        self.direct=0
 	def coo(self, lo, la):
 		self.longitude=lo
 		self.latitude=la
-        def prn(self):
-                print "#", self.name, "\tlong:",self.longitude,"\t lat:",self.latitude,"/",self.direct
+    def prn(self):
+        print "#", self.name, "\tlong:",self.longitude,"\t lat:",self.latitude,"/",self.direct
 
 Sites=dict()
 worked=0
 try:
-    url="http://waniotest.appspot.com/ssb"
-    if debug: print "# getting FAX endpoints status from SSBrepeater..."
+    url="http://waniotest.appspot.com/endpointstatus"
+    if debug: print "# getting FAX endpoints status from FSB ..."
     response=urllib2.Request(url,None)
     opener = urllib2.build_opener()
     f = opener.open(response, timeout=40)
     data = json.load(f)
-    data=data["csvdata"]
     for si in data:
-        n=si['VOName']
-        if n not in Sites:
-            s=site(n)
-            Sites[n]=s
-            Sites[n].direct=si['COLOR']
+        n=si['name']
+        s=site(n)
+        if si['dir']: s.direct=5 
+        Sites[n]=s
     worked=1
 except urllib2.HTTPError:
 	if debug: print "# Can't connect to SSBrepeater."
