@@ -12,8 +12,8 @@ treeToUse="physics"
 echo "resetting ROOT to default from cvmfs"
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh 
-source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 5.34.18-davix_p7-x86_64-slc6-gcc48-opt
-
+#source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 5.34.18-davix_p7-x86_64-slc6-gcc48-opt
+source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --skipConfirm 
 export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
 
 #if [ "${PANDA_SITE_NAME}" == "ANALY_CERN_XROOTD" ]; then
@@ -85,22 +85,10 @@ fn=`xrd lxfsra04a04.cern.ch dirlist dteam/sakamurro | sort -V -k 5 | tail -n 1 |
 
 echo "-- sakamurro now is: $fn"
 #davix-get --debug -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro/$fn $PWD/sakamurro
-xrdcp -f -d 2 root://lxfsra04a04.cern.ch/$fn $PWD/sakamurro
+xrdcp -f -d 1 root://lxfsra04a04.cern.ch/$fn $PWD/sakamurro
 echo "-----------------------------------"
 
 
-echo "------------- Davix info --"
-echo -n "-- which davix-get --->"
-echo `which davix-get`
-echo -n "-- davix-get --version --->"
-echo `davix-get --version`
-echo " Download proxy cert : fix for crappy CREAM support in COndor"
-davix-get "https://owncloud.adev.name/public.php?service=files&t=98a5093eae480ab643b293cba03e9759&download" $PWD/grid_proxy -k
-if [[ "$?" != "0" ]]; then
-	echo "Unable to download proxy certificate, fatal !!"
-	exit 1
-fi
-export X509_USER_PROXY=$PWD/grid_proxy
 
 export X509_USER_PROXY=$PWD/sakamurro
 
