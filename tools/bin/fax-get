@@ -4,7 +4,9 @@
 # make sure number of parallel streams is respected
 # check that files are copied right by checking their size 
 
-import subprocess, threading, os, sys,time
+import subprocess, Queue, os, sys,time
+import threading
+from threading import Thread
 import urllib2
 import optparse
 
@@ -37,36 +39,17 @@ parser.add_option('-q', '--quiet',   action="store_false", dest="verbose")
 
 
 
-class Command(object):
-
-    def __init__(self, cmd):
-        self.cmd = cmd
-        self.process = None
-
-    def run(self, timeout):
-        def target():
-            #print 'command started: ', self.cmd
-            self.process = subprocess.Popen(self.cmd, shell=True)
-            self.process.communicate()
-        
-        thread = threading.Thread(target=target)
-        thread.start()
-        thread.join(timeout)
-        if thread.is_alive():
-            print 'Terminating process'
-            self.process.terminate()
-            thread.join()
-        return self.process.returncode
-
-
 class dsfile:
-    def __init__(self, sc, na, si=0):
+    def __init__(self, sc, na, si, ad):
         self.scope=sc
-        self.filename=na
+        self.name=na
         self.size=si
+        self.adler32=ad
         self.attempts=0
+        self.reps=[]
+        self.areps=[]
     def prnt(self):
-        print 'file:',self.scope+':'+self.filename,"\tsize:",str(self.size),"\tattempts:",str(self.attempts)
+        print 'file:',self.scope+':'+self.name,"\tsize:",str(self.size/1024/1024),"\tattempts:",str(self.attempts),"\treplicas:",self.reps,"\t available:",self.areps
     
 class dataset:
     def __init__(self):
@@ -87,29 +70,6 @@ class site:
         print  'host:', self.host, '\tport:', self.port, '\tddms:', self.ddms
 
 
-
-def LFNs(idsn):
-    
-    ret = DQ2().listFilesInDataset(idsn)
-    
-    try:
-        entry = ret[0]
-    except IndexError, e:
-        sys.exit(0)
-    
-    roots=[]
-    
-    for guid in entry:
-        scope, lfn, fs = entry[guid]['scope'], entry[guid]['lfn'], entry[guid]['filesize']
-        if lfn.count('.root')==0 and opts.NonRoot : continue
-        # gfn=redir+'/atlas/rucio/' + correctedscope+"/"+lfn
-        roots.append(dsfile(scope, lfn, fs))
-        
-    if (opts.verbose): 
-        print idsn, len(roots), "root files."
-    
-    return roots
-    
 # =========================================================================================
 
 
@@ -177,12 +137,114 @@ except:
 #for s in sites: print s, sites[s].prnt()
 
 
+# get a list of all scopes
+AllScopes = rucio.client.scopeclient.ScopeClient().list_scopes()
+
+# find the scope of the dataset we are dealing with
+
+for scope in AllScopes:
+    if DS.startswith(scope): break
+
+# list content of the dataset
+# a file has: adler32, scope, name, bytes type  
+Files=[]
+files=rucio.client.didclient.DIDClient().list_content(scope,DS)
+for f in files:
+    if f['name'].count('.root')==0 and not opts.NonRoot : continue
+    Files.append(dsfile(f['scope'],f['name'],f['bytes'],f['adler32']))
+
+for f in Files: f.prnt()
    
-#
+# find file replicas
+rrc=rucio.client.replicaclient.ReplicaClient()
+for f in Files:
+    reps=rrc.list_replicas([{'scope': f.scope, 'name': f.name}])
+    for r in reps:
+        f.reps=r['rses'].keys()
+
+for f in Files: f.prnt()
+
+# find available replicas for each file
+for f in Files:
+    for r in f.reps:
+        for s in sites:
+            for ddm in sites[s].ddms:
+                if r==ddm:
+                    f.areps.append(r)
+
+
+for f in Files: f.prnt()
+
+
+if (opts.verbose):  print '--------------- copying the files ----------------------'
+
+
+class Command(object):
+
+    def __init__(self, cmd):
+        self.cmd = cmd
+        self.process = None
+
+    def run(self, timeout):
+        def target():
+            self.process = subprocess.Popen(self.cmd, shell=True)
+            self.process.communicate()
+        
+        th = Thread(target=target)
+        th.start()
+        th.join(timeout)
+        if th.is_alive():
+            print 'Terminating process'
+            self.process.terminate()
+            th.join()
+        return self.process.returncode
+        
+        
+        
+tocopy=0
+
+def worker():
+    while True:
+        xcom = q.get()
+        com=Command( xcom )
+        com.run(opts.Timeout)
+        print "still in queue: ",q.qsize()
+        q.task_done()
+
+q=Queue.Queue()
+for i in range(int(opts.Streams)):
+     t = Thread(target=worker)
+     t.daemon = True
+     t.start()
+
+    
+if not os.path.exists(DS):
+    os.makedirs(DS)
+    
+for r in Files:
+    if ( opts.FilesToCopy>0 and copy>=opts.FilesToCopy): continue
+    
+    if (opts.verbose): print 'adding to queue ', r.scope+":"+r.name
+    c='xrdcp -np '+ redir+"/atlas/rucio/"+r.scope+":"+r.name + ' '+DS+'/'+r.name 
+    q.put(c)
+    tocopy+=1
+
+q.join()          
+        
+        
+print 'All done.'
+
+
+
+
+
+
+
+
 # rcl=rucio.client.Client()
 #
 # sl=rucio.client.didclient.DIDClient().scope_list("user.ivukotic")
-# print sl.next()
+# while(1):    print sl.next()
 #
 # rrc=rucio.client.replicaclient.ReplicaClient()
 # reps=rrc.list_replicas([{'scope': 'user.ivukotic', 'name': 'group.test.hc.NTUP_SUSY-c6-AF3-Root530.root'}])
@@ -198,79 +260,3 @@ except:
 #
 # ld=rucio.client.didclient.DIDClient().list_dids('user.ivukotic',{'name':'*1M'}, 'file' )
 # while(1):    print ld.next()
-
-
-if (opts.verbose):  print '--------------- Getting all of the DDM endpoints having a replica. ------------------'
-
-com=Command('dq2-ls -r '+ DS + ' > fax.tmp' )
-com.run(300)
-dsets={}
-cds=''
-f = open('fax.tmp', 'r')
-for line in f:
-    if line.startswith('Multiple'): break
-    line=line.strip()
-    if line.count(':')==0:continue
-    line=line.split(":")
-  #  print line
-
-    if line[0]=='INCOMPLETE':
-        if len(line[1])==0 or not opts.Incomplete: continue
-        rep=line[1].split(',')
-        for r in rep:
-            r=r.strip()
-            for s in sites:
-                if r in sites[s].ddms:
-                    dsets[cds].incomplete+=1
-        continue
-
-    if line[0]=='COMPLETE':
-        if len(line[1])==0: continue
-        rep=line[1].split(',')
-        for r in rep:
-            r=r.strip()
-            for s in sites:
-                if r in sites[s].ddms:
-                    dsets[cds].complete+=1
-        continue
-
-    cds=line[0]
-    dsets[cds]=dataset()
-
-for d  in dsets.keys():
-    print d,'\tcomplete replicas:',dsets[d].complete,'\tincomplete:',dsets[d].incomplete
-
-com=Command('rm -f fax.tmp' )
-com.run(10)
-
-
-
-if (opts.verbose):  print '--------------- find all the files ----------------------'
-for d in dsets.keys():
-    dsets[d].files=LFNs(d)
-     
-
-if (opts.verbose):  print '--------------- copying the files ----------------------'
-
-copied=0
-
-for d in dsets.keys():
-    print 'copying dataset: ', d
-    
-    if not os.path.exists(d):
-        os.makedirs(d)
-        
-    for r in dsets[d].files:
-        if ( opts.FilesToCopy>0 and copied>=opts.FilesToCopy): continue
-        while(threading.active_count()>=opts.Streams):
-            time.sleep(1)
-        
-        print 'starting copy of ', r.scope+":"+r.filename
-        c='xrdcp '+ redir+"/atlas/rucio/"+r.scope+":"+r.filename + ' '+d+'/'+r.filename 
-        if (opts.verbose): print 'executing: ', c
-        com=Command( c )
-        com.run(opts.Timeout)
-        copied+=1
-        
-        
-        
