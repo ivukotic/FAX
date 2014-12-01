@@ -4,7 +4,7 @@
 # make sure number of parallel streams is respected
 # check that files are copied right by checking their size 
 
-import subprocess, Queue, os, sys,time
+import subprocess, Queue, os, sys,time, datetime
 import threading
 from threading import Thread
 import urllib2
@@ -207,12 +207,23 @@ tocopy=0
 
 def worker():
     while True:
-#        xcom = q.get()
         f=q.get()
+        f.attempts+=1
+        if f.attempts>opt.Retries: 
+            print 'Desired number of retries reached. Giving up on this file.'
+            q.task_done()
+            return
         xcom='xrdcp -np '+ redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '+DS+'/'+f.name
         com=Command( xcom )
+        t1=datetime.datetime.now()
         res=com.run(opts.Timeout)
-        print "end code:", res
+        # print "return code:", res
+        t2=datetime.datetime.now()
+        if res!=0:
+            print 'Due to a failure the file: ',f.name,'will be retried.'
+            q.put(f)
+        else:
+            print "file copied in ", t2-t1
         print "still in queue: ",q.qsize()
         q.task_done()
 
@@ -230,8 +241,6 @@ for r in Files:
     if ( opts.FilesToCopy>0 and copy>=opts.FilesToCopy): continue
     
     if (opts.verbose): print 'adding to queue ', r.scope+":"+r.name
-#    c='xrdcp -np '+ redir+"/atlas/rucio/"+r.scope+":"+r.name + ' '+DS+'/'+r.name 
-#    q.put(c)
     q.put(r)
     tocopy+=1
 
