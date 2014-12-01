@@ -62,7 +62,16 @@ class site:
     def prnt(self):
         print  'host:', self.host, '\tport:', self.port, '\tddms:', self.ddms
 
-
+def getFiles(scope, DS):
+    collFiles=[]
+    cont=rucio.client.didclient.DIDClient().list_content(scope,DS)
+    for f in cont:
+        if f['type']=='DATASET':
+            collFiles+=( getFiles(f['scope'],f['name']) )
+        else:
+            if f['name'].count('.root')==0 and not opts.NonRoot : continue
+            collFiles.append(dsfile(f['scope'],f['name'],f['bytes'],f['adler32']))
+    return collFiles
 # =========================================================================================
 
 
@@ -144,13 +153,7 @@ if scope not in AllScopes:
     print 'ERROR: could not determine scope of this dataset. '
     sys.exit(1)
 
-# list content of the dataset
-# a file has: adler32, scope, name, bytes type  
-Files=[]
-files=rucio.client.didclient.DIDClient().list_content(scope,DS)
-for f in files:
-    if f['name'].count('.root')==0 and not opts.NonRoot : continue
-    Files.append(dsfile(f['scope'],f['name'],f['bytes'],f['adler32']))
+Files=getFiles(scope,DS)
 
 for f in Files: f.prnt()
    
