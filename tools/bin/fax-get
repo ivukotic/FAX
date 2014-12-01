@@ -14,13 +14,6 @@ import rucio
 import rucio.client
 import rucio.common.config as conf
 
-try:
-    from dq2.clientapi.DQ2 import DQ2
-except ImportError:
-    print "Environment not set [error importing DQ2 dependencies]!"
-    sys.exit(1)
-
-
 try: import simplejson as json
 except ImportError: import json
 
@@ -141,9 +134,15 @@ except:
 AllScopes = rucio.client.scopeclient.ScopeClient().list_scopes()
 
 # find the scope of the dataset we are dealing with
+w=DS.split('.')
+if w[0].startswith('user') or w[0].startswith('group'):
+    scope=w[0]+'.'+w[1]
+else:
+    scope=w[0]
 
-for scope in AllScopes:
-    if DS.startswith(scope): break
+if scope not in AllScopes:
+    print 'ERROR: could not determine scope of this dataset. '
+    sys.exit(1)
 
 # list content of the dataset
 # a file has: adler32, scope, name, bytes type  
