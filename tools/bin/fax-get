@@ -56,7 +56,7 @@ class site:
     def __init__(self, ho):
         ho=ho.replace("root://","")
         self.host=ho.split(":")[0]
-        if ho.count(":"):
+        if ho.count(":")
             self.port=ho.split(":")[1]
         self.ddms=[]
     def prnt(self):
@@ -207,9 +207,12 @@ tocopy=0
 
 def worker():
     while True:
-        xcom = q.get()
+#        xcom = q.get()
+        f=q.get()
+        xcom='xrdcp -np '+ redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '+DS+'/'+f.name
         com=Command( xcom )
-        com.run(opts.Timeout)
+        res=com.run(opts.Timeout)
+        print res
         print "still in queue: ",q.qsize()
         q.task_done()
 
@@ -227,8 +230,9 @@ for r in Files:
     if ( opts.FilesToCopy>0 and copy>=opts.FilesToCopy): continue
     
     if (opts.verbose): print 'adding to queue ', r.scope+":"+r.name
-    c='xrdcp -np '+ redir+"/atlas/rucio/"+r.scope+":"+r.name + ' '+DS+'/'+r.name 
-    q.put(c)
+#    c='xrdcp -np '+ redir+"/atlas/rucio/"+r.scope+":"+r.name + ' '+DS+'/'+r.name 
+#    q.put(c)
+    q.put(r)
     tocopy+=1
 
 q.join()          
