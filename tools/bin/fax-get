@@ -56,7 +56,7 @@ class site:
     def __init__(self, ho):
         ho=ho.replace("root://","")
         self.host=ho.split(":")[0]
-        if ho.count(":")
+        if ho.count(":"):
             self.port=ho.split(":")[1]
         self.ddms=[]
     def prnt(self):
@@ -212,7 +212,7 @@ def worker():
         xcom='xrdcp -np '+ redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '+DS+'/'+f.name
         com=Command( xcom )
         res=com.run(opts.Timeout)
-        print res
+        print "end code:", res
         print "still in queue: ",q.qsize()
         q.task_done()
 
