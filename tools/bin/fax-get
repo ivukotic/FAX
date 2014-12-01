@@ -209,7 +209,7 @@ def worker():
     while True:
         f=q.get()
         f.attempts+=1
-        if f.attempts>opt.Retries: 
+        if f.attempts>opts.Retries: 
             print 'Desired number of retries reached. Giving up on this file.'
             q.task_done()
             return
