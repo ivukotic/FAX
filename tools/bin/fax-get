@@ -219,11 +219,13 @@ def worker():
         res=com.run(opts.Timeout)
         # print "return code:", res
         t2=datetime.datetime.now()
+        dt=t2-t1
+        if dt<0.01: dt=0.01
         if res!=0:
             print 'Due to a failure the file: ',f.name,'will be retried.'
             q.put(f)
         else:
-            print "file copied in ", t2-t1
+            print "file copied in ", t2-t1, "at", f.size/1024./1024./dt,"MB/s"
         print "still in queue: ",q.qsize()
         q.task_done()
 
