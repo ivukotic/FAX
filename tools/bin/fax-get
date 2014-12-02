@@ -143,11 +143,16 @@ except:
 AllScopes = rucio.client.scopeclient.ScopeClient().list_scopes()
 
 # find the scope of the dataset we are dealing with
-w=DS.split('.')
-if w[0].startswith('user') or w[0].startswith('group'):
-    scope=w[0]+'.'+w[1]
+if DS.count(':')>0:
+    spl=DS.split(':')
+    scope=spl[0]
+    DS=spl[1]
 else:
-    scope=w[0]
+    w=DS.split('.')
+    if w[0].startswith('user') or w[0].startswith('group'):
+        scope=w[0]+'.'+w[1]
+    else:
+        scope=w[0]
 
 if scope not in AllScopes:
     print 'ERROR: could not determine scope of this dataset. '
@@ -253,27 +258,3 @@ print 'All done.'
 
 
 
-
-
-
-
-
-# rcl=rucio.client.Client()
-#
-# sl=rucio.client.didclient.DIDClient().scope_list("user.ivukotic")
-# while(1):    print sl.next()
-#
-# rrc=rucio.client.replicaclient.ReplicaClient()
-# reps=rrc.list_replicas([{'scope': 'user.ivukotic', 'name': 'group.test.hc.NTUP_SUSY-c6-AF3-Root530.root'}])
-# print reps.next()
-#
-# sc=rucio.client.scopeclient.ScopeClient()
-# print sc.list_scopes_for_account('ivukotic')
-#
-# ld=rucio.client.didclient.DIDClient().list_dids('user.ivukotic','user.ivukotic.overflow.real-5.S-MWT2.D-ANALY_AGLT2_SL6_info.txt' )
-#
-# lc=rucio.client.didclient.DIDClient().list_content('user.btannenw', 'user.btannenw.data12_8TeV.periodJ.physics_Muons.PhysCont.NTUP_COMMON.grp14_v01_p1675.skim1')
-# while(1):    print lc.next()
-#
-# ld=rucio.client.didclient.DIDClient().list_dids('user.ivukotic',{'name':'*1M'}, 'file' )
-# while(1):    print ld.next()
