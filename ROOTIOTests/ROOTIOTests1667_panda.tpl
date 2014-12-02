@@ -22,6 +22,7 @@ Job (
  merger = None ,
  inputsandbox = [ ] ,
  application = Athena (
+    atlas_dbrelease = '' ,
     atlas_project = '' ,
     atlas_release = '17.6.0' ,
     collect_stats = True ,
