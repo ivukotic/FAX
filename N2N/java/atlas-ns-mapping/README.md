@@ -23,8 +23,8 @@ To use this plugin with dCache, place the directory containing this
 file in /usr/share/dcache/plugins/
 
 To enable the plugin, define the following property in dcache.conf:
-    xrootd/xrootdPlugins=authn:none,authz:atlas-name-to-name-plugin
-    pool/xrootdPlugins=
+    xrootd.plugins=gplazma:gsi,authz:atlas-name-to-name-plugin,redirector
+    pool.plugins=
 
 this is needed so plugin can determine space tokens available:
     xrootd.n2n.site=rc_site
