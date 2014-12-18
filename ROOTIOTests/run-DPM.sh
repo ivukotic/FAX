@@ -11,8 +11,8 @@ urls=("https://lxfsra04a04.cern.ch/dpm/cern.ch/home/atlas/group.test.hc.NTUP_SMW
 "root://eospps.cern.ch///eos/ppsscratch/group.test.hc.NTUP_SMWZ.root" \
 "https://lxbst2320.cern.ch/eos/ppsscratch/group.test.hc.NTUP_SMWZ.root" \
 "https://dpmrc-head.civ.zcu.cz/dpm/zcu.cz/home/dteam/group.test.hc.NTUP_SMWZ.root" \
-"https://littlexrdhttp.cern.ch:1094/atlas/group.test.hc.NTUP_SMWZ.root" \
-"root://littlexrdhttp.cern.ch:1094/atlas/group.test.hc.NTUP_SMWZ.root" \
+"https://littlexrdhttp.cern.ch:1094/dynafeds_demo/HCfunc/group.test.hc.NTUP_SMWZ.root" \
+"root://littlexrdhttp.cern.ch:1094//dynafeds_demo/HCfunc/group.test.hc.NTUP_SMWZ.root" \
 "https://dc2-grid-23.brunel.ac.uk/dpm/brunel.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root" \
 "root://dc2-grid-23.brunel.ac.uk//atlas/group.test.hc.NTUP_SMWZ.root"
 "https://lapp-se99.in2p3.fr/dpm/in2p3.fr/home/atlas/group.test.hc.NTUP_SMWZ.root" \
