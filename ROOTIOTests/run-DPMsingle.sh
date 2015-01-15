@@ -106,14 +106,21 @@ root.exe -l -q -b "readDPMWebDav.C++(\"$desturl\",\"$treeToUse\", 100, 30,\"\",\
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
+
+echo " --- Uploading results to the DB ---"
 python uploaderDPM.py "DPM Root Read 100% TTC" "100"
+echo " --- Uploading results to ElasticSearch ---"
+python uploaderDPMES.py "DPM Root Read 100% TTC"
 echo -n "time> DPM-test > test 100,30 $desttag finished "; date
 
 root.exe -l -q -b "readDPMWebDav.C++(\"$desturl\",\"$treeToUse\", 1, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
 echo " --------- info.txt ----------"
 cat info.txt
 echo " -----------------------------"
+echo " --- Uploading results to the DB ---"
 python uploaderDPM.py "DPM Root Read 1% TTC" "1"
+echo " --- Uploading results to ElasticSearch ---"
+python uploaderDPMES.py "DPM Root Read 1% TTC"
 echo -n "time> DPM-test > test 1,30 $desttag finished "; date
 
 rm -f ./group.test.hc.NTUP_SMWZ.root
