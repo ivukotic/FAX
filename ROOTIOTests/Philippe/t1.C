@@ -1,3 +1,0 @@
-{
-cout<<"ROOT running"<<endl;
-}
