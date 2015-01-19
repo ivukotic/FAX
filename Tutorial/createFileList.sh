@@ -1,4 +1,4 @@
-fax-get-gLFNs user.ilijav.HCtest.1 > ilijav_files.txt
+fax-get-gLFNs user.ivukotic:user.ilijav.HCtest.1 > ilijav_files.txt
 fax-get-gLFNs user.flegger.MWT2.data12_8TeV.00212172.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid01007411_00 > MWT2_files.txt
 #fax-get-gLFNs user.flegger.MWT2.data12_8TeV.00211697.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid00987986_00 >> ../MWT2_files.txt
 #fax-get-gLFNs user.flegger.MWT2.data12_8TeV.00211620.physics_Muons.merge.NTUP_SMWZ.f479_m1228_p1067_p1141_tid00986521_00 >> ../MWT2_files.txt

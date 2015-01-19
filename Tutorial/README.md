@@ -32,11 +32,11 @@ How to use FAX - Tutorial
 
     The tool to do that is called fax-is-dataset-covered and is available upon setting up localSetupFAX. Usage is trivial: just give it a dataset or datacontainer name. For each input dataset it will print number of FAX endpoints containing full and incomplete replicas. Example:
 
-    fax-is-dataset-covered user.ilijav.HCtest.1
+    fax-is-dataset-covered user.ivukotic:user.ilijav.HCtest.1
 
 
     There is one more tool doing the same task:
-    fax_ls user.ilijav.HCtest.1
+    fax-ls user.ivukotic:user.ilijav.HCtest.1
     
 
 3. Find gLFN's of your files 
@@ -51,14 +51,14 @@ How to use FAX - Tutorial
 
     copy it localy:
 
-    xrdcp $STORAGEPREFIX/atlas/rucio/user/ivukotic:group.test.hc.NTUP_SMWZ.root /tmp/myLocalCopy.root.1 
+    xrdcp $STORAGEPREFIX/atlas/rucio/user.ivukotic:group.test.hc.NTUP_SMWZ.root /tmp/myLocalCopy.root.1 
 
     Open and list file content of the file in ROOT. Start by setting up ROOT
 
     localSetupROOT
 
      root -l
-          TFile *f = TFile::Open("root://fax.mwt2.org//atlas/rucio/user/ivukotic:group.test.hc.NTUP_SMWZ.root"); 
+          TFile *f = TFile::Open("root://fax.mwt2.org//atlas/rucio/user.ivukotic:group.test.hc.NTUP_SMWZ.root"); 
           if(f) f->ls();
           .q
     
@@ -77,10 +77,10 @@ How to use FAX - Tutorial
     make
 
     remotely read from file 10% of events using 30MB of TTreeCache memory.
-    ./readDirect root://fax.mwt2.org:1094//atlas/rucio/user/ivukotic:group.test.hc.NTUP_SMWZ.root physics 10 30 
+    ./readDirect root://fax.mwt2.org:1094//atlas/rucio/user.ivukotic:group.test.hc.NTUP_SMWZ.root physics 10 30 
 
     remotely read from file 10% of events using 30MB of TTreeCache memory and write to a remote xrootd server:
-    ./readWrite root://fax.mwt2.org:1094//atlas/rucio/user/ivukotic:group.test.hc.NTUP_SMWZ.root  root://faxbox.usatlas.org:1094//  physics 10 30
+    ./readWrite root://fax.mwt2.org:1094//atlas/rucio/user.ivukotic:group.test.hc.NTUP_SMWZ.root  root://faxbox.usatlas.org:1094//  physics 10 30
 
 7. Simple SkimSlim example 
     This example will use a standard Athena SkimSlim script filter-and-merge-d3pd.py 
