@@ -12,6 +12,9 @@ import stomp, logging, datetime, time, ConfigParser
 import urllib,urllib2
 import json as simplejson
 
+doTraceroute=False
+
+
 def send (message):
     # all of the ActiveMQ configuration 
     logging.basicConfig()
@@ -269,7 +272,8 @@ def main():
                 f.write('`which time`  -f "COPYTIME=%e\\nEXITSTATUS=%x" -o '+ logfile +' xrdcp -np ' + fn + """ - > /dev/null  2>&1 \n""")
             servname=s.host.replace('root://','')
             servname=servname.split(':')[0]
-            f.write('traceroute -w 3 -q 1 -n '+servname+' >> '+logfile+" \n")
+            if (doTraceroute):
+                f.write('traceroute -w 3 -q 1 -n '+servname+' >> '+logfile+" \n")
             f.write('python costMatrix.py '+logfile+" "+SITE+"\n")
             f.write('rm '+logfile+"\n")
 
