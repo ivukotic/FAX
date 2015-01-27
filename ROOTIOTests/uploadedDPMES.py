@@ -3,8 +3,8 @@ import os
 import sys
 import platform
 
-import httplib
-import json
+import urllib
+import urllib2
 
 import datetime 
 
@@ -153,25 +153,25 @@ doces['combo'] = '%s %s %s' % (doces['site'], doces['protocol'], doces['data_sit
 doces['cputime'] = CPUTIME
 doces['created'] = creationtime.strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
-data = json.dumps(doces)
-headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "*/*"}
-conn = httplib.HTTPSConnection('dashb-es-dev.cern.ch', 9203)
-
 #setting curl command parameters with Fabrizio's certificate proxy to contact ES cluster
 if os.environ.has_key('X509_USER_PROXY'):
   proxylocation = os.environ['X509_USER_PROXY']
-  conn.cert_file = proxylocation
-  conn.key_file = proxylocation
+  curlproxy = "--cert %s --key %s --cacert %s" % (proxylocation, proxylocation, proxylocation)
 else:
   print "ERROR: X509_USER_PROXY env variable not set, cannot contact ES cluster to upload test result."
   print "EXITING."
   sys.exit("User proxy not set")
 
-conn.request("POST", '/hammer_dpm_0/result/', data, headers)
-res = conn.getresponse()
+if os.environ.has_key('X509_CERT_DIR'):
+  curlcacerts = "--capath %s " % os.environ['X509_CERT_DIR']
+else:
+  print "WARNING: X509_CERT_DIR env variable not set, using default location"
+  curlcacerts = "--capath /etc/grid-security/certificates/ "
 
-print "Server response code: %s" % res.status
-print "Server response body: %s" % res.read()
+curlcommand = "curl -v %s %s -XPOST 'https://dashb-es-dev.cern.ch:9203/hammer_dpm_0/result/' -d '%s'" % (curlproxy, curlcacerts, str(doces).replace("'", '"'))
+print "Executing Command: %s" % curlcommand
+res = os.system(curlcommand)
+print "Command res: %s" % res
 
 """
 print "create xml"

@@ -20,6 +20,11 @@
 #include <fstream>
 #include <sstream>
 
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "TIOPerfStats.h"
+
 void diskSt(long long * diskStat, string fn){
   
     // first finding base directory for the file
@@ -116,6 +121,9 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     //gEnv->SetValue("TFile.AsyncPrefetching", 1);
 
     TStopwatch timer;
+    TIOPerfStat stats(gPerfStats);
+    gPerfStats= &stats;
+
     Double_t nb = 0;	
     bool checkHDD=true;
     long long diskS1[11];
@@ -189,9 +197,7 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     if (endevent > 0 ) nentries = endevent; 
     cout << "nentries " << nentries << endl;
 
-	float toRead= (float) nentries * percentage/100;
 	int* randoms = new int[nentries];
-	
 	tree->SetCacheSize((int)(TTC*1024*1024));
 
     if (branchesToBeRead.length()>0) {
@@ -215,6 +221,9 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     tree->StopCacheLearningPhase();
     //TTreeCache::SetLearnEntries(1);
     TTreePerfStats *ps= new TTreePerfStats("ioperf",tree);
+    // override TReePerfStats with IO stats, TReeOerfStats does not forward calls, IOStats 
+    stats.RegisterTree(tree);
+
     
     for (int i=0;i<nentries;i++) {
       if (gRandom->Rndm(1)<((float) percentage/100)) {
@@ -245,6 +254,7 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     tree->PrintCacheStats();
     //ps->SaveAs("perf.root");
     ps->Print(); 
+    stats.PrintStats();
 
     cout<<"TOTALSIZE="<<tree->GetTotBytes()<<endl;
     cout<<"ZIPSIZE="<<tree->GetZipBytes()<<endl;
