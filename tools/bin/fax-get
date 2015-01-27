@@ -245,7 +245,7 @@ if not os.path.exists(DS):
     os.makedirs(DS)
     
 for r in Files:
-    if ( opts.FilesToCopy>0 and copy>=opts.FilesToCopy): continue
+    if ( opts.FilesToCopy>0 and tocopy>=opts.FilesToCopy): continue
     
     if (opts.verbose): print 'adding to queue ', r.scope+":"+r.name
     q.put(r)
