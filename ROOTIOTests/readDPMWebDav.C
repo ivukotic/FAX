@@ -221,8 +221,8 @@ int readDPMWebDav(string fn, string trname, int percentage, float TTC, string br
     tree->StopCacheLearningPhase();
     //TTreeCache::SetLearnEntries(1);
     TTreePerfStats *ps= new TTreePerfStats("ioperf",tree);
-    // override TReePerfStats with IO stats, TReeOerfStats does not forward calls, IOStats does
-    gPerfStats= &stats;
+    // override TReePerfStats with IO stats, TReeOerfStats does not forward calls, IOStats 
+    stats.RegisterTree(tree);
 
     
     for (int i=0;i<nentries;i++) {
