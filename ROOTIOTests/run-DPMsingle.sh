@@ -100,6 +100,14 @@ echo "---> PROXY( $X509_USER_PROXY ) CADIR( $X509_CERT_DIR ) "
 echo "-------------------------------------"
 ulimit -c unlimited
 
+# Testing connection to ElasticSearch cluster for debug
+echo "------- Testing connection to ES cluster -------"
+if [ -z "$var" ]; 
+then export CAPATH=/etc/grid-security/certificates;
+else export CAPATH=$X509_CERT_DIR;
+fi
+curl --cert $X509_USER_PROXY --key $X509_USER_PROXY --cacert $X509_USER_PROXY --capath $CAPATH -v -XGET 'https://dashb-es-dev.cern.ch:9203/hammer_dpm_0/'
+
 #root -l -q -b "readint.C++(\"$filenamerfio\",\"$treeToUse\", 100, 30)" >& info.txt
 #./readDirect $filenamexrootd $treeToUse 100 30 >& info.txt
 root.exe -l -q -b "readDPMWebDav.C++(\"$desturl\",\"$treeToUse\", 100, 30,\"\",\"$X509_USER_PROXY\",\"$X509_CERT_DIR\")" >& info.txt
