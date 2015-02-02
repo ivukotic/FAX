@@ -1,0 +1,222 @@
+#!/usr/bin/env python
+import subprocess, threading, os, sys, time, datetime
+import urllib, urllib2
+import optparse
+
+try: import simplejson as json
+except ImportError: import json
+
+usage = """
+     This program checks the state of the FAX endpoint for a given site. 
+     Upon exit you may find the detailed log files produced.  
+     %prog [options] siteName
+     
+"""
+
+optParser = optparse.OptionParser(usage=usage, conflict_handler="resolve")
+optParser.add_option('-v',action='store_const',const=True,dest='verbose', default=False, help='Verbose')
+                  
+# parse options and args
+options, args = optParser.parse_args()
+if options.verbose:
+    print options
+    print "args=",args
+    print
+
+if len(args) == 0:
+    optParser.print_help()
+    optParser.exit(1)
+
+siteName=args[0]    
+    
+def isMsgOK(l):
+    if l.count('[SUCCESS]')==0: return False
+    if l.count('Close returned from')==0: return False
+    return True
+def findRedirection(l):
+    if l.count('Creating new channel to:')==0: return ''
+    w = l.split('Creating new channel to:')
+    r=w[1].split()
+    return r[0]
+    
+timeouts=300
+sleeps=350
+
+dsNAMEpref='user.ivukotic.xrootd.'
+fnNAMEpref='/user.ivukotic.xrootd.'
+cpcomm='xrdcp -d 2 -f -np '
+ts=datetime.datetime.utcnow()
+logpostfix=ts.strftime("_%Y-%m-%dT%H00")+'.log'
+redstring=' - 2>&1 >/dev/null | cat >'
+
+
+class site:    
+    name=''
+    fullname=''
+    host=''
+    redirector=''
+    direct=0
+    upstream=0
+    downstream=0
+    security=0
+    
+    def __init__(self, fn, na, ho, re):
+        if na=='GRIF':
+            na=fn
+        self.fullname=fn
+        self.lname=na.lower()
+        self.name=na
+        self.host=ho
+        self.redirector=re
+        # self.rucio=0
+    
+    def prnt(self, what):
+        if (what>=0 and self.redirector!=what): return
+        print '------------------------------------\nfullname:',self.fullname
+        print 'redirector:', self.redirector, '\tname:', self.name, '\thost:', self.host
+        print 'responds:', self.direct, '\t upstream:', self.upstream, '\t downstream:', self.downstream, '\t security:', self.security
+    
+    def status(self):
+       s=0
+       s=s|(self.security<<3)
+       s=s|(self.downstream<<2)
+       s=s|(self.upstream<<1)
+       s=s|(self.direct<<0)
+       return s
+
+
+class Command(object):
+    
+    def __init__(self, cmd):
+        self.cmd = cmd
+        self.process = None
+    
+    def run(self, timeout):
+        def target():
+            print 'command started: ', self.cmd
+            self.process = subprocess.Popen(self.cmd, shell=True)
+            self.process.communicate()
+        
+        thread = threading.Thread(target=target)
+        thread.start()
+        
+        thread.join(timeout)
+        if thread.is_alive():
+            print 'Terminating process'
+            self.process.terminate()
+            thread.join()
+        return self.process.returncode       
+       
+
+if (options.verbose):
+    print 'Geting site info from AGIS...'
+
+
+s=None
+try:
+    req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&flavour=XROOTD", None)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    res=json.load(f)
+    for si in res:
+        if (options.verbose): 
+            print  si["name"],si["rc_site"], si["endpoint"], si["redirector"]["endpoint"]
+        if si["rc_site"]==siteName:
+            s=site(si["name"],si["rc_site"], si["endpoint"], si["redirector"]["endpoint"])
+            break
+    if s is None:
+        print "Could not find a FAX endpoint at that site. Aborting."
+        sys.exit(1)
+except urllib2.URLError:
+    print "Can't connect to AGIS. Aborting. "
+    sys.exit(1)
+except urllib2.HTTPError:
+    print "Can't connect to AGIS. Aborting. "
+    sys.exit(1)
+# except:
+#     print "Could not fetch information from AGIS. Aborting. ", sys.exc_info()[0]
+#     sys.exit(1)
+
+
+with open('all_tests.sh', 'w') as f:
+    
+    if (options.verbose):
+        print "adding check:  DIRECT "
+    log_direct='direct_'+s.name+logpostfix
+    lookingFor = '//atlas/rucio/user/ivukotic:user.ivukotic.xrootd.'+s.lname+'-1M'
+    comm = cpcomm + s.host + lookingFor + redstring + log_direct + ' & \n'
+    f.write(comm)
+    
+    if (options.verbose):
+        print "adding check:  UPSTREAM "
+    log_upstream='upstream_'+s.name+logpostfix
+    lookingFor = '//atlas/rucio/user/ivukotic:user.ivukotic.xrootd.'+s.lname+'unexisting-1M'
+    comm = cpcomm + s.host + lookingFor + redstring + log_upstream + ' & \n'
+    f.write(comm)
+    
+    if (options.verbose):
+        print "adding check:  DOWNSTREAM "
+    log_downstream='downstream_'+s.name+logpostfix
+    lookingFor = '//atlas/rucio/user/ivukotic:user.ivukotic.xrootd.'+s.lname+'-1M'
+    comm = cpcomm + ' root://'+s.redirector + lookingFor + redstring + log_downstream + ' & \n'
+    f.write(comm)    
+    
+    
+    f.close()
+
+
+if (options.verbose): 
+    print 'executing ... 5 min timeout.'
+    
+com = Command("source " + os.getcwd() + "/all_tests.sh")    
+com.run(timeouts)
+time.sleep(sleeps)
+
+with open(log_direct, 'r') as f:
+    lines=f.readlines()
+    succ=False
+    for l in lines:
+        if isMsgOK(l):
+            succ=True
+            break
+    if succ==True:
+        s.direct=1
+        if (options.verbose): 
+            print log_direct, "works"
+    else:
+        if (options.verbose): 
+            print log_direct, "problem"
+
+with open(log_downstream, 'r') as f:
+    lines=f.readlines()
+    succ=False
+    for l in lines:
+        if isMsgOK(l):
+            succ=True
+            break
+    if succ==True: 
+        s.downstream=1     
+        if (options.verbose): 
+            print 'Downstream redirection did not work.'
+    else:
+        if (options.verbose): 
+            print 'upstream redirection works'
+        
+with open(log_upstream, 'r') as f:
+    lines=f.readlines()        
+    reds=[]
+    for l in lines:
+        red=findRedirection(l)
+        if red!='': reds.append(red.split(':')[0])
+    if (options.verbose):
+        print 'redirections:',reds
+    if s.redirector.split(':')[0]  in reds:
+        s.upstream=1
+        if (options.verbose): 
+            print 'upstream redirection works'
+    else:    
+        if (options.verbose): 
+            print 'upstream redirection does not work'      
+
+
+            
