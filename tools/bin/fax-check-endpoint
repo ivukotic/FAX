@@ -182,10 +182,10 @@ with open(log_direct, 'r') as f:
     if succ==True:
         s.direct=1
         if (options.verbose): 
-            print log_direct, "works"
+            'Direct access works.'
     else:
         if (options.verbose): 
-            print log_direct, "problem"
+            'Direct access does not work.'
 
 with open(log_downstream, 'r') as f:
     lines=f.readlines()
@@ -197,10 +197,10 @@ with open(log_downstream, 'r') as f:
     if succ==True: 
         s.downstream=1     
         if (options.verbose): 
-            print 'Downstream redirection did not work.'
+            print 'Downstream redirection works.'
     else:
         if (options.verbose): 
-            print 'upstream redirection works'
+            print 'Downstream redirection does not work.'
         
 with open(log_upstream, 'r') as f:
     lines=f.readlines()        
