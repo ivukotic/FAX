@@ -65,6 +65,11 @@ ROOTBRANCH    = 'd'
 #     else:
 #         print 'VO_ATLAS_SW_DIR site but no SITE_NAME'
         
+def getresult(res, field):
+    if res.has_key(field):
+        return res[field]
+    else:
+        return None
 
 # finding CPU details
 with open('/proc/cpuinfo','r') as cpui:
@@ -106,6 +111,8 @@ with open('/proc/swaps','r') as swaps:
                 priority=tp
                 USEDSWAP=int(w[2])
 
+results = {}
+
 with open('info.txt', 'r') as f:
     lines=f.readlines()
     for l in lines:
@@ -113,6 +120,9 @@ with open('info.txt', 'r') as f:
         # print 'executing: ', l.strip()
         try:
           exec(l)
+          field = l.split('=')[0]
+          value = l.split('=')[1]
+          results[field] = value
         except:
           pass
 
@@ -146,12 +156,32 @@ if (WALLTIME == 0 and CPUTIME == 0) :
 creationtime = datetime.datetime.now()
 doces = {}
 doces["project_name"] = JOBTYPE
+doces['pandaid'] = PANDAID
 doces['site'] = SITE.replace('_XROOTD','').replace('ANALY_','')
 doces['data_site'] = DESTSITE
 doces['protocol'] = FILESYSTEM
 doces['combo'] = '%s %s %s' % (doces['site'], doces['protocol'], doces['data_site'])
 doces['cputime'] = CPUTIME
 doces['created'] = creationtime.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+doces['total_io_time'] = getresult(results, 'TotalIOTime') 
+doces['rss'] = getresult(results, 'RSS')
+doces['vmem'] = getresult(results,'VMEM')
+doces['root_branchesread'] = getresult(results, 'BRANCHESREAD')
+doces['root_bytesread'] = getresult(results, 'ROOTBYTESREAD')
+doces['root_events'] = getresult(results, 'EVENTS')
+doces['root_eventsread'] = getresult(results, 'EVENTSREAD')
+doces['root_reads'] = getresult(results, 'ROOTREADS')
+doces['root_totalsize'] = getresult(results, 'TOTALSIZE')
+doces['root_ttc'] = getresult(results, 'CACHESIZE')
+doces['root_zipsize'] = getresult(results, 'ZIPSIZE')
+doces['root_branch'] = getresult(results, 'ROOTBRANCH')
+doces['root_version'] = getresult(results, 'ROOTVERSION')
+doces['wn_networkin'] = getresult(results, 'ETHERNETIN')
+doces['wn_networkout'] = getresult(results, 'ETHERNETOUT')
+doces['wn_load'] = getresult(results, 'CPUSTATUS')
+doces['wn_cpucores'] = str(TOTALCORES)
+doces['wn_ht'] = str(HT)
+doces['wn_name'] = CPUTYPE
 
 data = json.dumps(doces)
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "*/*"}
