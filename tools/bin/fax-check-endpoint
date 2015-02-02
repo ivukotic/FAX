@@ -46,7 +46,7 @@ dsNAMEpref='user.ivukotic.xrootd.'
 fnNAMEpref='/user.ivukotic.xrootd.'
 cpcomm='xrdcp -d 2 -f -np '
 ts=datetime.datetime.utcnow()
-logpostfix=ts.strftime("_%Y-%m-%dT%H00")+'.log'
+logpostfix=ts.strftime("_%Y-%m-%dT%H%M")+'.log'
 redstring=' - 2>&1 >/dev/null | cat >'
 
 
