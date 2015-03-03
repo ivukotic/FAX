@@ -158,7 +158,8 @@ if scope not in AllScopes:
 
 Files=getFiles(scope,DS)
 
-for f in Files: f.prnt()
+if (opts.verbose):
+    for f in Files: f.prnt()
    
 # find file replicas
 rrc=rucio.client.replicaclient.ReplicaClient()

@@ -1,4 +1,76 @@
-#!/bin/sh
-# Parameter: dataset name
-# Requirement: dq2-list-files -s
-dq2-list-files -s $1 | awk '{if ($0 == "") {exit 0} else {printf("%s/atlas/rucio/%s:%s\n",ENVIRON["STORAGEPREFIX"],$1,$2)}}'
+#!/usr/bin/env python
+
+import os, sys 
+import urllib2
+import optparse
+
+import rucio
+import rucio.client
+import rucio.common.config as conf
+
+parser = optparse.OptionParser(description="Prints gLFNs for a given dataset.", version="%prog version 1.0", usage="Usage: %prog [options] dataset")
+
+
+parser.add_option('-r', '--RootOnly', help='list only ROOT files', dest='RootOnly', action='store_true', default=False)
+parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False)
+parser.add_option('-q', '--quiet',   action="store_false", dest="verbose")
+
+
+def getFiles(scope, DS):
+    collFiles=[]
+    cont=rucio.client.didclient.DIDClient().list_content(scope,DS)
+    for f in cont:
+        if f['type']=='DATASET':
+            collFiles+=( getFiles(f['scope'],f['name']) )
+        else:
+            if f['name'].count('.root')==0 and opts.RootOnly : continue
+            collFiles.append( redir+"/atlas/rucio/"+f['scope']+":"+f['name'])
+    return collFiles
+    
+
+(opts, args) = parser.parse_args()
+
+
+if (len(args)==0):
+    parser.print_help()
+    exit(-1)
+
+DS=args[0]
+
+if os.environ.get("STORAGEPREFIX") != None:
+    redir=os.environ.get("STORAGEPREFIX")
+else:
+    print "no FAX redirector given. Please set up FAX (localSetupFAX) or run fax-setRedirector.(c)sh, first. "
+    sys.exit(1)
+ 
+if os.environ.get("RUCIO_ACCOUNT") != None:
+    rucio_account=os.environ.get("RUCIO_ACCOUNT")
+else:
+    print "no RUCIO_ACCOUNT environment found. Please set it before using this program. "
+    sys.exit(1) 
+
+
+# get a list of all scopes
+AllScopes = rucio.client.scopeclient.ScopeClient().list_scopes()
+
+# find the scope of the dataset we are dealing with
+if DS.count(':')>0:
+    spl=DS.split(':')
+    scope=spl[0]
+    DS=spl[1]
+else:
+    w=DS.split('.')
+    if w[0].startswith('user') or w[0].startswith('group'):
+        scope=w[0]+'.'+w[1]
+    else:
+        scope=w[0]
+
+if scope not in AllScopes:
+    print 'ERROR: could not determine scope of this dataset. '
+    sys.exit(1)
+    
+    
+Files=getFiles(scope,DS)
+
+for f in Files:
+    print f
