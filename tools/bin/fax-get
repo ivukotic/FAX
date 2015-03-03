@@ -107,7 +107,7 @@ try:
     for s in res:
         if (opts.verbose): print s["name"], s["rc_site"], s["endpoint"]
         sites[s["rc_site"]]=site(s["endpoint"])
-#    print res
+    # print res
 except:
     print "Could not get FAX endpoints from AGIS. Exiting..."
     print "Unexpected error:", sys.exc_info()[0]
@@ -126,11 +126,9 @@ try:
     for s in res:
         sn=s["rc_site"]
         if sn in sites:
-#            print sn, s["name"]
+           # print sn, s["name"]
             sites[sn].ddms.append(s["name"])
-                
-#    print ' got related ddmendpoints from agis.'
-
+   # print ' got related ddmendpoints from agis.'
 except:
     print "Could not get DDM endpoint names from AGIS. Exiting..."
     print "Unexpected error:", sys.exc_info()[0]
