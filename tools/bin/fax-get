@@ -168,7 +168,7 @@ for f in Files:
     for r in reps:
         f.reps=r['rses'].keys()
 
-for f in Files: f.prnt()
+# for f in Files: f.prnt()
 
 # find available replicas for each file
 for f in Files:
