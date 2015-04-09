@@ -4,7 +4,7 @@
 # make sure number of parallel streams is respected
 # check that files are copied right by checking their size 
 
-import subprocess, Queue, os, sys,time, datetime
+import signal, subprocess, Queue, os, sys,time, datetime
 import threading
 from threading import Thread
 import urllib2
@@ -30,6 +30,14 @@ parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='NonRo
 parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False)
 parser.add_option('-q', '--quiet',   action="store_false", dest="verbose")
 
+
+def signal_handler(signal, frame):
+    print('You pressed Ctrl+C!')
+    with q.mutex:
+        q.queue.clear()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 
 class dsfile:
