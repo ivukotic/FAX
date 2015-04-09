@@ -8,7 +8,7 @@ import signal, subprocess, Queue, os, sys,time, datetime
 import threading
 from threading import Thread
 import urllib2
-import optparse
+import optparse, logging
 
 import rucio
 import rucio.client
@@ -27,12 +27,13 @@ parser.add_option('-f', '--files',   help='a number of files to copy', default=0
 parser.add_option('-x', '--extreme', help='use extreme copy', dest='Extreme', action='store_true', default=False)
 parser.add_option('-i', '--incomplete', help='copy incomplete datasets too', dest='Incomplete', action='store_true', default=False)
 parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='NonRoot', action='store_true', default=False)
-parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False)
-parser.add_option('-q', '--quiet',   action="store_false", dest="verbose")
+parser.add_option('-l', '--log', help='logging level (DEBUG, INFO, WARNING, ERROR)', default="INFO", dest='loglev')
+
+
 
 
 def signal_handler(signal, frame):
-    print('You pressed Ctrl+C!')
+    logging.info('You pressed Ctrl+C!')
     with q.mutex:
         q.queue.clear()
     sys.exit(0)
@@ -50,7 +51,7 @@ class dsfile:
         self.reps=[]
         self.areps=[]
     def prnt(self):
-        print 'file:',self.scope+':'+self.name,"\tsize:",str(self.size/1024/1024),"\tattempts:",str(self.attempts),"\treplicas:",self.reps,"\t available:",self.areps
+        logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i  \t replicas:%s \t available:%s' % (self.scope, self.name, self.size/1024/1024, self.attempts, self.reps, self.areps))
     
 class dataset:
     def __init__(self):
@@ -89,42 +90,50 @@ if (len(args)==0):
     parser.print_help()
     exit(-1)
 
+numeric_level = getattr(logging, opts.loglev.upper(), None)
+if not isinstance(numeric_level, int):
+    raise ValueError('Invalid log level: %s' % loglevel)
+
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=numeric_level)
+
 DS=args[0]
 
 if os.environ.get("STORAGEPREFIX") != None:
     redir=os.environ.get("STORAGEPREFIX")
 else:
-    print "no FAX redirector given. Please set up FAX (localSetupFAX) or run fax-setRedirector.(c)sh, first. "
+    logging.error("no FAX redirector given. Please set up FAX (localSetupFAX) or run fax-setRedirector.(c)sh, first.")
     sys.exit(1)
 
 if os.environ.get("RUCIO_ACCOUNT") != None:
     rucio_account=os.environ.get("RUCIO_ACCOUNT")
 else:
-    print "no RUCIO_ACCOUNT environment found. Please set it before using this program. "
+    logging.error("no RUCIO_ACCOUNT environment found. Please set it before using this program.")
     sys.exit(1) 
 
 
 sites={}
 
+
+logging.debug('---------------getting FAX endpoints from AGISrepeater. ---------------')
+
 try:
-    if (opts.verbose): print "#getting FAX endpoints from AGISrepeater..."
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
     opener = urllib2.build_opener()
     f = opener.open(req)
     res=json.load(f)
     for s in res:
-        if (opts.verbose): print s["name"], s["rc_site"], s["endpoint"]
+        logging.debug( s["name"]+'  '+s["rc_site"]+'  '+s["endpoint"])
         sites[s["rc_site"]]=site(s["endpoint"])
     # print res
 except:
-    print "Could not get FAX endpoints from AGIS. Exiting..."
-    print "Unexpected error:", sys.exc_info()[0]
+    logging.error("Could not get FAX endpoints from AGIS. Exiting...")
+    logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
     sys.exit(1)
     
 #for s in sites:  print s, sites[s].prnt()
     
     
-if (opts.verbose):  print '--------------- Getting all of the DDM endpoints. ---------------'
+logging.debug('--------------- Getting all of the DDM endpoints. ---------------')
 
 try:
     req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
@@ -138,8 +147,8 @@ try:
             sites[sn].ddms.append(s["name"])
    # print ' got related ddmendpoints from agis.'
 except:
-    print "Could not get DDM endpoint names from AGIS. Exiting..."
-    print "Unexpected error:", sys.exc_info()[0]
+    logging.error("Could not get DDM endpoint names from AGIS. Exiting...")
+    logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
     sys.exit(1)
 
 #for s in sites: print s, sites[s].prnt()
@@ -161,13 +170,12 @@ else:
         scope=w[0]
 
 if scope not in AllScopes:
-    print 'ERROR: could not determine scope of this dataset. '
+    logging.error('ERROR: could not determine scope of this dataset. ')
     sys.exit(1)
 
 Files=getFiles(scope,DS)
 
-if (opts.verbose):
-    for f in Files: f.prnt()
+for f in Files: f.prnt()
    
 # find file replicas
 rrc=rucio.client.replicaclient.ReplicaClient()
@@ -190,7 +198,7 @@ for f in Files:
 for f in Files: f.prnt()
 
 
-if (opts.verbose):  print '--------------- copying the files ----------------------'
+logging.debug('--------------- copying the files ----------------------')
 
 
 class Command(object):
@@ -222,7 +230,7 @@ def worker():
         f=q.get()
         f.attempts+=1
         if f.attempts>opts.Retries: 
-            print 'Desired number of retries reached. Giving up on this file.'
+            logging.info('Desired number of retries reached. Giving up on this file.')
             q.task_done()
             return
         xcom='xrdcp -np '+ redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '+DS+'/'+f.name
@@ -235,10 +243,10 @@ def worker():
         dt=dt.seconds
         if dt<0.01: dt=0.01
         if res!=0:
-            print 'Due to a failure the file: ',f.name,'will be retried.'
+            logging.error('Due to a failure the file: %s will be retried.'%f.name)
             q.put(f)
         else:
-            print "file copied in ", t2-t1, "at", f.size/1024./1024./dt,"MB/s.   Still in queue: ",q.qsize()
+            logging.info("file copied in %s at %.3f MB/s.  Files not yet started: %i" % ( t2-t1, f.size/1024./1024./dt,q.qsize() ) )
         q.task_done()
 
 q=Queue.Queue()
@@ -254,14 +262,14 @@ if not os.path.exists(DS):
 for r in Files:
     if ( opts.FilesToCopy>0 and tocopy>=opts.FilesToCopy): continue
     
-    if (opts.verbose): print 'adding to queue ', r.scope+":"+r.name
+    logging.debug('adding to queue %s:%s' % (r.scope, r.name))
     q.put(r)
     tocopy+=1
 
 q.join()          
         
         
-print 'All done.'
+logging.info('All done.')
 
 
 
