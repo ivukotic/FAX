@@ -93,7 +93,7 @@ if (len(args)==0):
 
 numeric_level = getattr(logging, opts.loglev.upper(), None)
 if not isinstance(numeric_level, int):
-    raise ValueError('Invalid log level: %s' % loglevel)
+    raise ValueError('Invalid log level: %s' % opts.loglevel)
 
 if (opts.logfile!=''):
     logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=numeric_level, filename=opts.logfile)
