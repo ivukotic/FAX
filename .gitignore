@@ -1,2 +1,5 @@
+target
 *.class
+.DS_Store
+*.pyc
 
