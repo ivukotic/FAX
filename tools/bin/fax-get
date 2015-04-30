@@ -189,12 +189,13 @@ rrc=rucio.client.replicaclient.ReplicaClient()
 for f in Files:
     reps=rrc.list_replicas([{'scope': f.scope, 'name': f.name}], schemes=['root'])
     for r in reps:
-        # is there an option to have multiple replicas at the same site?
-        if len(r['rses'].values()[0])==0: continue # has no FAX access point 
-        f.reps=r['rses'].keys()
-        f.areps=r['rses'].keys()
-        f.arepsPNFS=r['rses'].values()[0]
-        f.aExpectedRates=0
+    	for key, value in r['rses'].iteritems():
+    	    if len(value)==0: continue # has no FAX access point
+    	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
+            f.reps.append(key)
+            f.areps.append(key)
+            f.arepsPNFS.append(value[0])
+            f.aExpectedRates.append(0)
 
 #for f in Files: f.prnt()
 
@@ -206,6 +207,7 @@ for f in Files:
                 if f.areps[i]!=ddm:
                     f.areps.pop(i)
                     f.arepsPNFS.pop(i)
+                    f.aExpectedRates(0)
 
 
 for f in Files: f.prnt()
