@@ -1,5 +1,13 @@
-target
+*target*
+*.jar
+*.war
+*.ear
 *.class
 .DS_Store
 *.pyc
+.classpath
+.settings/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
 
