@@ -202,12 +202,16 @@ for f in Files:
 # find available replicas for each file
 for f in Files:
     for i in range(len(f.reps)):
+        found=False
         for s in sites:
             for ddm in sites[s].ddms:
-                if f.areps[i]!=ddm:
-                    f.areps.pop(i)
-                    f.arepsPNFS.pop(i)
-                    f.aExpectedRates.pop(i)
+                if f.areps[i]==ddm:
+                    found=True
+        if not found:
+            log.warning('discarding replica %s ' % f.reps[i])            
+            f.areps.pop(i)
+            f.arepsPNFS.pop(i)
+            f.aExpectedRates.pop(i)
 
 
 for f in Files: f.prnt()
