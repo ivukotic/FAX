@@ -28,7 +28,7 @@ parser.add_option('-i', '--incomplete', help='copy incomplete datasets too', des
 parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='NonRoot', action='store_true', default=False)
 parser.add_option('-l', '--log', help='logging level (DEBUG, INFO, WARNING, ERROR)', default="INFO", dest='loglev')
 parser.add_option('-o', '--out', help='file to write logging stream into', default="", dest='logfile')
-parser.add_option('-d', '--discard', help='copy to /dev/null. Only for performance measurements.', default=False, dest='discard')
+parser.add_option('-d', '--discard', help='copy to /dev/null. Only for performance measurements.', default=False, action='store_true', dest='discard')
 
 
 
@@ -177,7 +177,7 @@ else:
         scope=w[0]
 
 if scope not in AllScopes:
-    logging.error('ERROR: could not determine scope of this dataset. ')
+    logging.error('could not determine scope of this dataset. ')
     sys.exit(1)
 
 Files=getFiles(scope,DS)
@@ -207,7 +207,7 @@ for f in Files:
                 if f.areps[i]!=ddm:
                     f.areps.pop(i)
                     f.arepsPNFS.pop(i)
-                    f.aExpectedRates(0)
+                    f.aExpectedRates.pop(i)
 
 
 for f in Files: f.prnt()
