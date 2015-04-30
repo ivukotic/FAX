@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # to fix
-# make sure number of parallel streams is respected
 # check that files are copied right by checking their size 
 
 import signal, subprocess, Queue, os, sys,time, datetime
@@ -29,6 +28,7 @@ parser.add_option('-i', '--incomplete', help='copy incomplete datasets too', des
 parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='NonRoot', action='store_true', default=False)
 parser.add_option('-l', '--log', help='logging level (DEBUG, INFO, WARNING, ERROR)', default="INFO", dest='loglev')
 parser.add_option('-o', '--out', help='file to write logging stream into', default="", dest='logfile')
+parser.add_option('-d', '--discard', help='copy to /dev/null. Only for performance measurements.', default=False, dest='discard')
 
 
 
@@ -51,9 +51,12 @@ class dsfile:
         self.attempts=0
         self.reps=[]
         self.areps=[]
+        self.arepsPNFS=[]
+        self.aExpectedRates=[]
     def prnt(self):
-        logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i  \t replicas:%s \t available:%s' % (self.scope, self.name, self.size/1024/1024, self.attempts, self.reps, self.areps))
-    
+        logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
+        for i in range(len(self.areps)):
+            logging.debug('replica: %i \t site: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.reps[i], self.arepsPNFS[i],self.aExpectedRates[i]))
 class dataset:
     def __init__(self):
         self.complete=0
@@ -184,19 +187,25 @@ for f in Files: f.prnt()
 # find file replicas
 rrc=rucio.client.replicaclient.ReplicaClient()
 for f in Files:
-    reps=rrc.list_replicas([{'scope': f.scope, 'name': f.name}])
+    reps=rrc.list_replicas([{'scope': f.scope, 'name': f.name}], schemes=['root'])
     for r in reps:
+        # is there an option to have multiple replicas at the same site?
+        if len(r['rses'].values()[0])==0: continue # has no FAX access point 
         f.reps=r['rses'].keys()
+        f.areps=r['rses'].keys()
+        f.arepsPNFS=r['rses'].values()[0]
+        f.aExpectedRates=0
 
-# for f in Files: f.prnt()
+#for f in Files: f.prnt()
 
 # find available replicas for each file
 for f in Files:
-    for r in f.reps:
+    for i in range(len(f.reps)):
         for s in sites:
             for ddm in sites[s].ddms:
-                if r==ddm:
-                    f.areps.append(r)
+                if f.areps[i]!=ddm:
+                    f.areps.pop(i)
+                    f.arepsPNFS.pop(i)
 
 
 for f in Files: f.prnt()
@@ -237,7 +246,14 @@ def worker():
             logging.info('Desired number of retries reached. Giving up on this file.')
             q.task_done()
             return
-        xcom='xrdcp -np '+ redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '+DS+'/'+f.name
+        xcom='xrdcp -np '
+        if opts.discard:
+            xcom += '-f '
+        xcom += redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '
+        if opts.discard: 
+            xcom += '/dev/null'
+        else:
+            xcom += DS +'/' + f.name
         com=Command( xcom )
         t1=datetime.datetime.now()
         res=com.run(opts.Timeout)
@@ -260,7 +276,7 @@ for i in range(int(opts.Streams)):
      t.start()
 
     
-if not os.path.exists(DS):
+if not os.path.exists(DS) and not opts.discard:
     os.makedirs(DS)
     
 for r in Files:
