@@ -3,8 +3,9 @@
 # this code is responsible for filling up of SSB costMatrix
 # it takes list of active xrootd doors from AGIS, copy a file from each of them
 # uploads MB/s results using ActiveMQ to a machine in CERN
+# it runs trace 
 # it also uploads into GAE datastore
-# it runs trace and uploads results to a MongoDB
+# it also uploads into UC HDFS
 
 import subprocess, threading, os, sys, random, math
 import stomp, logging, datetime, time, ConfigParser
@@ -12,7 +13,7 @@ import stomp, logging, datetime, time, ConfigParser
 import urllib,urllib2
 import json as simplejson
 
-doTraceroute=False
+doTraceroute=True
 
 
 def send (message):
@@ -175,24 +176,51 @@ def upload(SITE_FROMLOG, SITE_TO):
             data = dict(source=SITE_FROM, destination=SITE_TO, rate=rate)
             u = urllib2.urlopen('http://waniotest.appspot.com/wancost', urllib.urlencode(data))
             #print u.read()
+            
+            print '-------------------------------- Writing to Flume collector -------------------------------'
+            events=[]
+
+            event={}
+            event['headers']={}
+            event['headers']['timestamp']=str(int(time.time()*1000))
+            event['headers']['host']="not.relevant"
+            
+            result={}
+            result['source']=SITE_FROM
+            result['destination']=SITE_TO
+            result['rate']=rate
+            result['hops']=hops
+            
+            event['body']=simplejson.dumps(result)
+            events.append(event)
+            try:
+                req = urllib2.Request('http://hadoop-dev.mwt2.org:18090/')
+                req.add_header('Content-Type', 'application/json')
+                r = urllib2.urlopen(req, simplejson.dumps(events))
+                #print r.read()
+            except urllib2.HTTPError, err:
+                print err
+                
         else:
             print 'non 0 exit code. will not upload result. ' 
             if SITE_TO=='CERN-PROD':
                 print "full log:", lines
             
-        if len(hops)>1:
-            print '-------------------------------- Writing to MongoDB -------------------------------------------'
-    
-            data = simplejson.dumps({"hops":hops,"rate":rate,"from":SITE_FROM,"to":SITE_TO})
-            print data
-            try:
-                r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
-                f = urllib2.urlopen(r)
-                response = f.read()
-                f.close()
-                print response
-            except:
-                print "Unexpected error:", sys.exc_info()[0]
+            
+        #
+        # if len(hops)>1:
+        #     print '-------------------------------- Writing to MongoDB -------------------------------------------'
+        #
+        #     data = simplejson.dumps({"hops":hops,"rate":rate,"from":SITE_FROM,"to":SITE_TO})
+        #     print data
+        #     try:
+        #         r = urllib2.Request('http://db.mwt2.org:8080/trace', data, {'Content-Type': 'application/json'})
+        #         f = urllib2.urlopen(r)
+        #         response = f.read()
+        #         f.close()
+        #         print response
+        #     except:
+        #         print "Unexpected error:", sys.exc_info()[0]
         
 def main():
 
@@ -203,10 +231,6 @@ def main():
         # print 'uploading results from file ', sys.argv[1]
         # print 'I was told the site name is ', sys.argv[2]
         upload(sys.argv[1],sys.argv[2])
-        return
-    if len(sys.argv)==2:
-        #print 'uploading traceroute from file ', sys.argv[1]
-        uploadTrace(sys.argv[1])
         return
 
     QUEUE = ''    
