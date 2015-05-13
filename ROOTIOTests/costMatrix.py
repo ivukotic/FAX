@@ -157,7 +157,7 @@ def upload(SITE_FROMLOG, SITE_TO):
                         except ValueError:
                             print "Unexpected error in parsing delay:",w[2], sys.exc_info()[0]
                             continue
-                    hops.append([ip,(int)delay])
+                    hops.append([ip,int(delay)])
                 else:
                     print 'unexpected line in the traceroute log.', l
                     continue
