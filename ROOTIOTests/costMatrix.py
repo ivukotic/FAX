@@ -153,11 +153,11 @@ def upload(SITE_FROMLOG, SITE_TO):
                             continue
                     if len(w)>2:
                         try:
-                            delay=float(w[2])
+                            delay=float(w[2])*1000
                         except ValueError:
                             print "Unexpected error in parsing delay:",w[2], sys.exc_info()[0]
                             continue
-                    hops.append([ip,delay])
+                    hops.append([ip,(int)delay])
                 else:
                     print 'unexpected line in the traceroute log.', l
                     continue
