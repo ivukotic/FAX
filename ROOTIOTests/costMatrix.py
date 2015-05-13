@@ -190,6 +190,7 @@ def upload(SITE_FROMLOG, SITE_TO):
             result['destination']=SITE_TO
             result['rate']=rate
             result['hops']=hops
+            result['time']=int(time.time()*1000)
             
             event['body']=simplejson.dumps(result)
             events.append(event)
