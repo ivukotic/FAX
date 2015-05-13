@@ -183,7 +183,7 @@ def upload(SITE_FROMLOG, SITE_TO):
             event={}
             event['headers']={}
             event['headers']['timestamp']=str(int(time.time()*1000))
-            event['headers']['host']="not.relevant"
+            #event['headers']['host']="not.relevant"
             
             result={}
             result['source']=SITE_FROM
