@@ -40,7 +40,6 @@ class faxfile:
         self.aExpectedRates=[]
         
     def findReplicas(self):
-        print "looking for a replica"
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
         for r in reps:
         	for key, value in r['rses'].iteritems():
