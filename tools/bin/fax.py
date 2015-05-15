@@ -22,7 +22,7 @@ class site:
         return ret
 
 
-function getFAXendpoints():
+def getFAXendpoints():
     logging.debug('---------------getting FAX endpoints from AGISrepeater. ---------------')
     endpoints={}
     try:
