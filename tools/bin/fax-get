@@ -100,13 +100,13 @@ costs = fax.getCostMatrix(destinationSite)
         
 
 # get the dataset scope
-scope = fax.getScope(DS)
+scope, DS = fax.getScope(DS)
 if not scope:
     sys.exit(1)
-
+    
 Files = fax.getFiles(scope,DS)
 
-#for f in Files: f.prnt()
+for f in Files: f.prnt()
 
 print "AAAAAAAAAAAA"
 # find file replicas

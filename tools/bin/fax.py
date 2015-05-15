@@ -132,9 +132,9 @@ def getScope(DS):
     
     if scope not in AllScopes:
         logging.error('could not determine scope of this dataset. ')
-        return None
+        return None,DS
     
-    return scope
+    return scope,DS
     
 def getFiles(scope, DS):
     collFiles=[]
