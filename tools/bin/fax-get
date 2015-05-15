@@ -104,7 +104,7 @@ scope, DS = fax.getScope(DS)
 if not scope:
     sys.exit(1)
     
-Files = fax.getFiles(scope,DS)
+Files = fax.getFiles(scope,DS,opts.NonRoot)
 
 for f in Files: f.prnt()
 

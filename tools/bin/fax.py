@@ -136,13 +136,13 @@ def getScope(DS):
     
     return scope,DS
     
-def getFiles(scope, DS):
+def getFiles(scope, DS, NonRoot):
     collFiles=[]
     cont=rucio.client.didclient.DIDClient().list_content(scope,DS)
     for f in cont:
         if f['type']=='DATASET':
             collFiles+=( getFiles(f['scope'],f['name']) )
         else:
-            if f['name'].count('.root')==0 and not opts.NonRoot : continue
+            if f['name'].count('.root')==0 and not NonRoot : continue
             collFiles.append(faxfile(f['scope'],f['name'],f['bytes'],f['adler32']))
     return collFiles
