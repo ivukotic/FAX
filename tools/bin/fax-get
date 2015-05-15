@@ -141,7 +141,7 @@ try:
     res=json.load(f)
     for s in res:
         #logging.debug( s["name"]+'  '+s["rc_site"]+'  '+s["endpoint"])
-        sites[s["rc_site"]]=site(s["rc_site"],s["endpoint"])
+        sites[s["rc_site"]]=fax.site(s["rc_site"],s["endpoint"])
     # print res
     logging.debug('Done.')
 except:
