@@ -3,6 +3,8 @@
 # to fix
 # check that files are copied right by checking their size 
 
+import fax
+
 import signal, subprocess, Queue, os, sys,time, datetime
 import threading
 from threading import Thread
@@ -29,6 +31,7 @@ parser.add_option('-g', '--nonRoot', help='copy non Root files too', dest='NonRo
 parser.add_option('-l', '--log', help='logging level (DEBUG, INFO, WARNING, ERROR)', default="INFO", dest='loglev')
 parser.add_option('-o', '--out', help='file to write logging stream into', default="", dest='logfile')
 parser.add_option('-d', '--discard', help='copy to /dev/null. Only for performance measurements.', default=False, action='store_true', dest='discard')
+parser.add_option('-p', '--pnfs', help='Use pnfs access paths.', default=False, action='store_true', dest='PNFSaccess')
 
 
 
@@ -50,30 +53,36 @@ class dsfile:
         self.adler32=ad
         self.attempts=0
         self.reps=[]
+        self.sites=[]
         self.areps=[]
         self.arepsPNFS=[]
         self.aExpectedRates=[]
     def prnt(self):
         logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
         for i in range(len(self.areps)):
-            logging.debug('replica: %i \t site: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.reps[i], self.arepsPNFS[i],self.aExpectedRates[i]))
+            logging.debug('replica: %i \t ddm: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.reps[i], self.arepsPNFS[i],self.aExpectedRates[i]))
+            
 class dataset:
     def __init__(self):
         self.complete=0
         self.incomplete=0
         self.files=[]
 
-class site:
-    host=''
-    port=1094
-    def __init__(self, ho):
-        ho=ho.replace("root://","")
-        self.host=ho.split(":")[0]
-        if ho.count(":"):
-            self.port=ho.split(":")[1]
-        self.ddms=[]
-    def prnt(self):
-        print  'host:', self.host, '\tport:', self.port, '\tddms:', self.ddms
+# class site:
+#     name=''
+#     host=''
+#     port=1094
+#     def __init__(self, na, ho):
+#         self.name=na
+#         ho=ho.replace("root://","")
+#         self.host=ho.split(":")[0]
+#         if ho.count(":"):
+#             self.port=ho.split(":")[1]
+#         self.ddms=[]
+#     def prnt(self):
+#         logging.debug('name: %s \thost: %s:%s' % (self.name, self.host, self.port ))
+#         for i in range(len(self.ddms)):
+#             logging.debug(self.ddms[i])
 
 def getFiles(scope, DS):
     collFiles=[]
@@ -118,6 +127,8 @@ else:
     sys.exit(1) 
 
 
+
+
 sites={}
 
 
@@ -129,15 +140,17 @@ try:
     f = opener.open(req)
     res=json.load(f)
     for s in res:
-        logging.debug( s["name"]+'  '+s["rc_site"]+'  '+s["endpoint"])
-        sites[s["rc_site"]]=site(s["endpoint"])
+        #logging.debug( s["name"]+'  '+s["rc_site"]+'  '+s["endpoint"])
+        sites[s["rc_site"]]=site(s["rc_site"],s["endpoint"])
     # print res
+    logging.debug('Done.')
 except:
     logging.error("Could not get FAX endpoints from AGIS. Exiting...")
     logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
     sys.exit(1)
     
-#for s in sites:  print s, sites[s].prnt()
+
+#for s in sites:  sites[s].prnt()
     
     
 logging.debug('--------------- Getting all of the DDM endpoints. ---------------')
@@ -150,15 +163,47 @@ try:
     for s in res:
         sn=s["rc_site"]
         if sn in sites:
-           # print sn, s["name"]
+            # logging.debug(sn +"\t"+ s["name"])
             sites[sn].ddms.append(s["name"])
-   # print ' got related ddmendpoints from agis.'
+    logging.debug('Done.')
 except:
     logging.error("Could not get DDM endpoint names from AGIS. Exiting...")
     logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
     sys.exit(1)
 
-#for s in sites: print s, sites[s].prnt()
+for s in sites: sites[s].prnt()
+
+
+logging.debug('---------------- Determine the closest FAX endpoint. ---------------')
+# find what is the closest FAX site. We get it from 'redir' 
+destinationSite=None
+for s in sites:
+    if sites[s].host==redir.lstrip('root://').rstrip('/'):
+        destinationSite=sites[s].name
+        logging.debug('closest site set to %s' % destinationSite)
+
+if not destinationSite:
+    logging.debug('could not find a FAX endpoint served by %s' % redir)
+
+# if there is a destination download cost values from all the sites to it 
+costs={}
+if destinationSite:
+    try:
+        logging.debug('---------------- Getting cost matrix values. ---------------')
+        req = urllib2.Request("http://waniotest.appspot.com/wancostget?destination="+destinationSite, None)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        res=json.load(f)
+        for s in res:
+            logging.debug( "source: %s \t %s MB/s" %(s["site"], s["cost"]))
+            costs[s["site"]] = float(s["cost"])
+        logging.debug('Done.')
+    except:
+        logging.error("Could not get cost matrix values. Exiting...")
+        logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
+        sys.exit(1)
+        
+        
 
 
 # get a list of all scopes
@@ -194,28 +239,44 @@ for f in Files:
     	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
             f.reps.append(key)
             f.areps.append(key)
+            f.sites.append('')
             f.arepsPNFS.append(value[0])
             f.aExpectedRates.append(0)
 
 #for f in Files: f.prnt()
 
+
 # find available replicas for each file
-for f in Files:
+
+#loop over files
+for f in Files:   
+    print len(f.reps),len(f.sites),len(f.areps), len(f.arepsPNFS),len(f.aExpectedRates)
+    
+    #loop over replicas
     for i in range(len(f.reps)):
-        found=False
+        
+        ddmEndpointCovered=False
+        #loop ddms and set site and cost
         for s in sites:
             for ddm in sites[s].ddms:
                 if f.areps[i]==ddm:
-                    found=True
-        if not found:
-            log.warning('discarding replica %s ' % f.reps[i])            
-            f.areps.pop(i)
-            f.arepsPNFS.pop(i)
-            f.aExpectedRates.pop(i)
+                    ddmEndpointCovered=True
+                    f.sites[i]=s
+                    if destinationSite and (s in costs):
+                            f.aExpectedRates[i]=costs[s]
+        
+        if not ddmEndpointCovered:
+            logging.debug('DDM not covered by FAX')
+            f.aExpectedRates[i]=-1
+        
 
+
+
+# need to sort replicas according to cost matrix values
 
 for f in Files: f.prnt()
 
+sys.exit(0)
 
 logging.debug('--------------- copying the files ----------------------')
 
@@ -255,7 +316,13 @@ def worker():
         xcom='xrdcp -np '
         if opts.discard:
             xcom += '-f '
-        xcom += redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '
+        
+        if opts.PNFSaccess: 
+            #should be changed to access the different one on higher attempts. 
+            xcom += f.arepsPNFS + ''
+        else:
+            xcom += redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '
+        
         if opts.discard: 
             xcom += '/dev/null'
         else:
