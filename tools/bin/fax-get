@@ -44,18 +44,6 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-#
-#
-#
-# class dataset:
-#     def __init__(self):
-#         self.complete=0
-#         self.incomplete=0
-#         self.files=[]
-
-
-# =========================================================================================
-
 
 (opts, args) = parser.parse_args()
 
@@ -89,7 +77,7 @@ else:
 
 
     
-sites = fax.getFAXendpoints()    
+endpoints = fax.getFAXendpoints()    
     
 logging.debug('--------------- Getting all of the DDM endpoints. ---------------')
 
@@ -100,30 +88,30 @@ try:
     res=json.load(f)
     for s in res:
         sn=s["rc_site"]
-        if sn in sites:
+        if sn in endpoints:
             # logging.debug(sn +"\t"+ s["name"])
-            sites[sn].ddms.append(s["name"])
+            endpoints[sn].ddms.append(s["name"])
     logging.debug('Done.')
 except:
     logging.error("Could not get DDM endpoint names from AGIS. Exiting...")
     logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
     sys.exit(1)
 
-for s in sites: sites[s].prnt()
+for s in endpoints: endpoints[s].prnt()
 
 
 logging.debug('---------------- Determine the closest FAX endpoint. ---------------')
 # find what is the closest FAX site. We get it from 'redir' 
 destinationSite=None
-for s in sites:
-    if sites[s].host==redir.lstrip('root://').rstrip('/'):
-        destinationSite=sites[s].name
+for s in endpoints:
+    if endpoints[s].host==redir.lstrip('root://').rstrip('/'):
+        destinationSite=endpoints[s].name
         logging.debug('closest site set to %s' % destinationSite)
 
 if not destinationSite:
     logging.debug('could not find a FAX endpoint served by %s' % redir)
 
-# download cost values from all the sites to it 
+# download cost values from all the endpoints to it 
 costs = fax.getCostMatrix(destinationSite)
         
 
@@ -146,7 +134,7 @@ for f in Files:
     	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
             f.reps.append(key)
             f.areps.append(key)
-            f.sites.append('')
+            f.endpoints.append('')
             f.arepsPNFS.append(value[0])
             f.aExpectedRates.append(0)
 
@@ -157,18 +145,18 @@ for f in Files:
 
 #loop over files
 for f in Files:   
-    print len(f.reps),len(f.sites),len(f.areps), len(f.arepsPNFS),len(f.aExpectedRates)
+    print len(f.reps),len(f.endpoints),len(f.areps), len(f.arepsPNFS),len(f.aExpectedRates)
     
     #loop over replicas
     for i in range(len(f.reps)):
         
         ddmEndpointCovered=False
         #loop ddms and set site and cost
-        for s in sites:
-            for ddm in sites[s].ddms:
+        for s in endpoints:
+            for ddm in endpoints[s].ddms:
                 if f.areps[i]==ddm:
                     ddmEndpointCovered=True
-                    f.sites[i]=s
+                    f.endpoints[i]=s
                     if destinationSite and (s in costs):
                             f.aExpectedRates[i]=costs[s]
         

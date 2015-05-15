@@ -7,7 +7,7 @@ except ImportError: import json
 import rucio
 import rucio.client
 
-class site:
+class endpoint:
     name=''
     host=''
     port=1094
@@ -39,6 +39,8 @@ class dsfile:
         logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
         for i in range(len(self.areps)):
             logging.debug('replica: %i \t ddm: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.reps[i], self.arepsPNFS[i],self.aExpectedRates[i]))
+            
+# =========================================================================================
 
 def getFAXendpoints():
     logging.debug('---------------getting FAX endpoints from AGISrepeater. ---------------')
@@ -50,7 +52,7 @@ def getFAXendpoints():
         res=json.load(f)
         for s in res:
             #logging.debug( s["name"]+'  '+s["rc_site"]+'  '+s["endpoint"])
-            endpoints[s["rc_site"]] = site(s["rc_site"],s["endpoint"])
+            endpoints[s["rc_site"]] = endpoint(s["rc_site"],s["endpoint"])
         # print res
         logging.debug('Done.')
     except:
