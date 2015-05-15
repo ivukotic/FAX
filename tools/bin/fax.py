@@ -8,6 +8,8 @@ import rucio
 import rucio.client
 import rucio.common.config as conf
 
+rrc=rucio.client.replicaclient.ReplicaClient()
+
 class endpoint:
     name=''
     host=''
@@ -39,7 +41,6 @@ class faxfile:
         
     def findReplicas(self):
         print "looking for a replica"
-        rrc=rucio.client.replicaclient.ReplicaClient()
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
         for r in reps:
         	for key, value in r['rses'].iteritems():

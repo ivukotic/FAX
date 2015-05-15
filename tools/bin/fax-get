@@ -106,7 +106,7 @@ if not scope:
     
 Files = fax.getFiles(scope,DS,opts.NonRoot)
 
-for f in Files: f.prnt()
+# for f in Files: f.prnt()
 
 # find file replicas
 for f in Files:
