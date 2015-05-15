@@ -123,7 +123,7 @@ for f in Files: f.prnt()
 
 
 # find available replicas for each file
-
+print "XxXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 #loop over files
 for f in Files:   
     print len(f.reps),len(f.endpoints),len(f.areps), len(f.arepsPNFS),len(f.aExpectedRates)
@@ -145,13 +145,11 @@ for f in Files:
             logging.debug('DDM not covered by FAX')
             f.aExpectedRates[i]=-1
         
-
-
-
 # need to sort replicas according to cost matrix values
 
 for f in Files: f.prnt()
 
+print "YYYYYYYYYYYYYYYYYYY"
 sys.exit(0)
 
 logging.debug('--------------- copying the files ----------------------')
