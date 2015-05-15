@@ -78,25 +78,16 @@ else:
 
     
 endpoints = fax.getFAXendpoints()    
-    
-logging.debug('--------------- Getting all of the DDM endpoints. ---------------')
 
-try:
-    req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
-    opener = urllib2.build_opener()
-    f = opener.open(req)
-    res=json.load(f)
-    for s in res:
+# adding info on ddm endpoints
+ddms = fax.getDDMendpoints()
+if ddms:
+    for s in ddms:
         sn=s["rc_site"]
         if sn in endpoints:
             # logging.debug(sn +"\t"+ s["name"])
             endpoints[sn].ddms.append(s["name"])
-    logging.debug('Done.')
-except:
-    logging.error("Could not get DDM endpoint names from AGIS. Exiting...")
-    logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
-    sys.exit(1)
-
+            
 for s in endpoints: endpoints[s].prnt()
 
 
@@ -122,23 +113,13 @@ if not scope:
 
 Files = fax.getFiles(scope,DS)
 
-for f in Files: f.prnt()
+#for f in Files: f.prnt()
    
 # find file replicas
-rrc=rucio.client.replicaclient.ReplicaClient()
 for f in Files:
-    reps=rrc.list_replicas([{'scope': f.scope, 'name': f.name}], schemes=['root'])
-    for r in reps:
-    	for key, value in r['rses'].iteritems():
-    	    if len(value)==0: continue # has no FAX access point
-    	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
-            f.reps.append(key)
-            f.areps.append(key)
-            f.endpoints.append('')
-            f.arepsPNFS.append(value[0])
-            f.aExpectedRates.append(0)
+    f.findReplicas()
 
-#for f in Files: f.prnt()
+for f in Files: f.prnt()
 
 
 # find available replicas for each file

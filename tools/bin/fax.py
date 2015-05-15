@@ -23,7 +23,7 @@ class endpoint:
         for i in range(len(self.ddms)):
             logging.debug(self.ddms[i])
 
-class dsfile:
+class faxfile:
     def __init__(self, sc, na, si, ad):
         self.scope=sc
         self.name=na
@@ -35,6 +35,20 @@ class dsfile:
         self.areps=[]
         self.arepsPNFS=[]
         self.aExpectedRates=[]
+        
+    def findReplicas(self):
+        rrc=rucio.client.replicaclient.ReplicaClient()
+        reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
+        for r in reps:
+        	for key, value in r['rses'].iteritems():
+        	    if len(value)==0: continue # has no FAX access point
+        	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
+                self.reps.append(key)
+                self.areps.append(key)
+                self.endpoints.append('')
+                self.arepsPNFS.append(value[0])
+                self.aExpectedRates.append(0)
+                
     def prnt(self):
         logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
         for i in range(len(self.areps)):
@@ -64,12 +78,27 @@ def getFAXendpoints():
     return endpoints
     
     
+
+def getDDMendpoints():
+    logging.debug('--------------- Getting all of the DDM endpoints. ---------------')
+    try:
+        req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        res=json.load(f)
+        logging.debug('Done.')
+        return res
+    except:
+        logging.error("Could not get DDM endpoint names from AGIS. Exiting...")
+        logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
+        return None
+    
 def getCostMatrix(destinationSite):
+    logging.debug('---------------- Getting cost matrix values. ---------------')
     costs={}
     if not destinationSite: 
         return costs
     try:
-        logging.debug('---------------- Getting cost matrix values. ---------------')
         req = urllib2.Request("http://waniotest.appspot.com/wancostget?destination="+destinationSite, None)
         opener = urllib2.build_opener()
         f = opener.open(req)
@@ -111,5 +140,5 @@ def getFiles(scope, DS):
             collFiles+=( getFiles(f['scope'],f['name']) )
         else:
             if f['name'].count('.root')==0 and not opts.NonRoot : continue
-            collFiles.append(dsfile(f['scope'],f['name'],f['bytes'],f['adler32']))
+            collFiles.append(faxfile(f['scope'],f['name'],f['bytes'],f['adler32']))
     return collFiles
