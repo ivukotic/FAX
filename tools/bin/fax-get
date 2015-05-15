@@ -81,7 +81,7 @@ endpoints = fax.getFAXendpoints()
 #             # logging.debug(sn +"\t"+ s["name"])
 #             endpoints[sn].ddms.append(s["name"])
 #
-# for s in endpoints: endpoints[s].prnt()
+for s in endpoints: endpoints[s].prnt()
 
 
 logging.debug('---------------- Determine the closest FAX endpoint. ---------------')
@@ -108,12 +108,12 @@ Files = fax.getFiles(scope,DS,opts.NonRoot)
 
 # for f in Files: f.prnt()
 
-logger.debug('finding file replicas.')
+logging.debug('finding file replicas.')
 
 for f in Files:
     f.findReplicas()
 
-logger.debug('Done.')
+logging.debug('Done.')
 
 for f in Files: f.prnt()
 
