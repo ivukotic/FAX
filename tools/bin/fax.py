@@ -19,10 +19,26 @@ class site:
             self.port=ho.split(":")[1]
         self.ddms=[]
     def prnt(self):
-        logging.debug('name: %s \thost: %s:%s\n' % (self.name, self.host, self.port ))
+        logging.debug('name: %s \thost: %s:%s' % (self.name, self.host, self.port ))
         for i in range(len(self.ddms)):
             logging.debug(self.ddms[i])
 
+class dsfile:
+    def __init__(self, sc, na, si, ad):
+        self.scope=sc
+        self.name=na
+        self.size=si
+        self.adler32=ad
+        self.attempts=0
+        self.reps=[]
+        self.sites=[]
+        self.areps=[]
+        self.arepsPNFS=[]
+        self.aExpectedRates=[]
+    def prnt(self):
+        logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
+        for i in range(len(self.areps)):
+            logging.debug('replica: %i \t ddm: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.reps[i], self.arepsPNFS[i],self.aExpectedRates[i]))
 
 def getFAXendpoints():
     logging.debug('---------------getting FAX endpoints from AGISrepeater. ---------------')
