@@ -33,8 +33,8 @@ class faxfile:
         self.size=si
         self.adler32=ad
         self.attempts=0
-        self.reps=[]
-        self.endpoints=[]
+        self.reps=[]   # what is this?
+        self.endpoints=[] # what is this
         self.areps=[]
         self.arepsPNFS=[]
         self.aExpectedRates=[]
@@ -43,14 +43,20 @@ class faxfile:
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
         for r in reps:
         	for key, value in r['rses'].iteritems():
-        	    if len(value)==0: continue # has no FAX access point
-        	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
+        	    if len(value)==0: # has no FAX access point
+                    logging.warning("Site %s has no fax endpoint!" % key);
+                    continue 
+        	    if len(value)>1: 
+                    logging.warning("Site %s has multiple copies of the same file!" % key);
                 self.reps.append(key)
                 self.areps.append(key)
                 self.endpoints.append('')
                 self.arepsPNFS.append(value[0])
                 self.aExpectedRates.append(0)
                 
+    def checkForNotCoveredDDMS(self):
+        pass
+        
     def prnt(self):
         logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
         for i in range(len(self.areps)):

@@ -71,16 +71,6 @@ else:
     sys.exit(1) 
 
 endpoints = fax.getFAXendpoints()    
-#
-# # adding info on ddm endpoints
-# ddms = fax.getDDMendpoints()
-# if ddms:
-#     for s in ddms:
-#         sn=s["rc_site"]
-#         if sn in endpoints:
-#             # logging.debug(sn +"\t"+ s["name"])
-#             endpoints[sn].ddms.append(s["name"])
-#
 for s in endpoints: endpoints[s].prnt()
 
 
