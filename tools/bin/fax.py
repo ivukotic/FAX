@@ -47,7 +47,7 @@ class faxfile:
         	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
                 self.reps.append(key)
                 self.areps.append(key)
-                self.endpoints.append('')
+                self.sites.append('')
                 self.arepsPNFS.append(value[0])
                 self.aExpectedRates.append(0)
                 
