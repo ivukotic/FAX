@@ -107,16 +107,17 @@ if not scope:
 Files = fax.getFiles(scope,DS)
 
 #for f in Files: f.prnt()
-   
+
+print "AAAAAAAAAAAA"
 # find file replicas
 for f in Files:
     f.findReplicas()
 
 for f in Files: f.prnt()
 
+print "XXXXXXXXXXXX"
 
 # find available replicas for each file
-print "XxXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 #loop over files
 for f in Files:   
     print len(f.reps),len(f.endpoints),len(f.areps), len(f.arepsPNFS),len(f.aExpectedRates)

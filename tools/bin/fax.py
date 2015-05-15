@@ -38,6 +38,7 @@ class faxfile:
         self.aExpectedRates=[]
         
     def findReplicas(self):
+        print "looking for a replica"
         rrc=rucio.client.replicaclient.ReplicaClient()
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
         for r in reps:
