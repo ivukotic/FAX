@@ -68,21 +68,6 @@ class dataset:
         self.incomplete=0
         self.files=[]
 
-# class site:
-#     name=''
-#     host=''
-#     port=1094
-#     def __init__(self, na, ho):
-#         self.name=na
-#         ho=ho.replace("root://","")
-#         self.host=ho.split(":")[0]
-#         if ho.count(":"):
-#             self.port=ho.split(":")[1]
-#         self.ddms=[]
-#     def prnt(self):
-#         logging.debug('name: %s \thost: %s:%s' % (self.name, self.host, self.port ))
-#         for i in range(len(self.ddms)):
-#             logging.debug(self.ddms[i])
 
 def getFiles(scope, DS):
     collFiles=[]
@@ -150,7 +135,7 @@ except:
     sys.exit(1)
     
 
-#for s in sites:  sites[s].prnt()
+#for s in sites:  logging.debug(sites[s].toString())
     
     
 logging.debug('--------------- Getting all of the DDM endpoints. ---------------')
@@ -171,7 +156,7 @@ except:
     logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
     sys.exit(1)
 
-for s in sites: sites[s].prnt()
+for s in sites: logging.debug(sites[s].toString())
 
 
 logging.debug('---------------- Determine the closest FAX endpoint. ---------------')

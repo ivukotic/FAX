@@ -9,9 +9,10 @@ class site:
         if ho.count(":"):
             self.port=ho.split(":")[1]
         self.ddms=[]
-    def prnt(self):
-        logging.debug('name: %s \thost: %s:%s' % (self.name, self.host, self.port ))
+    def toString(self):
+        ret='name: %s \thost: %s:%s\n' % (self.name, self.host, self.port )
         for i in range(len(self.ddms)):
-            logging.debug(self.ddms[i])
+            ret += self.ddms[i] + '\n'
+        return ret
 
 
