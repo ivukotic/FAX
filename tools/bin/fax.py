@@ -18,11 +18,10 @@ class site:
         if ho.count(":"):
             self.port=ho.split(":")[1]
         self.ddms=[]
-    def toString(self):
-        ret='name: %s \thost: %s:%s\n' % (self.name, self.host, self.port )
+    def prnt(self):
+        logging.debug('name: %s \thost: %s:%s\n' % (self.name, self.host, self.port ))
         for i in range(len(self.ddms)):
-            ret += self.ddms[i] + '\n'
-        return ret
+            logging.debug(self.ddms[i])
 
 
 def getFAXendpoints():
@@ -43,7 +42,7 @@ def getFAXendpoints():
         logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
         sys.exit(1)
     
-    #for s in sites:  logging.debug(endpoints[s].toString())
+    #for s in sites:  endpoints[s].prnt()
     return endpoints
     
     

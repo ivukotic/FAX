@@ -124,7 +124,7 @@ except:
     logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
     sys.exit(1)
 
-for s in sites: logging.debug(sites[s].toString())
+for s in sites: sites[s].prnt()
 
 
 logging.debug('---------------- Determine the closest FAX endpoint. ---------------')
@@ -144,8 +144,7 @@ costs = fax.getCostMatrix(destinationSite)
 
 # get the dataset scope
 scope = fax.getScope(DS)
-if scope not in AllScopes:
-    logging.error('could not determine scope of this dataset. ')
+if not scope:
     sys.exit(1)
 
 Files = fax.getFiles(scope,DS)
