@@ -6,6 +6,7 @@ except ImportError: import json
 
 import rucio
 import rucio.client
+import rucio.common.config as conf
 
 class endpoint:
     name=''

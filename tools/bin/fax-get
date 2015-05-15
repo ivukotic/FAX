@@ -11,10 +11,6 @@ from threading import Thread
 import urllib2
 import optparse, logging
 
-import rucio
-import rucio.client
-import rucio.common.config as conf
-
 try: import simplejson as json
 except ImportError: import json
 
