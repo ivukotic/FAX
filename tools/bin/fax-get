@@ -70,9 +70,6 @@ else:
     logging.error("no RUCIO_ACCOUNT environment found. Please set it before using this program.")
     sys.exit(1) 
 
-
-
-    
 endpoints = fax.getFAXendpoints()    
 
 # adding info on ddm endpoints
