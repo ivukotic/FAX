@@ -71,17 +71,17 @@ else:
     sys.exit(1) 
 
 endpoints = fax.getFAXendpoints()    
-
-# adding info on ddm endpoints
-ddms = fax.getDDMendpoints()
-if ddms:
-    for s in ddms:
-        sn=s["rc_site"]
-        if sn in endpoints:
-            # logging.debug(sn +"\t"+ s["name"])
-            endpoints[sn].ddms.append(s["name"])
-            
-for s in endpoints: endpoints[s].prnt()
+#
+# # adding info on ddm endpoints
+# ddms = fax.getDDMendpoints()
+# if ddms:
+#     for s in ddms:
+#         sn=s["rc_site"]
+#         if sn in endpoints:
+#             # logging.debug(sn +"\t"+ s["name"])
+#             endpoints[sn].ddms.append(s["name"])
+#
+# for s in endpoints: endpoints[s].prnt()
 
 
 logging.debug('---------------- Determine the closest FAX endpoint. ---------------')
@@ -108,16 +108,17 @@ Files = fax.getFiles(scope,DS,opts.NonRoot)
 
 # for f in Files: f.prnt()
 
-# find file replicas
+logger.debug('finding file replicas.')
+
 for f in Files:
     f.findReplicas()
 
+logger.debug('Done.')
+
 for f in Files: f.prnt()
 
-print "XXXXXXXXXXXX"
 
-# find available replicas for each file
-#loop over files
+# remove all replicas not available in FAX
 for f in Files:   
     print len(f.reps),len(f.endpoints),len(f.areps), len(f.arepsPNFS),len(f.aExpectedRates)
     
@@ -142,7 +143,6 @@ for f in Files:
 
 for f in Files: f.prnt()
 
-print "YYYYYYYYYYYYYYYYYYY"
 sys.exit(0)
 
 logging.debug('--------------- copying the files ----------------------')

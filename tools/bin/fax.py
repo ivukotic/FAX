@@ -14,13 +14,13 @@ class endpoint:
     name=''
     host=''
     port=1094
-    def __init__(self, na, ho):
+    def __init__(self, na, ho, dd):
         self.name=na
         ho=ho.replace("root://","")
         self.host=ho.split(":")[0]
         if ho.count(":"):
             self.port=ho.split(":")[1]
-        self.ddms=[]
+        self.ddms=dd
     def prnt(self):
         logging.debug('name: %s \thost: %s:%s' % (self.name, self.host, self.port ))
         for i in range(len(self.ddms)):
@@ -65,10 +65,10 @@ def getFAXendpoints():
         req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
         opener = urllib2.build_opener()
         f = opener.open(req)
-        res=json.load(f)
+        res = json.load(f)
         for s in res:
             #logging.debug( s["name"]+'  '+s["rc_site"]+'  '+s["endpoint"])
-            endpoints[s["rc_site"]] = endpoint(s["rc_site"],s["endpoint"])
+            endpoints[s["rc_site"]] = endpoint(s["rc_site"],s["endpoint"], s["protocols"].keys())
         # print res
         logging.debug('Done.')
     except:
@@ -80,20 +80,6 @@ def getFAXendpoints():
     return endpoints
     
     
-
-def getDDMendpoints():
-    logging.debug('--------------- Getting all of the DDM endpoints. ---------------')
-    try:
-        req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
-        opener = urllib2.build_opener()
-        f = opener.open(req)
-        res=json.load(f)
-        logging.debug('Done.')
-        return res
-    except:
-        logging.error("Could not get DDM endpoint names from AGIS. Exiting...")
-        logging.error("Unexpected error:%s" % str(sys.exc_info()[0]))
-        return None
     
 def getCostMatrix(destinationSite):
     logging.debug('---------------- Getting cost matrix values. ---------------')
