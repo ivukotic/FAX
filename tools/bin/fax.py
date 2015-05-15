@@ -32,7 +32,7 @@ class faxfile:
         self.adler32=ad
         self.attempts=0
         self.reps=[]
-        self.sites=[]
+        self.endpoints=[]
         self.areps=[]
         self.arepsPNFS=[]
         self.aExpectedRates=[]
@@ -47,7 +47,7 @@ class faxfile:
         	    if len(value)>1: logging.warning("Site %s has multiple copies of the same file!" % key);
                 self.reps.append(key)
                 self.areps.append(key)
-                self.sites.append('')
+                self.endpoints.append('')
                 self.arepsPNFS.append(value[0])
                 self.aExpectedRates.append(0)
                 
@@ -137,6 +137,7 @@ def getScope(DS):
     return scope,DS
     
 def getFiles(scope, DS, NonRoot):
+    logging.debug('---------------- Getting files in this dataset. ---------------')
     collFiles=[]
     cont=rucio.client.didclient.DIDClient().list_content(scope,DS)
     for f in cont:
@@ -145,4 +146,5 @@ def getFiles(scope, DS, NonRoot):
         else:
             if f['name'].count('.root')==0 and not NonRoot : continue
             collFiles.append(faxfile(f['scope'],f['name'],f['bytes'],f['adler32']))
+    logging.debug('Done.')
     return collFiles

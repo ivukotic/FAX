@@ -108,7 +108,6 @@ Files = fax.getFiles(scope,DS,opts.NonRoot)
 
 for f in Files: f.prnt()
 
-print "AAAAAAAAAAAA"
 # find file replicas
 for f in Files:
     f.findReplicas()
