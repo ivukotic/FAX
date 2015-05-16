@@ -111,7 +111,7 @@ logging.debug('Done.')
 # remove all replicas not available in FAX
 # set site and costs for the rest
 for f in Files:   
-    print len(f.reps), len(f.endpoints), len(f.PNFS), len(f.expectedRates)
+    # print len(f.reps), len(f.endpoints), len(f.PNFS), len(f.expectedRates)
     for i in range(len(f.reps)):
         ddmEndpointCovered=False
         for s in endpoints:  #loop all the FAX endpoints
