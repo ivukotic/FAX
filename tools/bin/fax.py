@@ -44,7 +44,7 @@ class faxfile:
         for r in reps:
         	for key, value in r['rses'].iteritems():
         	    if len(value)==0:
-                    logging.warning("Site %s has no fax endpoint!" % key);
+                    logging.error("Site %s has no fax endpoint!" % key);
                     continue 
         	    if len(value)>1:
                     logging.warning("Site %s has multiple copies of the same file!" % key);
