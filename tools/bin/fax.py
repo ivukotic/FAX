@@ -46,7 +46,7 @@ class faxfile:
         	    if len(value)==0: # has no FAX access point
                     logging.warning("Site %s has no fax endpoint!" % key);
                     continue 
-        	    if len(value)>1: 
+        	    if len(value)>1:
                     logging.warning("Site %s has multiple copies of the same file!" % key);
                 self.reps.append(key)
                 self.areps.append(key)
