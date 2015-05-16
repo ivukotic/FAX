@@ -109,25 +109,22 @@ for f in Files: f.prnt()
 
 
 # remove all replicas not available in FAX
+# set site and costs for the rest
 for f in Files:   
-    print len(f.reps),len(f.endpoints),len(f.areps), len(f.arepsPNFS),len(f.aExpectedRates)
-    
-    #loop over replicas
+    print len(self.reps),len(self.endpoints),len(self.areps), len(self.arepsPNFS),len(self.aExpectedRates)
     for i in range(len(f.reps)):
-        
         ddmEndpointCovered=False
-        #loop ddms and set site and cost
-        for s in endpoints:
-            for ddm in endpoints[s].ddms:
-                if f.areps[i]==ddm:
+        for s in endpoints:  #loop all the FAX endpoints
+            for ddm in endpoints[s].ddms: # and all of their ddms
+                if f.areps[i]==ddm: # if it is found set site and cost
                     ddmEndpointCovered=True
                     f.endpoints[i]=s
                     if destinationSite and (s in costs):
-                            f.aExpectedRates[i]=costs[s]
-        
+                        f.expectedRates[i]=costs[s]
         if not ddmEndpointCovered:
             logging.debug('DDM not covered by FAX')
             f.aExpectedRates[i]=-1
+    
         
 # need to sort replicas according to cost matrix values
 

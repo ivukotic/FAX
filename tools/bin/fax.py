@@ -33,11 +33,10 @@ class faxfile:
         self.size=si
         self.adler32=ad
         self.attempts=0
-        self.reps=[]   # what is this?
+        self.reps=[]   # this contains ddm endpoints
         self.endpoints=[] # what is this
-        self.areps=[]
-        self.arepsPNFS=[]
-        self.aExpectedRates=[]
+        self.PNFS=[] # this contains full pnfs
+        self.expectedRates=[]
         
     def findReplicas(self):
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
@@ -49,18 +48,14 @@ class faxfile:
                 if len(value)>1:
                     logging.warning("Site %s has multiple copies of the same file!" % key);
                 self.reps.append(key)
-                self.areps.append(key)
                 self.endpoints.append('')
-                self.arepsPNFS.append(value[0])
-                self.aExpectedRates.append(0)
+                self.PNFS.append(value[0])
+                self.expectedRates.append(0)
                 
-    def checkForNotCoveredDDMS(self):
-        pass
-        
     def prnt(self):
         logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
         for i in range(len(self.areps)):
-            logging.debug('replica: %i \t ddm: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.reps[i], self.arepsPNFS[i],self.aExpectedRates[i]))
+            logging.debug('replica: %i \t endpoint: %s \t ddm: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.endpoints[i], self.reps[i], self.PNFS[i],self.expectedRates[i]))
             
 # =========================================================================================
 
