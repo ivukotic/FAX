@@ -40,7 +40,7 @@ class faxfile:
         
     def findReplicas(self):
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
-        for r in reps:
+        for r in self.reps:
             for key, value in r['rses'].iteritems():
                 if len(value)==0:
                     logging.warning("Site %s has no fax endpoint!" % key);
@@ -52,6 +52,17 @@ class faxfile:
                 self.PNFS.append(value[0])
                 self.expectedRates.append(0)
                 
+    def getPNFS(self, retry):
+        #first creates a dictionary of all the valid PNFSes and rates.
+        allValid={}
+        for i in range(len(self.reps):
+            if self.expectedRates[i]>0:
+                allValid[self.expectedRates[i]]=self.PNFS[i]
+        # sort rates desc
+        so=sorted(allValid.keys(),reverse=True)
+        retry=retry%len(so)
+        return allValid[so[retry]]
+        
     def prnt(self):
         logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
         for i in range(len(self.reps)):

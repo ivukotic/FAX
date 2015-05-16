@@ -124,16 +124,11 @@ for f in Files:
         if not ddmEndpointCovered:
             logging.debug('DDM not covered by FAX')
             f.expectedRates[i]=-1
-    
         
-# need to sort replicas according to cost matrix values
-
 for f in Files: f.prnt()
 
-sys.exit(0)
 
 logging.debug('--------------- copying the files ----------------------')
-
 
 class Command(object):
 
@@ -156,7 +151,6 @@ class Command(object):
         return self.process.returncode
         
         
-        
 tocopy=0
 
 def worker():
@@ -173,7 +167,7 @@ def worker():
         
         if opts.PNFSaccess: 
             #should be changed to access the different one on higher attempts. 
-            xcom += f.arepsPNFS + ''
+            xcom += f.getPNFS(f.attempts-1) + ' '
         else:
             xcom += redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '
         
