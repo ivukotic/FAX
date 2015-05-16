@@ -42,9 +42,9 @@ class faxfile:
     def findReplicas(self):
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
         for r in reps:
-        	for key, value in r['rses'].iteritems():
+            for key, value in r['rses'].iteritems():
         	    if len(value)==0:
-                    logging.error("Site %s has no fax endpoint!" % key);
+                    logging.warning("Site %s has no fax endpoint!" % key);
                     continue 
         	    if len(value)>1:
                     logging.warning("Site %s has multiple copies of the same file!" % key);
