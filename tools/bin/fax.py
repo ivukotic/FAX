@@ -54,7 +54,7 @@ class faxfile:
                 
     def prnt(self):
         logging.debug( 'file: %s:%s  size:%.3f \t attempts:%i' % (self.scope, self.name, self.size/1024/1024, self.attempts))
-        for i in range(len(self.areps)):
+        for i in range(len(self.reps)):
             logging.debug('replica: %i \t endpoint: %s \t ddm: %s \t PNFS: %s \t ExpectedRate: %.3f' % (i, self.endpoints[i], self.reps[i], self.PNFS[i],self.expectedRates[i]))
             
 # =========================================================================================
