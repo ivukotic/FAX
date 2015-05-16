@@ -105,7 +105,7 @@ for f in Files:
 
 logging.debug('Done.')
 
-for f in Files: f.prnt()
+#for f in Files: f.prnt()
 
 
 # remove all replicas not available in FAX
