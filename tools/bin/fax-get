@@ -116,7 +116,7 @@ for f in Files:
         ddmEndpointCovered=False
         for s in endpoints:  #loop all the FAX endpoints
             for ddm in endpoints[s].ddms: # and all of their ddms
-                if f.areps[i]==ddm: # if it is found set site and cost
+                if f.reps[i]==ddm: # if it is found set site and cost
                     ddmEndpointCovered=True
                     f.endpoints[i]=s
                     if destinationSite and (s in costs):
