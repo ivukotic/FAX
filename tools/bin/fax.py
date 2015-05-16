@@ -55,7 +55,7 @@ class faxfile:
     def getPNFS(self, retry):
         #first creates a dictionary of all the valid PNFSes and rates.
         allValid={}
-        for i in range(len(self.reps):
+        for i in range(len(self.reps)):
             if self.expectedRates[i]>0:
                 allValid[self.expectedRates[i]]=self.PNFS[i]
         # sort rates desc
