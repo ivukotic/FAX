@@ -43,7 +43,7 @@ class faxfile:
         reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
         for r in reps:
         	for key, value in r['rses'].iteritems():
-        	    if len(value)==0: # has no FAX access point
+        	    if len(value)==0:
                     logging.warning("Site %s has no fax endpoint!" % key);
                     continue 
         	    if len(value)>1:
