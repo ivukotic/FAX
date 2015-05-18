@@ -168,7 +168,7 @@ def worker():
         if opts.PNFSaccess: 
             #should be changed to access the different one on higher attempts. 
             pfn = f.getPNFS(f.attempts-1)
-            if ! pfn:
+            if not pfn:
                 q.task_done()
             xcom += pfn + ' '
         else:
