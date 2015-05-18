@@ -170,6 +170,7 @@ def worker():
             pfn = f.getPNFS(f.attempts-1)
             if not pfn:
                 q.task_done()
+                return
             xcom += pfn + ' '
         else:
             xcom += redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '
@@ -178,7 +179,9 @@ def worker():
             xcom += '/dev/null'
         else:
             xcom += DS +'/' + f.name
-        print xcom
+        
+        logging.debug(xcom)
+        
         com=Command( xcom )
         t1=datetime.datetime.now()
         res=com.run(opts.Timeout)
