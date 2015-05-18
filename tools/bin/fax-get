@@ -167,7 +167,10 @@ def worker():
         
         if opts.PNFSaccess: 
             #should be changed to access the different one on higher attempts. 
-            xcom += f.getPNFS(f.attempts-1) + ' '
+            pfn = f.getPNFS(f.attempts-1)
+            if ! pfn:
+                q.task_done()
+            xcom += pfn + ' '
         else:
             xcom += redir+"/atlas/rucio/"+f.scope+":"+f.name + ' '
         

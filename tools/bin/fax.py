@@ -60,6 +60,9 @@ class faxfile:
                 allValid[self.expectedRates[i]]=self.PNFS[i]
         # sort rates desc
         so=sorted(allValid.keys(),reverse=True)
+        if len(so)==0: 
+            logging.warning('No accessible replica. This file will be skipped.')
+            return None
         retry=retry%len(so)
         return allValid[so[retry]]
         
