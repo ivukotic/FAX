@@ -1,6 +1,9 @@
 import logging
 import urllib2
 
+from threading import Thread
+import Queue
+
 try: import simplejson as json
 except ImportError: import json
 
@@ -9,6 +12,7 @@ import rucio.client
 import rucio.common.config as conf
 
 rrc=rucio.client.replicaclient.ReplicaClient()
+rq=Queue.Queue()
 
 class endpoint:
     name=''
@@ -39,7 +43,12 @@ class faxfile:
         self.expectedRates=[]
         
     def findReplicas(self):
-        reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
+        reps=[]
+        try:
+            reps=rrc.list_replicas([{'scope': self.scope, 'name': self.name}], schemes=['root'])
+        except:
+            logging.error("Could not get replicas from rucio.")
+            
         for r in reps:
             for key, value in r['rses'].iteritems():
                 if len(value)==0:
@@ -137,7 +146,7 @@ def getScope(DS):
     
     return scope,DS
     
-def getFiles(scope, DS, NonRoot):
+def getFiles(scope, DS, NonRoot=True):
     logging.debug('---------------- Getting files in this dataset. ---------------')
     collFiles=[]
     cont=rucio.client.didclient.DIDClient().list_content(scope,DS)
@@ -149,3 +158,23 @@ def getFiles(scope, DS, NonRoot):
             collFiles.append(faxfile(f['scope'],f['name'],f['bytes'],f['adler32']))
     logging.debug('Done.')
     return collFiles
+    
+def replicaFinder():
+    while True:
+        f=rq.get()
+        f.findReplicas()
+        rq.task_done()
+    
+def getReplicas(Files):
+    logging.debug('finding file replicas.')
+    
+    for i in range(10):
+        t = Thread(target=replicaFinder)
+        t.daemon = True
+        t.start()     
+    for f in Files:
+        rq.put(f)
+        
+    rq.join()
+
+    logging.debug('Done.')

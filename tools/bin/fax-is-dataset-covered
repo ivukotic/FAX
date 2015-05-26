@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys 
+import os, sys, logging
 import urllib2
 import optparse
 
@@ -11,36 +11,15 @@ import rucio.common.config as conf
 try: import simplejson as json
 except ImportError: import json
 
-parser = optparse.OptionParser(description="Checks if dataset is accessible through FAX.", version="%prog version 2.0", usage="Usage: %prog [options] dataset")
+import fax
 
-parser.add_option('-v', '--verbose', action="store_true", dest="verbose", default=False)
-parser.add_option('-q', '--quiet',   action="store_false", dest="verbose")
+parser = optparse.OptionParser(description="Checks if dataset is accessible through FAX.", version="%prog version 3.0", usage="Usage: %prog [options] dataset")
+parser.add_option('-l', '--log', help='logging level (DEBUG, INFO, WARNING, ERROR)', default="INFO", dest='loglev')
+parser.add_option('-o', '--out', help='file to write logging stream into', default="", dest='logfile')
 
-
-class dsfile:
-    def __init__(self, sc, na, si, ad):
-        self.scope=sc
-        self.name=na
-        self.size=si
-        self.adler32=ad
-        self.reps=[]
-        self.areps=[]
-    def prnt(self):
-        print 'file:',self.scope+':'+self.name,"\tsize:",str(self.size/1024/1024),"\treplicas:",self.reps,"\t available:",self.areps
-
-def getFiles(scope, DS):
-    collFiles=[]
-    cont=rucio.client.didclient.DIDClient().list_content(scope,DS)
-    for f in cont:
-        if f['type']=='DATASET':
-            collFiles+=( getFiles(f['scope'],f['name']) )
-        else:
-            collFiles.append(dsfile(f['scope'],f['name'],f['bytes'],f['adler32']))
-    return collFiles
 
 
 (opts, args) = parser.parse_args()
-
 
 if (len(args)==0):
     parser.print_help()
@@ -48,114 +27,71 @@ if (len(args)==0):
 
 DS=args[0]
 
- 
+
+numeric_level = getattr(logging, opts.loglev.upper(), None)
+if not isinstance(numeric_level, int):
+    raise ValueError('Invalid log level: %s' % opts.loglevel)
+
+if (opts.logfile!=''):
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=numeric_level, filename=opts.logfile)
+else:
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=numeric_level)
+    
+if os.environ.get("STORAGEPREFIX") != None:
+    redir=os.environ.get("STORAGEPREFIX")
+else:
+    logging.error("no FAX redirector given. Please set up FAX (localSetupFAX) or run fax-setRedirector.(c)sh, first.")
+    sys.exit(1)
+
 if os.environ.get("RUCIO_ACCOUNT") != None:
     rucio_account=os.environ.get("RUCIO_ACCOUNT")
 else:
-    print "no RUCIO_ACCOUNT environment found. Please set it before using this program. "
+    logging.error("no RUCIO_ACCOUNT environment found. Please set it before using this program.")
     sys.exit(1) 
 
 
-#print 'Geting data from AGIS ...'
+endpoints = fax.getFAXendpoints()    
+for s in endpoints: endpoints[s].prnt()
 
-class site:    
-    name=''
-    host=''
-    port=1094
-     
-    def __init__(self, na, ho):
-        self.name=na
-        ho=ho.replace("root://","")
-        self.host=ho.split(":")[0]
-        if ho.count(":"):
-            self.port=ho.split(":")[1]
+
+
+# get the dataset scope
+scope, DS = fax.getScope(DS)
+if not scope:
+    sys.exit(1)
+
     
-    def prnt(self, what):
-        if (what>=0 and self.redirector!=what): return
-        print  'name:', self.name, '\thost:', self.host, '\tport:', self.port 
+Files = fax.getFiles(scope,DS)
 
-sites=[];
 
-try:
-    req = urllib2.Request("http://atlas-agis-api.cern.ch/request/service/query/get_se_services/?json&state=ACTIVE&flavour=XROOTD", None)
-    opener = urllib2.build_opener()
-    f = opener.open(req)
-    res=json.load(f)
-    for s in res:
-        if (opts.verbose): print s["name"], s["rc_site"], s["endpoint"]
-        ns = site( s["rc_site"], s["endpoint"] )
-        sites.append(ns)
-except:
-    print "Unexpected error:", sys.exc_info()[0]    
+fax.getReplicas(Files)
     
-if (opts.verbose):
-    print 'Got FAX SEs from AGIS:'
-    for s in sites: s.prnt(-1)
 
-allddms=set()
-
-try:
-    req = urllib2.Request("http://atlas-agis-api.cern.ch/request/ddmendpoint/query/list/?json&state=ACTIVE", None)
-    opener = urllib2.build_opener()
-    f = opener.open(req)
-    res=json.load(f)
-    for s in res:
-        for c in sites:
-            if s["rc_site"]==c.name:
-                allddms.add(s["name"])
-                break
-except:
-    print "Unexpected error:", sys.exc_info()[0]    
-
-if (opts.verbose):
-    print 'Got related ddmendpoints from agis:'
-    print allddms
-
-# find the scope of the dataset we are dealing with
-if DS.count(':')>0:
-    spl=DS.split(':')
-    scope=spl[0]
-    DS=spl[1]
-else:
-    w=DS.split('.')
-    if w[0].startswith('user') or w[0].startswith('group'):
-        scope=w[0]+'.'+w[1]
-    else:
-        scope=w[0]
-
-rdc=rucio.client.didclient.DIDClient()
-Files=getFiles(scope,DS)
-
-rrc=rucio.client.replicaclient.ReplicaClient()
-reps=rrc.list_replicas([{'scope': scope, 'name': DS}])
-for r in reps:
-    # print r
-    for f in Files: 
-        if f.name==r['name']:
-            f.reps=r['rses'].keys()
-            
-# find available replicas for each file
 missing=0
 found=0
 totreplicas=0
-for f in Files:
-    for r in f.reps:
-        if (r in allddms):
-            f.areps.append(r)
-    if (f.areps==0):
-        missing+=1
-    else:
-        found+=1
-    totreplicas+=len(f.areps)
 
-if (opts.verbose): 
-    for f in Files: f.prnt()
+for f in Files:   
+    #print len(f.reps), len(f.endpoints), len(f.PNFS), len(f.expectedRates)
+    ddmEndpointsCovered=0
+    for i in range(len(f.reps)):
+        for s in endpoints:  #loop all the FAX endpoints
+            for ddm in endpoints[s].ddms: # and all of their ddms
+                if f.reps[i]==ddm: # if it is found set site and cost
+                    ddmEndpointsCovered+=1
+    if ddmEndpointsCovered:
+        found += 1
+        totreplicas += ddmEndpointsCovered
+    else:
+        missing += 1
+        
+for f in Files: f.prnt()
                
 print "Dataset contains",missing+found,"files."
 
 if found==0: 
     print "At the moment none of them can be accessed using FAX."
-    exit(0)
+    sys.exit(0)
     
 if missing==0: 
     print "At the moment all of them can be accessed using FAX."

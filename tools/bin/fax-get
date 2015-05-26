@@ -98,12 +98,7 @@ Files = fax.getFiles(scope,DS,opts.NonRoot)
 
 # for f in Files: f.prnt()
 
-logging.debug('finding file replicas.')
-
-for f in Files:
-    f.findReplicas()
-
-logging.debug('Done.')
+fax.getReplicas(Files)
 
 #for f in Files: f.prnt()
 
