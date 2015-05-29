@@ -174,7 +174,7 @@ def worker():
             xcom += '/dev/null'
         else:
             of = DS +'/' + f.name
-            if os.path.isfile(fname):
+            if os.path.isfile(of):
                 logging.error('file already exists. Skipping.')
                 q.task_done()
                 return
