@@ -78,7 +78,7 @@ logging.debug('---------------- Determine the closest FAX endpoint. ------------
 # find what is the closest FAX site. We get it from 'redir' 
 destinationSite=None
 for s in endpoints:
-    if endpoints[s].host==redir.lstrip('root://').rstrip('/'):
+    if endpoints[s].host==redir.lstrip('root://').split(',')[0]:
         destinationSite=endpoints[s].name
         logging.debug('closest site set to %s' % destinationSite)
 
