@@ -7,7 +7,7 @@
 *.pyc
 .classpath
 .settings/
-.project
+#.project
 
 # Locally stored "Eclipse launch configurations"
 *.launch
