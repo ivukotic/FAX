@@ -183,7 +183,7 @@ def upload(SITE_FROMLOG, SITE_TO):
             event={}
             event['headers']={}
             event['headers']['timestamp']=str(int(time.time()*1000))
-            #event['headers']['host']="not.relevant"
+            event['headers']['type']="FAXcost"
             
             result={}
             result['source']=SITE_FROM
@@ -195,7 +195,7 @@ def upload(SITE_FROMLOG, SITE_TO):
             event['body']=simplejson.dumps(result)
             events.append(event)
             try:
-                req = urllib2.Request('http://hadoop-dev.mwt2.org:18090/')
+                req = urllib2.Request('http://aianalytics01.cern.ch:18081/')
                 req.add_header('Content-Type', 'application/json')
                 r = urllib2.urlopen(req, simplejson.dumps(events))
                 #print r.read()
