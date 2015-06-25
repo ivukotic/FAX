@@ -80,12 +80,12 @@ echo " voms-proxy-info --all"
 voms-proxy-info --all
 echo "-----------------------------------"
 echo "-- Trying to fetch sakamurro ------"
-#fn=`davix-ls -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro | sort -V | tail -n 1`
-fn=`xrd lxfsra04a04.cern.ch dirlist dteam/sakamurro | sort -V -k 5 | tail -n 1 | awk '{ print $5 }'`
+#fn=`davix-ls -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://dpmhead-rc.cern.ch/dpm/cern.ch/home/dteam/sakamurro | sort -V | tail -n 1`
+fn=`xrd dpmhead-rc.cern.ch dirlist dteam/sakamurro | sort -V -k 5 | tail -n 1 | awk '{ print $5 }'`
 
 echo "-- sakamurro now is: $fn"
-#davix-get --debug -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/sakamurro/$fn $PWD/sakamurro
-xrdcp -f -d 1 root://lxfsra04a04.cern.ch/$fn $PWD/sakamurro
+#davix-get --debug -k --cert $X509_USER_PROXY --key $X509_USER_PROXY https://dpmhead-rc.cern.ch/dpm/cern.ch/home/dteam/sakamurro/$fn $PWD/sakamurro
+xrdcp -f -d 1 root://dpmhead-rc.cern.ch/$fn $PWD/sakamurro
 echo "-----------------------------------"
 
 
