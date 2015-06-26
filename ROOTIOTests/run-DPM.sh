@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # These are the urls towards which we want to run the test
-urls=("https://lxfsra04a04.cern.ch/dpm/cern.ch/home/atlas/group.test.hc.NTUP_SMWZ.root" \
-"root://lxfsra04a04.cern.ch:1094//atlas/group.test.hc.NTUP_SMWZ.root" \
+urls=("https://dpmhead-trunk.cern.ch/dpm/cern.ch/home/atlas/group.test.hc.NTUP_SMWZ.root" \
+"root://dpmhead-trunk.cern.ch:1094//atlas/group.test.hc.NTUP_SMWZ.root" \
 "http://vm-dcache-deploy6.desy.de:2881/dteam/group.test.hc.NTUP_SMWZ.root" \
 "https://gridpp09.ecdf.ed.ac.uk/dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root" \
 "root://gridpp09.ecdf.ed.ac.uk//dpm/ecdf.ed.ac.uk/home/atlas/group.test.hc.NTUP_SMWZ.root" \
