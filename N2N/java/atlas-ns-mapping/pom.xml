@@ -24,10 +24,6 @@
 
 	<repositories>
 		<repository>
-			<id>dcache.repository</id>
-			<url>http://www.dcache.org/nexus/content/groups/public</url>
-		</repository> 
-		<repository>
     		<id>xrootd4j.repository</id>
    			<url>https://download.dcache.org/nexus/content/repositories/releases/</url>
  		 </repository>
